@@ -1,4 +1,4 @@
-package com.cupid.qufit.common.exception;
+package com.cupid.qufit.global.exception;
 
 
 import org.springframework.http.ResponseEntity;
