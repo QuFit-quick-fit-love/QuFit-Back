@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collation = "chatMessages")
+@Document(collection = "chat_messages")
 public class ChatMessage {
 
     @Id
@@ -26,7 +26,7 @@ public class ChatMessage {
     private LocalDateTime timestamp;
     private boolean isRead;
     private LocalDateTime readTime;
-    @Indexed(expireAfterSeconds = 604800)
-    private LocalDateTime createdAt;
+    @Indexed(expireAfterSeconds = 604800) // ! 7일 후 만료
+    private LocalDateTime createdAt; // ! 혹시 나중 자동 삭제 기능을 위해
 
 }
