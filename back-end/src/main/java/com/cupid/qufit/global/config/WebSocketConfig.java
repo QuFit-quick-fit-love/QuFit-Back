@@ -12,16 +12,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     /**
      * TODO : 메시지 브로커 구성.
-     * ! 메시지를 클라이언트에게 브로드캐스트할 때 사용할 주제(topic) 정의.
+     * ! 메시지를 클라이언트에게 브로드캐스트할 때 사용할 주제 정의.
      * ! 클라이언트에서 서버로 메시지를 보낼 때 사용할 애플리케이션 목적지 접두사 설정
      * * -> 라우팅 규칙 정의하는 것
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // ! topic으로 시작하는 목적지로 메시지 전달(해당 주소를 구독하는 클라이언트에게 메시지 보냄)
-        config.enableSimpleBroker("/topic");
-        // ! 클라이언트가 서버로 메시지 보낼 때 사용할 접두사 지정 -> 클라이언트가 "/app"으로 시작하는 목적지로 메시지를 보내면 @MessageMapping이 달린 메서드로 라우팅
-        config.setApplicationDestinationPrefixes("/app");
+        // ! sub으로 시작하는 목적지로 메시지 전달(해당 주소를 구독하는 클라이언트에게 메시지 보냄)
+        config.enableSimpleBroker("/sub");
+        // ! 클라이언트가 서버로 메시지 보낼 때 사용할 접두사 지정 -> 클라이언트가 "/pub"으로 시작하는 목적지로 메시지를 보내면 @MessageMapping이 달린 메서드로 라우팅
+        config.setApplicationDestinationPrefixes("/pub");
     }
 
     /**
@@ -32,16 +32,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * * -> 이 메서드는 클라이언트가 서버와 WebSocket 연결을 시작하는 진입점 역할
      * @param registry
      */
-
-    /**
-     * TODO : STOMP 웹소켓 연결을 위한 엔드포인트 등록
-     * ! 클라이언트가 WebSocket 연결을 시작할 때 사용할 URL /stomp/chat으로 지정.
-     * * 일단 모든 도메인 연결 허용 -> 이후에 수정 예정(특정 도메인만 허용하도록)
-     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/stomp/chat")
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+                .setAllowedOriginPatterns("*");
+//                .withSockJS();
+
+//        registry.addEndpoint("/stomp/chat")
+//                .setAllowedOriginPatterns("*");
     }
 }
