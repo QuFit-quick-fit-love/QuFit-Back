@@ -3,6 +3,7 @@ package com.cupid.qufit.entity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 public class TypeProfiles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,12 +45,12 @@ public class TypeProfiles {
     @Nullable
     private Integer typeAgeMin;
 
-    @OneToMany(mappedBy = "typeHobby", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TypeHobby> typeHobbies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "typePersonality", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TypePersonality> typePersonalities = new ArrayList<>();
 
-    @OneToMany(mappedBy = "typeMBTI", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TypeMBTI> typeMBTIs = new ArrayList<>();
 }

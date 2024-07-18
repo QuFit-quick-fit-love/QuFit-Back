@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatMessageTemp {
 
     private String content;
     private String sender;

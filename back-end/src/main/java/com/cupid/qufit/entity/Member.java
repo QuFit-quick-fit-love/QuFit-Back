@@ -76,10 +76,10 @@ public class Member {
     @JoinColumn(name = "mbti_tag_id", unique = false)
     private Tag mbti;
 
-    @OneToMany(mappedBy = "memberHobby", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberHobby> memberHobbies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "memberPersonality", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberPersonality> memberPersonalities = new ArrayList<>();
 
     // ! 채팅 관련 관계 설정
