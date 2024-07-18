@@ -36,6 +36,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	implementation 'io.github.cdimascio:dotenv-java:2.2.3'
+	// ! WebSocket 설정 추가
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	// ! noSQL : mongoDB 사용
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 }
 
 tasks.named('test') {

@@ -1,9 +1,11 @@
 package com.cupid.qufit.entity;
 
+import com.cupid.qufit.entity.chat.ChatRoom;
+import com.cupid.qufit.entity.chat.ChatRoomMember;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -31,6 +33,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 public class Member {
 
     @Id
@@ -78,4 +81,14 @@ public class Member {
 
     @OneToMany(mappedBy = "memberPersonality", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberPersonality> memberPersonalities = new ArrayList<>();
+
+    // ! 채팅 관련 관계 설정
+    @OneToMany(mappedBy = "member1", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRoomAsMember1 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member2", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRoomAsMember2 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 }
