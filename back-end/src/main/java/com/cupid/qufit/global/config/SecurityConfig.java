@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -20,8 +22,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
 //                                new AntPathRequestMatcher("/api/auth/login")
-                                new AntPathRequestMatcher("/**") // (임시 테스트용) 모두 접근가능
+                                "/**" // (임시 테스트용) 모두 접근가능
                         ).permitAll())
+                //외부 post 요청을 받아야 하는 csrf // disable
+                .csrf(AbstractHttpConfigurer::disable)
+                //JWT등을 사용할떄 SpringSecurity가 세션을 생성하지도않고, 기본것을 사용하지도 않게끔 STATELESS로 설정
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         ;
 
         return http.build();
