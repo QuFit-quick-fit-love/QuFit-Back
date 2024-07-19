@@ -46,11 +46,34 @@ public class TypeProfiles {
     private Integer typeAgeMin;
 
     @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<TypeHobby> typeHobbies = new ArrayList<>();
 
     @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<TypePersonality> typePersonalities = new ArrayList<>();
 
     @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<TypeMBTI> typeMBTIs = new ArrayList<>();
+
+    // 연관관계 메소드
+    public void addTypeHobbies(TypeHobby typeHobby){
+        this.typeHobbies.add(typeHobby);
+        typeHobby.setTypeProfiles(this);
+    }
+
+    public void addTypePersonalities(TypePersonality typePersonality){
+        this.typePersonalities.add(typePersonality);
+        typePersonality.setTypeProfiles(this);
+    }
+
+    public void addtypeMBTIs(TypeMBTI typeMBTI){
+        this.typeMBTIs.add(typeMBTI);
+        typeMBTI.setTypeProfiles(this);
+    }
+
+    public void updateLocation(Location location) {
+        this.location = location;
+    }
 }
