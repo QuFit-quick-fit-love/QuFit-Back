@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -74,12 +75,14 @@ public class Member {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mbti_tag_id", unique = false)
-    private Tag mbti;
+    private Tag MBTI;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<MemberHobby> memberHobbies = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<MemberPersonality> memberPersonalities = new ArrayList<>();
 
     // ! 채팅 관련 관계 설정
@@ -91,4 +94,23 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    // 연관관계 메소드
+    public void addMemberHobbies(MemberHobby memberHobby){
+        this.memberHobbies.add(memberHobby);
+        memberHobby.setMember(this);
+    }
+
+    public void addMemberPersonalities(MemberPersonality memberPersonality){
+        this.memberPersonalities.add(memberPersonality);
+        memberPersonality.setMember(this);
+    }
+
+    public void updateLocation(Location location) {
+        this.location = location;
+    }
+
+    public void updateMBTI(Tag mbti){
+        this.MBTI = mbti;
+    }
 }
