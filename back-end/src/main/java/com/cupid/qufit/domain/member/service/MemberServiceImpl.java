@@ -36,7 +36,7 @@ public class MemberServiceImpl implements MemberService {
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
      * */
     @Override
-    public void saveMemberProfiles(Member member, MemberSignupDTO.request requestDTO) {
+    public void createMemberProfiles(Member member, MemberSignupDTO.request requestDTO) {
         // location 저장
         this.saveMemberLocation(member, requestDTO.getMemberLocationId());
 
@@ -54,7 +54,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /*
-     * * 이상형 프로필 (지역, mbti, 취미, 성격) 저장
+     * * 이상형 프로필 생성, 나이차 저장
      * */
     @Override
     public TypeProfiles createTypeProfiles(Member member, MemberSignupDTO.request requestDTO) {
@@ -64,6 +64,28 @@ public class MemberServiceImpl implements MemberService {
                            .typeAgeMax(requestDTO.getTypeAgeMax())
                            .typeAgeMax(requestDTO.getTypeAgeMin())
                            .build();
+    }
+    
+    /*
+     * * 이상형 프로필 (지역, mbti, 취미, 성격) 저장
+     * */
+    @Override
+    public void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberSignupDTO.request requestDTO) {
+        // location 저장
+        this.saveTypeLocation(typeProfiles, requestDTO.getTypeLocationId());
+
+        // mbti 저장
+        List<Long> typeMBTIIds = requestDTO.getTypeMBTITagIds();
+        this.saveTypeMBTI(typeProfiles, typeMBTIIds);
+
+        // hobby 저장
+        List<Long> typeHobbyIds = requestDTO.getMemberHobbyTagIds();
+        this.saveTypeHobbies(typeProfiles, typeHobbyIds);
+
+        // Personality 저장
+        List<Long> typePersonalityIds = requestDTO.getMemberHobbyTagIds();
+        this.saveTypePersonalities(typeProfiles, typePersonalityIds);
+
     }
 
     private void saveMemberLocation(Member member, Long locationId) {
@@ -85,7 +107,6 @@ public class MemberServiceImpl implements MemberService {
                                                      .tag(tagRepository.findById(tagId)
                                                                        .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND)))
                                                      .build();
-                log.info("memberHobby : " + memberHobby);
                 member.addMemberHobbies(memberHobby);
             });
         }
@@ -101,25 +122,6 @@ public class MemberServiceImpl implements MemberService {
                 member.addMemberPersonalities(memberPersonality);
             });
         }
-    }
-
-    @Override
-    public void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberSignupDTO.request requestDTO) {
-        // location 저장
-        this.saveTypeLocation(typeProfiles, requestDTO.getTypeLocationId());
-
-        // mbti 저장
-        List<Long> typeMBTIIds = requestDTO.getTypeMBTITagIds();
-        this.saveTypeMBTI(typeProfiles, typeMBTIIds);
-
-        // hobby 저장
-        List<Long> typeHobbyIds = requestDTO.getMemberHobbyTagIds();
-        this.saveTypeHobbies(typeProfiles, typeHobbyIds);
-
-        // Personality 저장
-        List<Long> typePersonalityIds = requestDTO.getMemberHobbyTagIds();
-        this.saveTypePersonalities(typeProfiles, typePersonalityIds);
-
     }
 
     private void saveTypeLocation(TypeProfiles typeProfiles, Long locationId) {
