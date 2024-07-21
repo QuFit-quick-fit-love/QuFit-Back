@@ -91,4 +91,6 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+
 }
