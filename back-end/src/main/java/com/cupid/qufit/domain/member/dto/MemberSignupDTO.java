@@ -27,20 +27,37 @@ public class MemberSignupDTO {
     @AllArgsConstructor
     @Builder
     public static class request{
+    	@NotBlank(message = "닉네임을 입력해주세요.")
+    	@Size(min = 2, max = 10, message = "닉네임은 2자 이상 10자 이하로 입력해주세요.")
         private String nickname;
+    	@NotBlank(message = "지역을 입력해주세요.")
         private Long memberLocationId;
+    	@NotBlank(message = "태어난 연도를 입력해주세요.")
         private int birthYear;
+    	@NotBlank(message = "성별을 입력해주세요.")
         private String gender;
+    	@NotBlank(message = "자기소개를 입력해주세요.")
+    	@Size(min = 10, message = "자시소개는 10자 이상 입력해주세요.")
         private String bio;
+    	
+    	@Null
         private Long memberMBTITagId;
+    	@Null
         private List<Long> memberHobbyTagIds;
+        @Null
         private List<Long> memberPersonalityTagIds;
 
+        @Null
         private Long typeLocationId;
+        @NotBlank(message = "원하는 나이차를 입력해주세요.")
         private Integer typeAgeMax;
+        @NotBlank(message = "원하는 나이차를 입력해주세요.")
         private Integer typeAgeMin;
+        @Null
         private List<Long> typeMBTITagIds;
+        @Null
         private List<Long> typeHobbyTagIds;
+        @Null
         private List<Long> typePersonalityTagIds;
     }
     @Getter

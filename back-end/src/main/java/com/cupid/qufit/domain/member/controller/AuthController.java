@@ -3,6 +3,10 @@ package com.cupid.qufit.domain.member.controller;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.dto.PrincipalDetails;
 import com.cupid.qufit.domain.member.service.AuthService;
+import com.cupid.qufit.global.exception.exceptionType.MemberException;
+
+import jakarta.validation.Valid;
+
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -47,10 +51,15 @@ public class AuthController {
     * @ body : 회원이 입력한 부가 정보
     * */
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestParam("accessToken") String accessToken, @RequestBody MemberSignupDTO.request requestDTO){
+    public ResponseEntity<?> signup(@RequestParam("accessToken") String accessToken, @Valid @RequestBody MemberSignupDTO.request requestDTO){
         log.info("---------------회원가입 시도-----------");
-        MemberSignupDTO.response memberSignupResponseDTO = authService.signup(accessToken, requestDTO);
-
+        try {
+        	MemberSignupDTO.response memberSignupResponseDTO = authService.signup(accessToken, requestDTO);
+        } catch (Exception e) {
+            log.error("회원 가입 중 오류 발생", e);
+            throw new MemberException(ErrorCode.SIGNUP_FAILURE);
+        }
+        
         return new ResponseEntity<>(memberSignupResponseDTO, HttpStatus.OK);
     }
 }
