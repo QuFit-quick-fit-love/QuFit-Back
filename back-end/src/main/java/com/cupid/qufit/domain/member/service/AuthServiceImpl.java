@@ -5,6 +5,7 @@ import com.cupid.qufit.domain.member.dto.MemberSignupDTO.request;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO.response;
 import com.cupid.qufit.domain.member.dto.PrincipalDetails;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
+import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.MemberRole;
 import com.cupid.qufit.entity.MemberStatus;
@@ -35,6 +36,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class AuthServiceImpl implements AuthService {
 
     private final MemberRepository memberRepository;
+    private final TypeProfilesRepository typeProfilesRepository;
     private final MemberService memberService;
     private final String KAKAO_GET_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
 
@@ -89,19 +91,20 @@ public class AuthServiceImpl implements AuthService {
         if (kakaoProfile.get("is_default_image") == "false") {
             profileURL = String.valueOf(kakaoAccount.get("profile_img_url"));
         }
-        String nickname = String.valueOf(kakaoAccount.get("nickname"));
-
+//        String nickname = String.valueOf(kakaoAccount.get("nickname"));
 
         // 회원 정보 저장
-        Member newMember = makeNewMemberEntity(email, profileURL, nickname, requestDTO);
+        Member newMember = makeNewMemberEntity(email, profileURL, requestDTO);
 
         // 회원 프로필 mbti, 취미, 성격 저장
-        memberService.saveMemberProfiles(newMember, requestDTO);
+        memberService.createMemberProfiles(newMember, requestDTO);
         Member saveMember = memberRepository.save(newMember);
 
-        // 이상형 프로필 저장
+        // 이상형 프로필 생성
         TypeProfiles typeProfiles = memberService.createTypeProfiles(saveMember, requestDTO);
+        // 이상형 프로필 저장
         memberService.saveTypeProfilesInfo(typeProfiles, requestDTO);
+        typeProfilesRepository.save(typeProfiles);
 
         // 응답 DTO 반환
         return response.builder()
@@ -153,7 +156,7 @@ public class AuthServiceImpl implements AuthService {
      *
      * @param : 카카오 회원 계정 이메일, 프로필사진 url, 부가정보 DTO
      * */
-    private Member makeNewMemberEntity(String email, String profileURL, String nickname,
+    private Member makeNewMemberEntity(String email, String profileURL,
                                        MemberSignupDTO.request requestDTO) {
         String tmpPW = makeTmpPW();
 
@@ -162,7 +165,7 @@ public class AuthServiceImpl implements AuthService {
                      .role(MemberRole.USER)
                      .email(email)
                      .password(tmpPW)
-                     .nickname(nickname)
+                     .nickname(requestDTO.getNickname())
                      .birthDate(LocalDate.parse(requestDTO.getBirthYear() + "0101", DateTimeFormatter.ofPattern("yyyyMMdd")))
                      .gender(requestDTO.getGender())
                      .bio(requestDTO.getBio())
