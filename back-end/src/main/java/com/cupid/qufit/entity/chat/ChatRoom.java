@@ -53,6 +53,8 @@ public class ChatRoom {
 
     private String lastMessage;
 
+    private String lastMessageId;
+
     private LocalDateTime lastMessageTime;
 
     @Enumerated(EnumType.STRING)
@@ -63,4 +65,19 @@ public class ChatRoom {
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+
+    private boolean isActive() {
+        return status == ChatRoomStatus.ACTIVE;
+    }
+
+    public Member getOtherMember(Member currentMember) {
+        return currentMember.equals(member1) ? member2 : member1;
+    }
+
+//    public void updateLastMessage(String messageId, String content, LocalDateTime timestamp) {
+//        this.lastMessageId = messageId;
+//        this.lastMessage = content;
+//        this.lastMessageTime = timestamp;
+//    }
 }
