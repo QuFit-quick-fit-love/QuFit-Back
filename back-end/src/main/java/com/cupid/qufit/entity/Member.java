@@ -24,10 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
 @Setter
@@ -56,10 +53,10 @@ public class Member {
     @NotNull(message = "닉네임은 null일 수 없습니다.")
     private String nickname;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
     @NotNull(message = "생년월일는 null일 수 없습니다.")
     private LocalDate birthDate;
     @NotNull(message = "성별은 null일 수 없습니다.")
@@ -96,12 +93,12 @@ public class Member {
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
     // 연관관계 메소드
-    public void addMemberHobbies(MemberHobby memberHobby){
+    public void addMemberHobbies(MemberHobby memberHobby) {
         this.memberHobbies.add(memberHobby);
         memberHobby.setMember(this);
     }
 
-    public void addMemberPersonalities(MemberPersonality memberPersonality){
+    public void addMemberPersonalities(MemberPersonality memberPersonality) {
         this.memberPersonalities.add(memberPersonality);
         memberPersonality.setMember(this);
     }
@@ -110,7 +107,7 @@ public class Member {
         this.location = location;
     }
 
-    public void updateMBTI(Tag mbti){
+    public void updateMBTI(Tag mbti) {
         this.MBTI = mbti;
     }
 }
