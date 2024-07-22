@@ -70,33 +70,33 @@ public class WebSocketChatController {
         }
     }
 
-    /**
-     * * 메시지를 읽었을 때의 상황(채팅방 들어옴) : 해당 사용자의 lastReadMessagId 업데이트, unreadCount 0 으로 갱신 *
-     * <p>
-     * * 갱신된 ChatRoomDTO 전송
-     * TODO : 나중에 security, JWT 도입 후 멤버 뽑아내서 사용
-     */
-    @MessageMapping("/chat.markAsRead/{chatRoomId}")
-    public void markAsRead(@DestinationVariable("chatRoomId") Long chatRoomId,
-                           @Header("memberId") Long memberId) {
-        Member currentMember = memberRepository.findById(memberId)
-                                               .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                                              .orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다."));
-
-        ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, currentMember)
-                                                                .orElseThrow(() -> new EntityNotFoundException(
-                                                                        "채팅방 멤버 정보가 없습니다."));
-
-        chatRoomMember.setLastReadMessageId(chatRoom.getLastMessageId());
-        chatRoomMember.setUnreadCount(0);
-        chatRoomMember.setLastReadTime(LocalDateTime.now());
-        chatRoomMemberRepository.save(chatRoomMember);
-
-        ChatRoomDTO updatedDTO = ChatRoomDTO.from(chatRoom, chatRoomMember, chatRoom.getOtherMember(currentMember));
-
-        messagingTemplate.convertAndSend("/sub/chatroom-list." + memberId, updatedDTO);
-    }
+//    /**
+//     * * 메시지를 읽었을 때의 상황(채팅방 들어옴) : 해당 사용자의 lastReadMessagId 업데이트, unreadCount 0 으로 갱신 *
+//     * <p>
+//     * * 갱신된 ChatRoomDTO 전송
+//     * TODO : 나중에 security, JWT 도입 후 멤버 뽑아내서 사용
+//     */
+//    @MessageMapping("/chat.markAsRead/{chatRoomId}")
+//    public void markAsRead(@DestinationVariable("chatRoomId") Long chatRoomId,
+//                           @Header("memberId") Long memberId) {
+//        Member currentMember = memberRepository.findById(memberId)
+//                                               .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
+//        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+//                                              .orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다."));
+//
+//        ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, currentMember)
+//                                                                .orElseThrow(() -> new EntityNotFoundException(
+//                                                                        "채팅방 멤버 정보가 없습니다."));
+//
+//        chatRoomMember.setLastReadMessageId(chatRoom.getLastMessageId());
+//        chatRoomMember.setUnreadCount(0);
+//        chatRoomMember.setLastReadTime(LocalDateTime.now());
+//        chatRoomMemberRepository.save(chatRoomMember);
+//
+//        ChatRoomDTO updatedDTO = ChatRoomDTO.from(chatRoom, chatRoomMember, chatRoom.getOtherMember(currentMember));
+//
+//        messagingTemplate.convertAndSend("/sub/chatroom-list." + memberId, updatedDTO);
+//    }
 
     /**
      * * 특정 채팅방 들어올 때
@@ -104,18 +104,10 @@ public class WebSocketChatController {
      * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
-    public void enterChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Header("memberId") Long memberId,
-                              @Payload
-                              Pageable pageable) {
-        // ! 1. 채팅방에 들어가면서 unreadCount 0으로 갱신
-//        chatService.resetUnreadCount(chatRoomId, memberId);
-
-        // ! 2. 메시지 목록 조회
-        ChatRoomMessageResponse result = chatService.getChatRoomMessages(chatRoomId, memberId, pageable);
-
-        // ! 3. 결과를 클라이언트로 전송
-        messagingTemplate.convertAndSend("/sub/chatroom.messages." + chatRoomId + "." + memberId, result);
-
+    public void enterChatRoom(@DestinationVariable Long chatRoomId,
+                              @Header("memberId") Long memberId) {
+        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId);
+        messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
     }
 
     /**

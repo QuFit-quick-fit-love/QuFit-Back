@@ -18,13 +18,16 @@ import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -310,5 +313,53 @@ public class ChatService {
         Member otherMember = chatRoom.getOtherMember(currentMember);
 
         return ChatRoomDTO.from(chatRoom, chatRoomMember, otherMember);
+    }
+
+    /**
+     * * 채팅방 입장 시 unreadCount 초기화, 최근 메시지 로딩
+     * @param chatRoomId
+     * @param memberId
+     * @return
+     */
+    public ChatRoomMessageResponse enterChatRoom(Long chatRoomId, Long memberId) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
+
+        String lastReadMessageId = chatRoomMember.getLastReadMessageId();
+        int messageLoadCount = 20; // 총 로드할 메시지 수
+        int beforeLastReadCount = 10; // 마지막으로 읽은 메시지 이전의 메시지 수
+
+        List<ChatMessage> messages;
+        int unreadCount;
+
+        if (lastReadMessageId != null) {
+            ChatMessage lastReadMessage = chatMessageRepository.findById(lastReadMessageId)
+                                                               .orElseThrow(() -> new ChatException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+
+            // ! 마지막으로 읽은 메시지 기준으로 이전 메시지 조회
+            List<ChatMessage> previousMessages = chatMessageRepository.findMessagesBeforeId(chatRoomId, lastReadMessageId, beforeLastReadCount);
+
+            // ! 마지막으로 읽은 메시지 포함 이후 메시지 조회
+            List<ChatMessage> afterMessages = chatMessageRepository.findMessagesOnAndAfterId(chatRoomId, lastReadMessageId, messageLoadCount - beforeLastReadCount);
+
+            messages = new ArrayList<>(previousMessages);
+            messages.addAll(afterMessages);
+
+            unreadCount = chatMessageRepository.countUnreadMessages(chatRoomId, lastReadMessage.getTimestamp());
+        } else {
+            messages = chatMessageRepository.findLatestMessages(chatRoomId, PageRequest.of(0, messageLoadCount));
+            unreadCount = messages.size(); // ! 모든 메시지를 읽지 않은 것으로 간주
+        }
+
+        chatRoomMember.setUnreadCount(unreadCount);
+        chatRoomMemberRepository.save(chatRoomMember);
+
+        List<ChatMessageDTO> messageDTOs = messages.stream()
+                                                   .map(ChatMessageDTO::from)
+                                                   .sorted(Comparator.comparing(ChatMessageDTO::getTimestamp))
+                                                   .collect(Collectors.toList());
+
+        return new ChatRoomMessageResponse(messageDTOs, unreadCount, 1, messages.size());
     }
 }
