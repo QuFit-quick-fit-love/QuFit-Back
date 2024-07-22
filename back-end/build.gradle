@@ -41,6 +41,10 @@ dependencies {
 	// ! noSQL : mongoDB 사용
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
+	// ! Spring Security 관련
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 }
 
 tasks.named('test') {
