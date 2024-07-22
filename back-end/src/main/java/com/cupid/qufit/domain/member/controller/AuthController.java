@@ -1,8 +1,10 @@
 package com.cupid.qufit.domain.member.controller;
 
+import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
-import com.cupid.qufit.domain.member.dto.PrincipalDetails;
+import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.service.AuthService;
+import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 
 import jakarta.validation.Valid;
@@ -37,9 +39,9 @@ public class AuthController {
 
     @GetMapping("/login")
     public ResponseEntity<?> kakaoLogin(@RequestParam("accessToken") String accessToken){
-        PrincipalDetails principalDetails = authService.kakaoLogin(accessToken);
+        MemberDetails memberDetails = authService.kakaoLogin(accessToken);
 
-        Map<String, Object> claims = principalDetails.getClaims();
+        Map<String, Object> claims = memberDetails.getClaims();
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -47,19 +49,24 @@ public class AuthController {
     /*
     * * 부가정보 입력 후 회원가입 처리
     *
+    * TODO
+    *  - 유효성 검사 error message 출력
+    *  - 닉네임 중복 검사
+    *
     * @ param : accessToken 카카오에서 발급받은 accessToken
     * @ body : 회원이 입력한 부가 정보
     * */
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestParam("accessToken") String accessToken, @Valid @RequestBody MemberSignupDTO.request requestDTO){
+    public ResponseEntity<?> signup(@RequestParam("accessToken") String accessToken, @Valid @RequestBody MemberSignupDTO.request requestDTO) {
         log.info("---------------회원가입 시도-----------");
+        MemberSignupDTO.response memberSignupResponseDTO;
         try {
-        	MemberSignupDTO.response memberSignupResponseDTO = authService.signup(accessToken, requestDTO);
+            memberSignupResponseDTO = authService.signup(accessToken, requestDTO);
         } catch (Exception e) {
             log.error("회원 가입 중 오류 발생", e);
             throw new MemberException(ErrorCode.SIGNUP_FAILURE);
         }
-        
+
         return new ResponseEntity<>(memberSignupResponseDTO, HttpStatus.OK);
     }
 }
