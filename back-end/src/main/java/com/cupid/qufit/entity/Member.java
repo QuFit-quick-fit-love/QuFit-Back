@@ -25,8 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
 @Setter
@@ -55,10 +53,10 @@ public class Member {
     @NotNull(message = "닉네임은 null일 수 없습니다.")
     private String nickname;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
     @NotNull(message = "생년월일는 null일 수 없습니다.")
     private LocalDate birthDate;
     @NotNull(message = "성별은 null일 수 없습니다.")
@@ -74,12 +72,14 @@ public class Member {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mbti_tag_id", unique = false)
-    private Tag mbti;
+    private Tag MBTI;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<MemberHobby> memberHobbies = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<MemberPersonality> memberPersonalities = new ArrayList<>();
 
     // ! 채팅 관련 관계 설정
@@ -91,4 +91,23 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    // 연관관계 메소드
+    public void addMemberHobbies(MemberHobby memberHobby) {
+        this.memberHobbies.add(memberHobby);
+        memberHobby.setMember(this);
+    }
+
+    public void addMemberPersonalities(MemberPersonality memberPersonality) {
+        this.memberPersonalities.add(memberPersonality);
+        memberPersonality.setMember(this);
+    }
+
+    public void updateLocation(Location location) {
+        this.location = location;
+    }
+
+    public void updateMBTI(Tag mbti) {
+        this.MBTI = mbti;
+    }
 }
