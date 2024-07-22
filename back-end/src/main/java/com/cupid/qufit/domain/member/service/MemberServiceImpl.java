@@ -36,7 +36,7 @@ public class MemberServiceImpl implements MemberService {
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
      * */
     @Override
-    public void createMemberProfiles(Member member, MemberSignupDTO.request requestDTO) {
+    public void saveMemberProfiles(Member member, MemberSignupDTO.request requestDTO) {
         // location 저장
         this.saveMemberLocation(member, requestDTO.getMemberLocationId());
 
@@ -62,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
                            .member(member)
                            .location(null)
                            .typeAgeMax(requestDTO.getTypeAgeMax())
-                           .typeAgeMax(requestDTO.getTypeAgeMin())
+                           .typeAgeMin(requestDTO.getTypeAgeMin())
                            .build();
     }
     
