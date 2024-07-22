@@ -1,6 +1,7 @@
 package com.cupid.qufit.domain.chat.controller;
 
 import com.cupid.qufit.domain.chat.dto.ChatRoomDTO;
+import com.cupid.qufit.domain.chat.dto.ChatRoomMessageResponse;
 import com.cupid.qufit.domain.chat.repository.ChatRoomMemberRepository;
 import com.cupid.qufit.domain.chat.repository.ChatRoomRepository;
 import com.cupid.qufit.domain.chat.service.ChatService;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -49,64 +51,10 @@ public class WebSocketChatController {
     @SendTo("/sub/chatroom.{chatRoomId}") // ! 처리된 메시지를 발송할 구독 주제. (어느 목적지로 보낼 지 지정)
     public ChatMessage sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId,
                                    @Payload ChatMessage chatMessage) {
-
-        System.out.println("메시지 수신 : " + chatMessage);
         log.info("메시지 수신 : {}", chatMessage);
-        ChatMessage savedMessage = chatService.saveMessage(chatMessage);
-
-        // ! 채팅방 리스트 업데이트
-        updateChatRoomList(chatRoomId, savedMessage);
-
-        return savedMessage;
+        return chatService.processChatMessage(chatRoomId, chatMessage);
     }
 
-    /**
-     * * 채팅방 리스트 업데이트 처리
-     */
-    private void updateChatRoomList(Long chatRoomId, ChatMessage chatMessage) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                                              .orElseThrow(() -> new EntityNotFoundException("해당 채팅방이 존재하지 않습니다."));
-        Member sender = memberRepository.findById(chatMessage.getSenderId())
-                                        .orElseThrow(() -> new EntityNotFoundException("해당 회원이 없습니다."));
-        Member receiver = chatRoom.getOtherMember(sender);
-
-        // ! 해당 채팅방 정보 업데이트 -> 채팅 보낼 때마다 갱신되어야 함.
-        chatRoom.setLastMessage(chatMessage.getContent());
-        chatRoom.setLastMessageTime(chatMessage.getTimestamp());
-        chatRoom.setLastMessageId(chatMessage.getId());
-        chatRoomRepository.save(chatRoom);
-
-        // ! 수신자의 unreadCount만 증가
-        ChatRoomMember receiverMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, receiver)
-                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
-        receiverMember.setUnreadCount(receiverMember.getUnreadCount() + 1);
-        chatRoomMemberRepository.save(receiverMember);
-
-        // ! 발신자와 수신자에게 업데이트된 채팅방 정보 전송
-        sendChatRoomUpdate(sender, receiver, chatRoom);
-
-    }
-
-    /**
-     * * 채팅방 업데이트 정보 보내기
-     * <p>
-     * ! 특정 유저에게만 메시지 전송 ! 발신자, 수신자 모두 반영
-     */
-    private void sendChatRoomUpdate(Member sender, Member receiver, ChatRoom chatRoom) {
-        ChatRoomMember senderMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, sender)
-                                                              .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
-        ChatRoomMember receiverMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, receiver)
-                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
-
-        ChatRoomDTO senderDTO = ChatRoomDTO.from(chatRoom, senderMember, receiver);
-        ChatRoomDTO receiverDTO = ChatRoomDTO.from(chatRoom, receiverMember, sender);
-
-        // ! 발신자에게 업데이트된 채팅방 정보 전송 ex. /sub/chatroom-updates.1.3
-        messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + sender.getId(), senderDTO);
-
-        // ! 수신자에게 업데이트된 채팅방 정보 전송
-        messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + receiver.getId(), receiverDTO);
-    }
 
     /**
      * * 세션 종료 시 처리
@@ -127,7 +75,6 @@ public class WebSocketChatController {
      * <p>
      * * 갱신된 ChatRoomDTO 전송
      * TODO : 나중에 security, JWT 도입 후 멤버 뽑아내서 사용
-     *
      */
     @MessageMapping("/chat.markAsRead/{chatRoomId}")
     public void markAsRead(@DestinationVariable("chatRoomId") Long chatRoomId,
@@ -138,7 +85,8 @@ public class WebSocketChatController {
                                               .orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다."));
 
         ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, currentMember)
-                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
+                                                                .orElseThrow(() -> new EntityNotFoundException(
+                                                                        "채팅방 멤버 정보가 없습니다."));
 
         chatRoomMember.setLastReadMessageId(chatRoom.getLastMessageId());
         chatRoomMember.setUnreadCount(0);
@@ -149,4 +97,33 @@ public class WebSocketChatController {
 
         messagingTemplate.convertAndSend("/sub/chatroom-list." + memberId, updatedDTO);
     }
+
+    /**
+     * * 특정 채팅방 들어올 때
+     *
+     * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
+     */
+    @MessageMapping("/chat.enterRoom/{chatRoomId}")
+    public void enterChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Header("memberId") Long memberId,
+                              @Payload
+                              Pageable pageable) {
+        // ! 1. 채팅방에 들어가면서 unreadCount 0으로 갱신
+//        chatService.resetUnreadCount(chatRoomId, memberId);
+
+        // ! 2. 메시지 목록 조회
+        ChatRoomMessageResponse result = chatService.getChatRoomMessages(chatRoomId, memberId, pageable);
+
+        // ! 3. 결과를 클라이언트로 전송
+        messagingTemplate.convertAndSend("/sub/chatroom.messages." + chatRoomId + "." + memberId, result);
+
+    }
+
+    /**
+     * * 채팅방 나갈 때
+     */
+    @MessageMapping("/chat.leaveRoom/{chatRoomId}")
+    public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Header("memberId") Long memberId) {
+        // ! 1. 마지막으로 읽은 메시지 ID 갱신
+    }
+
 }

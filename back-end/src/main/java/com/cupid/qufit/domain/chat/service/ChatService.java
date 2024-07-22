@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class ChatService {
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * * 채팅 메시지 저장
@@ -50,10 +52,64 @@ public class ChatService {
      * @param : chatMessage 저장할 채팅 메시지
      * @return 저장된 채팅 메시지
      */
-    public ChatMessage saveMessage(ChatMessage chatMessage) {
+    public ChatMessage processChatMessage(Long chatRoomId, ChatMessage chatMessage) {
+        ChatMessage savedMessage = saveMessage(chatMessage);
+        updateChatRoomList(chatRoomId, savedMessage);
+        return savedMessage;
+    }
+
+    private ChatMessage saveMessage(ChatMessage chatMessage) {
         chatMessage.setTimestamp(LocalDateTime.now());
         chatMessage.setCreatedAt(LocalDateTime.now());
         return chatMessageRepository.save(chatMessage);
+    }
+
+    /**
+     * * 채팅방 리스트 업데이트 처리
+     * @param chatRoomId
+     * @param chatMessage
+     */
+    private void updateChatRoomList(Long chatRoomId, ChatMessage chatMessage) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                                              .orElseThrow(() -> new EntityNotFoundException("해당 채팅방이 존재하지 않습니다."));
+        Member sender = memberRepository.findById(chatMessage.getSenderId())
+                                        .orElseThrow(() -> new EntityNotFoundException("해당 회원이 없습니다."));
+        Member receiver = chatRoom.getOtherMember(sender);
+
+        // ! 채팅방 정보 업데이트
+        chatRoom.setLastMessage(chatMessage.getContent());
+        chatRoom.setLastMessageTime(chatMessage.getTimestamp());
+        chatRoom.setLastMessageId(chatMessage.getId());
+        chatRoomRepository.save(chatRoom);
+
+        // ! 수신자의 unreadCount 증가
+        ChatRoomMember receiverMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, receiver)
+                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
+        receiverMember.setUnreadCount(receiverMember.getUnreadCount() + 1);
+        chatRoomMemberRepository.save(receiverMember);
+
+        // ! 채팅방 업데이트 정보 전송
+        sendChatRoomUpdate(sender, receiver, chatRoom);
+    }
+
+    /**
+     * * 채팅방 업데이트 정보 보내기
+     * <p>
+     * ! 특정 유저에게만 메시지 전송 ! 발신자, 수신자 모두 반영
+     */
+    private void sendChatRoomUpdate(Member sender, Member receiver, ChatRoom chatRoom) {
+        ChatRoomMember senderMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, sender)
+                                                              .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
+        ChatRoomMember receiverMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, receiver)
+                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
+
+        ChatRoomDTO senderDTO = ChatRoomDTO.from(chatRoom, senderMember, receiver);
+        ChatRoomDTO receiverDTO = ChatRoomDTO.from(chatRoom, receiverMember, sender);
+
+        // ! 발신자에게 업데이트 채팅방 정보 전송
+        messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + sender.getId(), senderDTO);
+        // ! 수신자에게 업데이트된 채팅방 정보 전송
+        messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + receiver.getId(), receiverDTO);
     }
 
     /**
