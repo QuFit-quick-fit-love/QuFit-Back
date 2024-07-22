@@ -10,16 +10,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-public class PrincipalDetails implements OAuth2User, UserDetails {
+public class MemberDetails implements UserDetails {
 
-    private Member member;
-    private Map<String, Object> attributes;
-
-    public PrincipalDetails(Member member) {this.member = member;}
-    public PrincipalDetails(Member member, Map<String, Object> attributes) {
-        this.member = member;
-        this.attributes = attributes;
-    }
+    private final Member member;
+    public MemberDetails(Member member) {this.member = member;}
 
     @Override
     public String getPassword() {
@@ -32,18 +26,8 @@ public class PrincipalDetails implements OAuth2User, UserDetails {
     }
 
     @Override
-    public Map<String, Object> getAttributes() {
-        return attributes;
-    }
-
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(member.getRole().getKey()));
-    }
-
-    @Override
-    public String getName() {
-        return member.getNickname();
     }
 
     public Map<String, Object> getClaims() {
