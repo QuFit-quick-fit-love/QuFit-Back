@@ -1,4 +1,4 @@
-package com.cupid.qufit.domain.member.repository;
+package com.cupid.qufit.domain.member.repository.profiles;
 
 import com.cupid.qufit.entity.Member;
 import java.util.Optional;

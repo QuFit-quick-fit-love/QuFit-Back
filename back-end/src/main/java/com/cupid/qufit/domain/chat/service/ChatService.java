@@ -7,13 +7,15 @@ import com.cupid.qufit.domain.chat.dto.ChatRoomRequest;
 import com.cupid.qufit.domain.chat.repository.ChatMessageRepository;
 import com.cupid.qufit.domain.chat.repository.ChatRoomMemberRepository;
 import com.cupid.qufit.domain.chat.repository.ChatRoomRepository;
-import com.cupid.qufit.domain.member.repository.MemberRepository;
+import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
 import com.cupid.qufit.entity.chat.ChatRoomMemberStatus;
 import com.cupid.qufit.entity.chat.ChatRoomStatus;
+import com.cupid.qufit.global.exception.ErrorCode;
+import com.cupid.qufit.global.exception.exceptionType.ChatException;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -41,6 +43,36 @@ public class ChatService {
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
+     * * 공통 사용 메서드 -> private : 에러 핸들링 처리 후 반환
+     */
+    // ! 채팅방 찾기
+    private ChatRoom findChatRoomById(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId)
+                                 .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
+
+    // ! 멤버 찾기
+    private Member findMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+                               .orElseThrow(() -> new ChatException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    // ! 채팅방_멤버 찾기
+    private ChatRoomMember findChatRoomMember(ChatRoom chatRoom, Member member) {
+        return chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, member)
+                                       .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_MEMBER_NOT_FOUND));
+    }
+
+    // ! 특정 회원이 특정 채팅방의 회원인지 확인, 둘 다 일치하지 않으면 (주어진 memberId가 채팅방의 어느 멤버와도 일치하지 않으면) -> 에러
+    private void validateChatRoomMember(ChatRoom chatRoom, Long memberId) {
+        if (!chatRoom.getMember1().getId().equals(memberId) && !chatRoom.getMember2().getId().equals(memberId)) {
+            throw new ChatException(ErrorCode.UNAUTHORIZED_CHAT_ACCESS);
+        }
+    }
+
+    // ! ************* 아래부터 채팅 관련 핵심 메서드 ************* //
+
+    /**
      * * 채팅 메시지 저장
      * <p>
      * * : 메시지 저장 시 timestamp 자동 설정
@@ -53,8 +85,12 @@ public class ChatService {
      * @return 저장된 채팅 메시지
      */
     public ChatMessage processChatMessage(Long chatRoomId, ChatMessage chatMessage) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        // ! 해당 멤버가 채팅방 멤버인지 검증
+        validateChatRoomMember(chatRoom, chatMessage.getSenderId());
+        // ! 메시지 보내기
         ChatMessage savedMessage = saveMessage(chatMessage);
-        updateChatRoomList(chatRoomId, savedMessage);
+        updateChatRoomList(chatRoom, savedMessage);
         return savedMessage;
     }
 
@@ -66,25 +102,22 @@ public class ChatService {
 
     /**
      * * 채팅방 리스트 업데이트 처리
-     * @param chatRoomId
+     *
+     * @param chatRoom
      * @param chatMessage
      */
-    private void updateChatRoomList(Long chatRoomId, ChatMessage chatMessage) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                                              .orElseThrow(() -> new EntityNotFoundException("해당 채팅방이 존재하지 않습니다."));
-        Member sender = memberRepository.findById(chatMessage.getSenderId())
-                                        .orElseThrow(() -> new EntityNotFoundException("해당 회원이 없습니다."));
+    private void updateChatRoomList(ChatRoom chatRoom, ChatMessage chatMessage) {
+        Member sender = findMemberById(chatMessage.getSenderId());
         Member receiver = chatRoom.getOtherMember(sender);
 
-        // ! 채팅방 정보 업데이트
+        // ! 채팅방 업데이트
         chatRoom.setLastMessage(chatMessage.getContent());
         chatRoom.setLastMessageTime(chatMessage.getTimestamp());
         chatRoom.setLastMessageId(chatMessage.getId());
         chatRoomRepository.save(chatRoom);
 
         // ! 수신자의 unreadCount 증가
-        ChatRoomMember receiverMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, receiver)
-                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
+        ChatRoomMember receiverMember = findChatRoomMember(chatRoom, receiver);
         receiverMember.setUnreadCount(receiverMember.getUnreadCount() + 1);
         chatRoomMemberRepository.save(receiverMember);
 
@@ -98,10 +131,8 @@ public class ChatService {
      * ! 특정 유저에게만 메시지 전송 ! 발신자, 수신자 모두 반영
      */
     private void sendChatRoomUpdate(Member sender, Member receiver, ChatRoom chatRoom) {
-        ChatRoomMember senderMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, sender)
-                                                              .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
-        ChatRoomMember receiverMember = chatRoomMemberRepository.findByChatRoomAndMember(chatRoom, receiver)
-                                                                .orElseThrow(() -> new EntityNotFoundException("채팅방 멤버 정보가 없습니다."));
+        ChatRoomMember senderMember = findChatRoomMember(chatRoom, sender);
+        ChatRoomMember receiverMember = findChatRoomMember(chatRoom, receiver);
 
         ChatRoomDTO senderDTO = ChatRoomDTO.from(chatRoom, senderMember, receiver);
         ChatRoomDTO receiverDTO = ChatRoomDTO.from(chatRoom, receiverMember, sender);
@@ -109,7 +140,8 @@ public class ChatService {
         // ! 발신자에게 업데이트 채팅방 정보 전송
         messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + sender.getId(), senderDTO);
         // ! 수신자에게 업데이트된 채팅방 정보 전송
-        messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + receiver.getId(), receiverDTO);
+        messagingTemplate.convertAndSend("/sub/chatroom-updates." + chatRoom.getId() + "." + receiver.getId(),
+                                         receiverDTO);
     }
 
     /**
@@ -122,8 +154,8 @@ public class ChatService {
      */
     public ChatRoom createChatRoom(ChatRoomRequest request) {
         // ! step1. 회원 찾음
-        Member member1 = findMember(request.getMember1Id());
-        Member member2 = findMember(request.getMember2Id());
+        Member member1 = findMemberById(request.getMember1Id());
+        Member member2 = findMemberById(request.getMember2Id());
 
         // ! 두 회원의 채팅방이 이미 존재하는지 확인
         // ! 존재하지 않으면 생성하고 반환
@@ -186,18 +218,6 @@ public class ChatService {
 
 
     /**
-     * * memberId로부터 해당 회원 있는지 확인
-     * TODO : 이후에 예외처리 역시 정해놓은 예외 처리 방식 적용
-     * TODO : JWT 토큰 통한 회원 확인 로직 변경
-     *
-     * @param memberId 회원ID
-     * @return 회원 찾지 못한 경우 예외처리
-     */
-    private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("해당 회원이 존재하지 않습니다."));
-    }
-
-    /**
      * * 특정 채팅방의 메시지 목록 조회
      *
      * @param chatRoomId      특정 채팅방 ID
@@ -206,11 +226,12 @@ public class ChatService {
      * @return 채팅 메시지 정보
      */
     public ChatRoomMessageResponse getChatRoomMessages(Long chatRoomId, Long currentMemberId, Pageable pageable) {
-        // ! step1. 채팅방 멤버 조회
-        ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomIdAndMemberId(chatRoomId,
-                                                                                             currentMemberId)
-                                                                .orElseThrow(() -> new EntityNotFoundException(
-                                                                        "채팅방 멤버 찾을 수 없음 "));
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        validateChatRoomMember(chatRoom, currentMemberId);
+
+        // ! step1. 채팅방_멤버 조회
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, findMemberById(currentMemberId));
+
 
         // ! step2. 페이징 처리된 메시지 조회
         Page<ChatMessage> messagePage = chatMessageRepository.findByChatRoomIdOrderByTimestampDesc(chatRoomId,
@@ -226,8 +247,9 @@ public class ChatService {
                                                                                                   currentMemberId);
 
         // ! step5. 첫번째 페이지일 때만 마지막으로 읽은 메시지 업데이트
-        if(pageable.getPageNumber() == 0)
+        if (pageable.getPageNumber() == 0) {
             updateLastReadMessage(chatRoomMember, messagePage.getContent());
+        }
 
         // ! step6. 종합해서 반환
         return ChatRoomMessageResponse.of(messages, unreadCount, messagePage);
@@ -275,11 +297,11 @@ public class ChatService {
      * @return
      */
     public List<ChatRoomDTO> getChatRooms(Long memberId) {
-        Member member = findMember(memberId);
-        List<ChatRoomMember> activeChatRoomMembers = chatRoomMemberRepository.findByMemberAndStatus(member, ChatRoomMemberStatus.ACTIVE);
+        Member member = findMemberById(memberId);
+        List<ChatRoomMember> activeChatRoomMembers = chatRoomMemberRepository.findByMemberAndStatus(member,
+                                                                                                    ChatRoomMemberStatus.ACTIVE);
 
-        return activeChatRoomMembers.stream()
-                                    .map(chatRoomMember -> createChatRoomDTO(chatRoomMember, member))
+        return activeChatRoomMembers.stream().map(chatRoomMember -> createChatRoomDTO(chatRoomMember, member))
                                     .collect(Collectors.toList());
     }
 

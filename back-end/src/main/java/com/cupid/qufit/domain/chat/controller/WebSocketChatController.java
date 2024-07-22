@@ -5,7 +5,7 @@ import com.cupid.qufit.domain.chat.dto.ChatRoomMessageResponse;
 import com.cupid.qufit.domain.chat.repository.ChatRoomMemberRepository;
 import com.cupid.qufit.domain.chat.repository.ChatRoomRepository;
 import com.cupid.qufit.domain.chat.service.ChatService;
-import com.cupid.qufit.domain.member.repository.MemberRepository;
+import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
@@ -100,7 +100,7 @@ public class WebSocketChatController {
 
     /**
      * * 특정 채팅방 들어올 때
-     *
+     * <p>
      * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
