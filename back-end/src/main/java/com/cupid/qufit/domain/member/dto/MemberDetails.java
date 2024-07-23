@@ -8,16 +8,18 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 public class MemberDetails implements UserDetails {
 
     private final Member member;
-    public MemberDetails(Member member) {this.member = member;}
+
+    public MemberDetails(Member member) {
+        this.member = member;
+    }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return "";
     }
 
     @Override
@@ -30,12 +32,27 @@ public class MemberDetails implements UserDetails {
         return Collections.singletonList(new SimpleGrantedAuthority(member.getRole().getKey()));
     }
 
+    public Long getId() {
+        return member.getId();
+    }
+
+    public String getEmail() {
+        return member.getEmail();
+    }
+
+    public String getProfileImage() {
+        return member.getProfileImage();
+    }
+
+    public String getGender() {
+        return member.getGender();
+    }
+
     public Map<String, Object> getClaims() {
         Map<String, Object> map = new HashMap<>();
 
+        map.put("id", member.getId());
         map.put("email", member.getEmail());
-        map.put("nickname",member.getNickname());
-        map.put("roleNames",member.getRole().getKey());
 
         return map;
     }
