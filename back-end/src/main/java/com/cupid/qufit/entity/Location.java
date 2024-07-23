@@ -29,7 +29,4 @@ public class Location {
     @NotNull(message = "시는 null일 수 없습니다.")
     private String Si;
 
-    @NotNull(message = "구/군은 null일 수 없습니다.")
-    private String Gu;
-
 }

@@ -127,7 +127,6 @@ public class AuthServiceImpl implements AuthService {
                 .memberMBTITag(saveMember.getMBTI())
                 .memberHobbyTags(saveMember.getMemberHobbies())
                 .memberPersonalityTags(saveMember.getMemberPersonalities())
-                .typeLocation(typeProfiles.getLocation())
                 .typeAgeMax(typeProfiles.getTypeAgeMax())
                 .typeAgeMin(typeProfiles.getTypeAgeMin())
                 .typeHobbyTags(typeProfiles.getTypeHobbies())
