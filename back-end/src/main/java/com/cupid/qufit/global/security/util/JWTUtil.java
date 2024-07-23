@@ -50,7 +50,7 @@ public class JWTUtil {
         return jwtStr;
     }
 
-    public Map<String, Object> validateToken(String token) throws JwtException, InvalidClassException {
+    public static Map<String, Object> validateToken(String token) throws JwtException, InvalidClassException {
 
         Map<String, Object> claim = null;
 
