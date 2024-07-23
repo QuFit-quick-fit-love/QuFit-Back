@@ -4,6 +4,7 @@ import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO.response;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
+import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.LocationRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
@@ -16,13 +17,12 @@ import com.cupid.qufit.entity.TypeHobby;
 import com.cupid.qufit.entity.TypeMBTI;
 import com.cupid.qufit.entity.TypePersonality;
 import com.cupid.qufit.entity.TypeProfiles;
-import com.cupid.qufit.global.exception.CustomException;
 import com.cupid.qufit.global.exception.ErrorCode;
+import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final LocationRepository locationRepository;
+    private final MemberRepository memberRepository;
     private final TypeProfilesRepository typeProfilesRepository;
     private final TagRepository tagRepository;
 
@@ -103,14 +104,13 @@ public class MemberServiceImpl implements MemberService {
     public response signIn(MemberDetails memberDetails) {
         String accessToken = JWTUtil.generateAccessToken(memberDetails.getClaims());
 
-        // 응답에 JWT 토큰 포함
-        Map<String, Object> claims = memberDetails.getClaims();
-
+        Member member = memberRepository.findById(memberDetails.getId())
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         return MemberSigninDTO.response.builder()
-                                       .email(memberDetails.getEmail())
-                                       .nickname(memberDetails.getUsername())
-                                       .profileImage(memberDetails.getProfileImage())
-                                       .gender(memberDetails.getGender())
+                                       .email(member.getEmail())
+                                       .nickname(member.getNickname())
+                                       .profileImage(member.getProfileImage())
+                                       .gender(member.getGender())
                                        .accessToken(accessToken)
                                        .build();
     }
@@ -132,7 +132,8 @@ public class MemberServiceImpl implements MemberService {
             memberHobbyIds.forEach(tagId -> {
                 MemberHobby memberHobby = MemberHobby.builder()
                                                      .tag(tagRepository.findById(tagId)
-                                                                       .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND)))
+                                                                       .orElseThrow(() -> new TagException(
+                                                                               ErrorCode.TAG_NOT_FOUND)))
                                                      .build();
                 member.addMemberHobbies(memberHobby);
             });
@@ -144,7 +145,8 @@ public class MemberServiceImpl implements MemberService {
             memberPersonalityIds.forEach(tagId -> {
                 MemberPersonality memberPersonality = MemberPersonality.builder()
                                                                        .tag(tagRepository.findById(tagId).orElseThrow(
-                                                                               () -> new TagException(ErrorCode.TAG_NOT_FOUND)))
+                                                                               () -> new TagException(
+                                                                                       ErrorCode.TAG_NOT_FOUND)))
                                                                        .build();
                 member.addMemberPersonalities(memberPersonality);
             });
@@ -186,7 +188,8 @@ public class MemberServiceImpl implements MemberService {
             typePersonalityIds.forEach(tagId -> {
                 TypePersonality typePersonality = TypePersonality.builder()
                                                                  .tag(tagRepository.findById(tagId).orElseThrow(
-                                                                         () -> new TagException(ErrorCode.TAG_NOT_FOUND)))
+                                                                         () -> new TagException(
+                                                                                 ErrorCode.TAG_NOT_FOUND)))
                                                                  .build();
                 typeProfiles.addTypePersonalities(typePersonality);
             });

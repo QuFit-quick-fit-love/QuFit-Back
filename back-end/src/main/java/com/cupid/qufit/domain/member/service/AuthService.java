@@ -14,6 +14,6 @@ public interface AuthService {
     * * member 객체를 PrincipalDetails DTO로 만드는 생성자
     * */
     default MemberDetails entityToMemberDetails(Member member) {
-        return new MemberDetails(member);
+        return new MemberDetails(member.getId(), member.getEmail(), member.getRole());
     }
 }
