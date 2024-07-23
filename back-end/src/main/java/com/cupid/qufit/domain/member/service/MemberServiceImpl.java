@@ -1,5 +1,8 @@
 package com.cupid.qufit.domain.member.service;
 
+import com.cupid.qufit.domain.member.dto.MemberDetails;
+import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
+import com.cupid.qufit.domain.member.dto.MemberSigninDTO.response;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.LocationRepository;
@@ -16,8 +19,10 @@ import com.cupid.qufit.entity.TypeProfiles;
 import com.cupid.qufit.global.exception.CustomException;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
+import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -86,6 +91,28 @@ public class MemberServiceImpl implements MemberService {
         List<Long> typePersonalityIds = requestDTO.getMemberHobbyTagIds();
         this.saveTypePersonalities(typeProfiles, typePersonalityIds);
 
+    }
+
+    /*
+     * * 로그인 성공 시 jwt 발급
+     *
+     * @param : 로그인 성공 처리된 MemberDetails
+     * - 카카오 로그인된 회원 email이 db에 존재하며 승인된 회원일 경우 로그인 처리
+     * */
+    @Override
+    public response signIn(MemberDetails memberDetails) {
+        String accessToken = JWTUtil.generateAccessToken(memberDetails.getClaims());
+
+        // 응답에 JWT 토큰 포함
+        Map<String, Object> claims = memberDetails.getClaims();
+
+        return MemberSigninDTO.response.builder()
+                                       .email(memberDetails.getEmail())
+                                       .nickname(memberDetails.getUsername())
+                                       .profileImage(memberDetails.getProfileImage())
+                                       .gender(memberDetails.getGender())
+                                       .accessToken(accessToken)
+                                       .build();
     }
 
     private void saveMemberLocation(Member member, Long locationId) {
