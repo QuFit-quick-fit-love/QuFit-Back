@@ -1,5 +1,6 @@
 package com.cupid.qufit.entity.chat;
 
+import jakarta.persistence.Entity;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
