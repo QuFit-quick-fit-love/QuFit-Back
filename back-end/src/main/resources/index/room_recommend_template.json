@@ -80,6 +80,9 @@
           },
           "bio": {
             "type": "text"
+          },
+          "gender": {
+            "type": "keyword"
           }
         }
       }
