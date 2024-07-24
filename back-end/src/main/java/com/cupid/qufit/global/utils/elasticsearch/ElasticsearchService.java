@@ -1,8 +1,5 @@
-package com.cupid.qufit.domain.video;
+package com.cupid.qufit.global.utils.elasticsearch;
 
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
-import com.cupid.qufit.global.utils.elasticsearch.ElasticsearchFileUtil;
-import com.cupid.qufit.global.utils.elasticsearch.IndexerHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +10,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RoomRecommendService {
+public class ElasticsearchService {
     private final IndexerHelper indexerHelper;
 
     public Boolean createIndex(String indexName) throws IOException {
@@ -26,4 +23,6 @@ public class RoomRecommendService {
         log.info("[deleteIndex] indexName: {}", indexName);
         return indexerHelper.deleteIndex(indexName);
     }
+
+
 }
