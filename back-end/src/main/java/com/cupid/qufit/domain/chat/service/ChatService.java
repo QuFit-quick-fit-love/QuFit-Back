@@ -18,13 +18,16 @@ import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -311,4 +314,54 @@ public class ChatService {
 
         return ChatRoomDTO.from(chatRoom, chatRoomMember, otherMember);
     }
+
+    /**
+     * * 채팅방 입장 시 unreadCount 초기화, 최근 메시지 로딩
+     * @param chatRoomId
+     * @param memberId
+     * @return
+     */
+    public ChatRoomMessageResponse enterChatRoom(Long chatRoomId, Long memberId, Pageable pageable) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
+
+        // ! unreadCount 초기화
+        chatRoomMember.setUnreadCount(0);
+        // ! 마지막으로 읽은 메시지 이후의 메시지 조회
+        String lastReadMessageId = chatRoomMember.getLastReadMessageId();
+        Page<ChatMessage> messagePage;
+
+        if (lastReadMessageId == null) {
+            // 처음 입장 또는 모든 메시지를 읽은 후 재입장하는 경우, 최신 메시지부터 조회
+            messagePage = chatMessageRepository.findByChatRoomIdOrderByTimestampDesc(chatRoomId, pageable);
+        } else {
+            // 읽지 않은 메시지가 있는 경우, 마지막으로 읽은 메시지 이후의 메시지 조회
+            ChatMessage lastReadMessage = chatMessageRepository.findById(lastReadMessageId)
+                                                               .orElseThrow(() -> new ChatException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+            messagePage = chatMessageRepository.findByChatRoomIdAndTimestampGreaterThanEqual(
+                    chatRoomId, lastReadMessage.getTimestamp(), pageable);
+        }
+
+        // ! 메시지 목록 생성
+        List<ChatMessageDTO> messages = messagePage.getContent().stream()
+                                                   .sorted(Comparator.comparing(ChatMessage::getTimestamp))
+                                                   .map(ChatMessageDTO::from)
+                                                   .collect(Collectors.toList());
+
+        // ! 최신 메시지의 ID와 시간을 마지막으로 읽은 메시지로 업데이트
+        if (!messages.isEmpty()) {
+            ChatMessageDTO latestMessage = messages.get(messages.size()-1); // ! 마지막 메시지
+            chatRoomMember.setLastReadMessageId(latestMessage.getId());
+            chatRoomMember.setLastReadTime(latestMessage.getTimestamp());
+        }
+
+        // ! ChatRoomMember 저장
+        chatRoomMemberRepository.save(chatRoomMember);
+
+        // ! 응답 생성 및 반환
+        return ChatRoomMessageResponse.of(messages, 0, messagePage);
+    }
+
+
 }
