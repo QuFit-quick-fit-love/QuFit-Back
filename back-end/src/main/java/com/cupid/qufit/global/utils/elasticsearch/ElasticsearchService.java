@@ -24,5 +24,10 @@ public class ElasticsearchService {
         return indexerHelper.deleteIndex(indexName);
     }
 
+    public Long countIndex(String indexName) throws IOException {
+        log.info("[countIndex] indexName: {}", indexName);
+        return indexerHelper.countIndex(indexName);
+    }
+
 
 }

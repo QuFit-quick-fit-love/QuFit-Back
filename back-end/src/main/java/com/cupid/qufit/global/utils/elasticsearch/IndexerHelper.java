@@ -1,6 +1,7 @@
 package com.cupid.qufit.global.utils.elasticsearch;
 
 
+import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,11 +43,6 @@ public class IndexerHelper {
         return true;
     }
 
-    // ! json형태의 template을 String으로 바꿔주는 메소드
-    private String jsonMapToString(Map<String, Object> indexTemplate) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(indexTemplate);
-    }
-
     public Boolean deleteIndex(String indexName) throws IOException {
 
         DeleteIndexRequest deleteIndexRequest = DeleteIndexRequest.of(d -> d.index(indexName));
@@ -56,5 +52,17 @@ public class IndexerHelper {
                 .delete(deleteIndexRequest);
 
         return true;
+    }
+
+    // ! index안에 있는 document의 수 세기
+    // * 페이징이나 결과값 확인할때 사용
+    public Long countIndex(String indexName) throws IOException {
+        CountRequest countRequest = CountRequest.of(c -> c.index(indexName));
+        return elasticsearchClientManager.getElasticsearchClient(indexName).count(countRequest).count();
+    }
+
+    // ! json형태의 template을 String으로 바꿔주는 메소드
+    private String jsonMapToString(Map<String, Object> indexTemplate) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(indexTemplate);
     }
 }
