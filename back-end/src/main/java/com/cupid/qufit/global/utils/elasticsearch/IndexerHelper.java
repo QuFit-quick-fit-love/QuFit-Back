@@ -27,15 +27,8 @@ public class IndexerHelper {
     private final ElasticsearchClientManager elasticsearchClientManager;
     private final ObjectMapper objectMapper;
 
-    // TODO: 추후 방법1을 선택할 것인지 방법2를 선택할 것인지 정해야 함.
-    // 테이블 생성해 주는 메소드. elastic에서 index가 테이블임
+    // ! 테이블 생성해 주는 메소드
     public Boolean createIndex(String indexName, Map<String, Object> indexTemplate) throws IOException {
-        // 방법1
-        elasticsearchClientManager.getElasticsearchClient(indexName)
-                .indices()
-                .create(c -> c.index(indexName));
-
-        // 방법2
         RestClient restClient = elasticsearchClientManager.getRestClient(indexName);
         Request request = new Request(HttpPut.METHOD_NAME, "/" + indexName);
 
@@ -49,6 +42,7 @@ public class IndexerHelper {
         return true;
     }
 
+    // ! json형태의 template을 String으로 바꿔주는 메소드
     private String jsonMapToString(Map<String, Object> indexTemplate) throws JsonProcessingException {
         return objectMapper.writeValueAsString(indexTemplate);
     }
