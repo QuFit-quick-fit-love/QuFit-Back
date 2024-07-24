@@ -36,10 +36,6 @@ public class TypeProfiles {
     @JoinColumn(name = "member_id", unique = false)
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", unique = false)
-    private Location location;
-
     @Nullable
     private Integer typeAgeMax;
     @Nullable
@@ -71,9 +67,5 @@ public class TypeProfiles {
     public void addtypeMBTIs(TypeMBTI typeMBTI){
         this.typeMBTIs.add(typeMBTI);
         typeMBTI.setTypeProfiles(this);
-    }
-
-    public void updateLocation(Location location) {
-        this.location = location;
     }
 }

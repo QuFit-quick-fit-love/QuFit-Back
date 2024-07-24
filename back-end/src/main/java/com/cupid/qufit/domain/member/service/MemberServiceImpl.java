@@ -5,7 +5,6 @@ import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO.response;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
-import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.LocationRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
 import com.cupid.qufit.entity.Location;
@@ -35,8 +34,8 @@ public class MemberServiceImpl implements MemberService {
 
     private final LocationRepository locationRepository;
     private final MemberRepository memberRepository;
-    private final TypeProfilesRepository typeProfilesRepository;
     private final TagRepository tagRepository;
+    private final JWTUtil jwtUtil;
 
     /*
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
@@ -66,7 +65,6 @@ public class MemberServiceImpl implements MemberService {
     public TypeProfiles createTypeProfiles(Member member, MemberSignupDTO.request requestDTO) {
         return TypeProfiles.builder()
                            .member(member)
-                           .location(null)
                            .typeAgeMax(requestDTO.getTypeAgeMax())
                            .typeAgeMin(requestDTO.getTypeAgeMin())
                            .build();
@@ -77,9 +75,6 @@ public class MemberServiceImpl implements MemberService {
      * */
     @Override
     public void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberSignupDTO.request requestDTO) {
-        // location 저장
-        this.saveTypeLocation(typeProfiles, requestDTO.getTypeLocationId());
-
         // mbti 저장
         List<Long> typeMBTIIds = requestDTO.getTypeMBTITagIds();
         this.saveTypeMBTI(typeProfiles, typeMBTIIds);
@@ -102,7 +97,8 @@ public class MemberServiceImpl implements MemberService {
      * */
     @Override
     public response signIn(MemberDetails memberDetails) {
-        String accessToken = JWTUtil.generateAccessToken(memberDetails.getClaims());
+        String accessToken = jwtUtil.generateToken(memberDetails.getClaims(), "access");
+        String refreshToken = jwtUtil.generateToken(memberDetails.getClaims(), "refresh");
 
         Member member = memberRepository.findById(memberDetails.getId())
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -151,12 +147,6 @@ public class MemberServiceImpl implements MemberService {
                 member.addMemberPersonalities(memberPersonality);
             });
         }
-    }
-
-    private void saveTypeLocation(TypeProfiles typeProfiles, Long locationId) {
-        Location location = locationRepository.findById(locationId)
-                                              .orElseThrow(() -> new TagException(ErrorCode.LOCATION_NOT_FOUND));
-        typeProfiles.updateLocation(location);
     }
 
     private void saveTypeMBTI(TypeProfiles typeProfiles, List<Long> typeMBTIIds) {
