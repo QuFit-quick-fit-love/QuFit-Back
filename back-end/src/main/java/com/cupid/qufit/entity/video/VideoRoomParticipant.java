@@ -1,5 +1,6 @@
 package com.cupid.qufit.entity.video;
 
+import com.cupid.qufit.entity.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -7,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,13 +28,16 @@ public class VideoRoomParticipant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String connectionId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_room_id", nullable = false)
-    private VideoRoom activeRoom;
+    private VideoRoom videoRoom;
 
     @CreatedDate
     private LocalDateTime joinedAt;
 
-    @NotNull(message = "참가자ID는 null일 수 없습니다.")
-    private Long participantId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 }
