@@ -1,0 +1,88 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 2,
+      "refresh_interval": "30s",
+      "codec": "best_compression",
+      "routing": {
+        "allocation": {
+          "include": { "_tier_preference":  "data_content" }
+        }
+      }
+    },
+    "analysis": {
+      "filter": {
+        "my_nori_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": [
+            "NR", "IC", "J", "E", "MAG", "MAJ", "MM", "SP", "NA", "XSA", "NNB", "NNBC",
+            "SC", "SE", "SF", "SH", "SN", "SSC", "SSO", "SY", "UNA", "VCN", "VCP", "VSV"
+          ]
+        }
+      },
+      "analyzer": {
+        "nori": {
+          "type" : "nori",
+          "decompound_mode" : "mixed",
+          "filter": [
+            "my_nori_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings":{
+    "properties": {
+      "video_room_id": {
+        "type": "keyword"
+      },
+      "participant": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "constant_keyword"
+          },
+          "updated_at": {
+            "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "mbti": {
+            "type": "keyword"
+          },
+          "personalities": {
+            "type": "nested",
+            "properties": {
+              "id": {
+                "type": "long"
+              },
+              "tag_name": {
+                "type": "keyword"
+              }
+            }
+          },
+          "hobbies": {
+            "type": "nested",
+            "properties": {
+              "id": {
+                "type": "long"
+              },
+              "tag_name": {
+                "type": "keyword"
+              }
+            }
+          },
+          "location": {
+            "type": "keyword"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "bio": {
+            "type": "text"
+          }
+        }
+      }
+    }
+  }
+}
