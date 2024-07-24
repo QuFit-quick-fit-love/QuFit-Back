@@ -1,34 +1,46 @@
 package com.cupid.qufit.global.config;
 
-import org.springframework.context.annotation.Configuration;
+import com.cupid.qufit.global.security.filter.JWTCheckFilter;
+import com.cupid.qufit.global.security.handler.CustomAccessDeniedHandler;
+import com.cupid.qufit.global.security.util.JWTUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JWTUtil jwtUtil;
+
     /*
-    * * 각 URL 패턴에 대한 보안 필터 설정
-    * */
+     * * 각 URL 패턴에 대한 보안 필터 설정
+     * */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
+        http.authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
 //                                new AntPathRequestMatcher("/api/auth/login")
-                                "/**" // (임시 테스트용) 모두 접근가능
-                        ).permitAll())
-                //외부 post 요청을 받아야 하는 csrf // disable
-                .csrf(AbstractHttpConfigurer::disable)
-                //JWT등을 사용할떄 SpringSecurity가 세션을 생성하지도않고, 기본것을 사용하지도 않게끔 STATELESS로 설정
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        ;
+                            "/**" // (임시 테스트용) 모두 접근가능
+                    ).permitAll())
+            // csrf 사용 x
+            .csrf(AbstractHttpConfigurer::disable)
+            // 세션 사용 x
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // jwt 토큰 확인 필터
+        http.addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(config -> {
+                config.accessDeniedHandler(new CustomAccessDeniedHandler());
+            });
+
 
         return http.build();
     }

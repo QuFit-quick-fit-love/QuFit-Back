@@ -9,8 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,9 @@ public class VideoRoom {
     private Long videoRoomId;
 
     @Column(nullable = false, length = 30)
-    private String name;
+    private String videoRoomName;
+
+    private String sessionId;
 
     @Enumerated(EnumType.STRING)
     private VideoRoomStatus status;
@@ -42,18 +42,12 @@ public class VideoRoom {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Min(value = 2, message = "최소 2명 이상이어야 합니다.")
-    @Max(value = 8, message = "최대 8명까지만 허용됩니다.")
     private int maxParticipants;
 
-    @Min(value = 0, message = "현재 남자 인원은 0명 이상이어야 합니다.")
-    @Max(value = 4, message = "현재 남자 인원은 최대 4명까지 가능합니다.")
     private int curMCount;
 
-    @Min(value = 0, message = "현재 여자 인원은 0명 이상이어야 합니다.")
-    @Max(value = 4, message = "현재 여자 인원은 최대 4명까지 가능합니다.")
     private int curWCount;
 
-    @OneToMany(mappedBy = "activeRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VideoRoomParticipant> participants = new ArrayList<>();
 }
