@@ -345,12 +345,13 @@ public class ChatService {
 
         // ! 메시지 목록 생성
         List<ChatMessageDTO> messages = messagePage.getContent().stream()
+                                                   .sorted(Comparator.comparing(ChatMessage::getTimestamp))
                                                    .map(ChatMessageDTO::from)
                                                    .collect(Collectors.toList());
 
         // ! 최신 메시지의 ID와 시간을 마지막으로 읽은 메시지로 업데이트
         if (!messages.isEmpty()) {
-            ChatMessage latestMessage = messagePage.getContent().get(0); // ! 마지막 메시지
+            ChatMessageDTO latestMessage = messages.get(messages.size()-1); // ! 마지막 메시지
             chatRoomMember.setLastReadMessageId(latestMessage.getId());
             chatRoomMember.setLastReadTime(latestMessage.getTimestamp());
         }
