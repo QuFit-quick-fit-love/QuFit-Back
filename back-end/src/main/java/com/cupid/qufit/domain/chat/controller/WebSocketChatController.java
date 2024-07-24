@@ -73,7 +73,7 @@ public class WebSocketChatController {
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
     public void enterChatRoom(@DestinationVariable Long chatRoomId, @Payload Paging pageRequest) {
-        Long memberId = 3L;
+        Long memberId = 4L;
         Pageable pageable = PageRequest.of(0, pageRequest.getPageSize(), Sort.by(Sort.Direction.ASC, "timestamp"));
         ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
         messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
