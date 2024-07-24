@@ -1,11 +1,11 @@
 package com.cupid.qufit.global.utils.elasticsearch;
 
 
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPut;
@@ -16,6 +16,10 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.util.Map;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class IndexerHelper {
@@ -28,8 +32,8 @@ public class IndexerHelper {
     public Boolean createIndex(String indexName, Map<String, Object> indexTemplate) throws IOException {
         // 방법1
         elasticsearchClientManager.getElasticsearchClient(indexName)
-                                  .indices()
-                                  .create(c -> c.index(indexName));
+                .indices()
+                .create(c -> c.index(indexName));
 
         // 방법2
         RestClient restClient = elasticsearchClientManager.getRestClient(indexName);
@@ -49,4 +53,14 @@ public class IndexerHelper {
         return objectMapper.writeValueAsString(indexTemplate);
     }
 
+    public Boolean deleteIndex(String indexName) throws IOException {
+
+        DeleteIndexRequest deleteIndexRequest = DeleteIndexRequest.of(d -> d.index(indexName));
+
+        elasticsearchClientManager.getElasticsearchClient(indexName)
+                .indices()
+                .delete(deleteIndexRequest);
+
+        return true;
+    }
 }
