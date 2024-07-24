@@ -321,45 +321,46 @@ public class ChatService {
      * @param memberId
      * @return
      */
-    public ChatRoomMessageResponse enterChatRoom(Long chatRoomId, Long memberId) {
+    public ChatRoomMessageResponse enterChatRoom(Long chatRoomId, Long memberId, Pageable pageable) {
         ChatRoom chatRoom = findChatRoomById(chatRoomId);
         Member member = findMemberById(memberId);
         ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
 
+        // ! unreadCount 초기화
+        chatRoomMember.setUnreadCount(0);
+        // ! 마지막으로 읽은 메시지 이후의 메시지 조회
         String lastReadMessageId = chatRoomMember.getLastReadMessageId();
-        int messageLoadCount = 20; // 총 로드할 메시지 수
-        int beforeLastReadCount = 10; // 마지막으로 읽은 메시지 이전의 메시지 수
+        Page<ChatMessage> messagePage;
 
-        List<ChatMessage> messages;
-        int unreadCount;
-
-        if (lastReadMessageId != null) {
+        if (lastReadMessageId == null) {
+            // 처음 입장 또는 모든 메시지를 읽은 후 재입장하는 경우, 최신 메시지부터 조회
+            messagePage = chatMessageRepository.findByChatRoomIdOrderByTimestampDesc(chatRoomId, pageable);
+        } else {
+            // 읽지 않은 메시지가 있는 경우, 마지막으로 읽은 메시지 이후의 메시지 조회
             ChatMessage lastReadMessage = chatMessageRepository.findById(lastReadMessageId)
                                                                .orElseThrow(() -> new ChatException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
-
-            // ! 마지막으로 읽은 메시지 기준으로 이전 메시지 조회
-            List<ChatMessage> previousMessages = chatMessageRepository.findMessagesBeforeId(chatRoomId, lastReadMessageId, beforeLastReadCount);
-
-            // ! 마지막으로 읽은 메시지 포함 이후 메시지 조회
-            List<ChatMessage> afterMessages = chatMessageRepository.findMessagesOnAndAfterId(chatRoomId, lastReadMessageId, messageLoadCount - beforeLastReadCount);
-
-            messages = new ArrayList<>(previousMessages);
-            messages.addAll(afterMessages);
-
-            unreadCount = chatMessageRepository.countUnreadMessages(chatRoomId, lastReadMessage.getTimestamp());
-        } else {
-            messages = chatMessageRepository.findLatestMessages(chatRoomId, PageRequest.of(0, messageLoadCount));
-            unreadCount = messages.size(); // ! 모든 메시지를 읽지 않은 것으로 간주
+            messagePage = chatMessageRepository.findByChatRoomIdAndTimestampGreaterThanEqual(
+                    chatRoomId, lastReadMessage.getTimestamp(), pageable);
         }
 
-        chatRoomMember.setUnreadCount(unreadCount);
-        chatRoomMemberRepository.save(chatRoomMember);
-
-        List<ChatMessageDTO> messageDTOs = messages.stream()
+        // ! 메시지 목록 생성
+        List<ChatMessageDTO> messages = messagePage.getContent().stream()
                                                    .map(ChatMessageDTO::from)
-                                                   .sorted(Comparator.comparing(ChatMessageDTO::getTimestamp))
                                                    .collect(Collectors.toList());
 
-        return new ChatRoomMessageResponse(messageDTOs, unreadCount, 1, messages.size());
+        // ! 최신 메시지의 ID와 시간을 마지막으로 읽은 메시지로 업데이트
+        if (!messages.isEmpty()) {
+            ChatMessage latestMessage = messagePage.getContent().get(0); // ! 마지막 메시지
+            chatRoomMember.setLastReadMessageId(latestMessage.getId());
+            chatRoomMember.setLastReadTime(latestMessage.getTimestamp());
+        }
+
+        // ! ChatRoomMember 저장
+        chatRoomMemberRepository.save(chatRoomMember);
+
+        // ! 응답 생성 및 반환
+        return ChatRoomMessageResponse.of(messages, 0, messagePage);
     }
+
+
 }

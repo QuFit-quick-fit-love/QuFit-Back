@@ -105,8 +105,8 @@ public class WebSocketChatController {
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
     public void enterChatRoom(@DestinationVariable Long chatRoomId,
-                              @Header("memberId") Long memberId) {
-        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId);
+                              @Header("memberId") Long memberId, @Payload Pageable pageable) {
+        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
         messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
     }
 
