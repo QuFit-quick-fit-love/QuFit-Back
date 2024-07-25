@@ -35,7 +35,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
         String path = request.getRequestURI();
-        if (path.startsWith("/qufit/auth")) {
+        if (path.startsWith("/Qufit/auth")) {
             return true; // 로그인, 회원가입 관련 api는 check하지 않음
         }
         return true;
