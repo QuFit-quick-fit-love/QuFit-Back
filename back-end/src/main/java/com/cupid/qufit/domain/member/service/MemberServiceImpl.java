@@ -19,9 +19,12 @@ import com.cupid.qufit.entity.TypeProfiles;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
+import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final TagRepository tagRepository;
     private final JWTUtil jwtUtil;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     /*
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
@@ -96,19 +100,24 @@ public class MemberServiceImpl implements MemberService {
      * - 카카오 로그인된 회원 email이 db에 존재하며 승인된 회원일 경우 로그인 처리
      * */
     @Override
-    public response signIn(MemberDetails memberDetails) {
+    public Map<String, response> signIn(MemberDetails memberDetails) {
         String accessToken = jwtUtil.generateToken(memberDetails.getClaims(), "access");
         String refreshToken = jwtUtil.generateToken(memberDetails.getClaims(), "refresh");
+        redisRefreshTokenService.saveRedisData(memberDetails.getId(), refreshToken, accessToken); // refreshToken redis에 저장
 
         Member member = memberRepository.findById(memberDetails.getId())
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        return MemberSigninDTO.response.builder()
+
+        MemberSigninDTO.response responseDTO = MemberSigninDTO.response.builder()
                                        .email(member.getEmail())
                                        .nickname(member.getNickname())
                                        .profileImage(member.getProfileImage())
                                        .gender(member.getGender())
-                                       .accessToken(accessToken)
                                        .build();
+
+        Map<String, response> result = new HashMap<>();
+        result.put(accessToken, responseDTO);
+        return result;
     }
 
     private void saveMemberLocation(Member member, Long locationId) {
