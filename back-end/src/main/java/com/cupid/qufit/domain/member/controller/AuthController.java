@@ -1,8 +1,7 @@
 package com.cupid.qufit.domain.member.controller;
 
 import com.cupid.qufit.domain.member.dto.MemberDetails;
-import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
-import com.cupid.qufit.domain.member.dto.MemberSigninDTO.response;
+import com.cupid.qufit.domain.member.dto.MemberSigninDTO.Response;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.service.AuthService;
 import com.cupid.qufit.domain.member.service.MemberService;
@@ -16,6 +15,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/QuFit/auth")
+@RequestMapping("/qufit/auth")
 @Tag(name = "Authentication", description = "인증 관련 API")
 @Log4j2
 public class AuthController {
@@ -45,7 +46,7 @@ public class AuthController {
 
         if (memberDetails != null) {
             // 유저 정보와 토큰 생성
-            Map<String, response> result = memberService.signIn(memberDetails);
+            Map<String, Response> result = memberService.signIn(memberDetails);
             String token = result.keySet().iterator().next();
             log.info("[login token] : " + token);
 
@@ -57,28 +58,28 @@ public class AuthController {
         throw new MemberException(ErrorCode.MEMBER_DEFAULT_ERROR);
     }
 
-    /*
-     * * 부가정보 입력 후 회원가입 처리
-     *
-     * TODO
-     *  - 유효성 검사 error message 출력
-     *  - 닉네임 중복 검사
-     *
-     * @ param : accessToken 카카오에서 발급받은 accessToken
-     * @ body : 회원이 입력한 부가 정보
-     * */
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestParam("accessToken") String accessToken,
-                                    @Valid @RequestBody MemberSignupDTO.request requestDTO) {
+                                    @Valid @RequestBody MemberSignupDTO.Request requestDTO) {
         log.info("---------------회원가입 시도-----------");
-        MemberSignupDTO.response responseDTO;
+
+        MemberSignupDTO.Response responseDTO;
         try {
             responseDTO = authService.signup(accessToken, requestDTO);
         } catch (Exception e) {
             log.error("회원 가입 중 오류 발생", e);
             throw new MemberException(ErrorCode.SIGNUP_FAILURE);
         }
-
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/check-nickname")
+    public ResponseEntity<?> checkUniqueNickname(@RequestParam("nickname") String nickname){
+        log.info("---------------닉네임 중복검사-----------");
+        Boolean isNicknameDuplication = authService.isNicknameDuplication(nickname);
+        if(!isNicknameDuplication) {
+            return new ResponseEntity<>(nickname + " 은(는) 사용가능한 닉네임입니다.", HttpStatus.OK);
+        }
+        return new ResponseEntity<>(nickname + " 은(는) 중복된 닉네임입니다.", HttpStatus.BAD_REQUEST);
     }
 }
