@@ -38,7 +38,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (path.startsWith("/qufit/auth")) {
             return true; // 로그인, 회원가입 관련 api는 check하지 않음
         }
-        return false;
+        return true;
     }
 
     @Override

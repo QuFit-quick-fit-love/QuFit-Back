@@ -37,10 +37,14 @@
       "video_room_id": {
         "type": "keyword"
       },
-      "participant": {
+      "video_room_name": {
+        "type": "text",
+        "analyzer": "nori"
+      },
+      "participants": {
         "type": "nested",
         "properties": {
-          "id": {
+          "member_id": {
             "type": "constant_keyword"
           },
           "updated_at": {
@@ -51,26 +55,10 @@
             "type": "keyword"
           },
           "personalities": {
-            "type": "nested",
-            "properties": {
-              "id": {
-                "type": "long"
-              },
-              "tag_name": {
-                "type": "keyword"
-              }
-            }
+            "type": "keyword"
           },
           "hobbies": {
-            "type": "nested",
-            "properties": {
-              "id": {
-                "type": "long"
-              },
-              "tag_name": {
-                "type": "keyword"
-              }
-            }
+            "type": "keyword"
           },
           "location": {
             "type": "keyword"
@@ -79,7 +67,11 @@
             "type": "integer"
           },
           "bio": {
-            "type": "text"
+            "type": "text",
+            "analyzer": "nori"
+          },
+          "gender": {
+            "type": "keyword"
           }
         }
       }

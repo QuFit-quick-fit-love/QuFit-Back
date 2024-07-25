@@ -1,6 +1,7 @@
 package com.cupid.qufit.domain.chat.dto;
 
 import com.cupid.qufit.entity.chat.ChatMessage;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,17 +16,20 @@ import org.springframework.data.domain.Page;
 public class ChatRoomMessageResponse {
 
     private List<ChatMessageDTO> messages;
-    private long unreadCount;
-    private int totalPages;
-    private long totalElements;
+    @JsonIgnore
+    private Long unreadCount;
+    @JsonIgnore
+    private Long totalElements;
+    @JsonIgnore
+    private Boolean hasMore;
 
-    public static ChatRoomMessageResponse of(List<ChatMessageDTO> messages, long unreadCount,
-                                             Page<ChatMessage> messagePage) {
+    public static ChatRoomMessageResponse of(List<ChatMessageDTO> messages, Long unreadCount,
+                                             Long totalElements, Boolean hasMore) {
         return ChatRoomMessageResponse.builder()
                                       .messages(messages)
                                       .unreadCount(unreadCount)
-                                      .totalPages(messagePage.getTotalPages())
-                                      .totalElements(messagePage.getTotalElements())
+                                      .totalElements(totalElements)
+                                      .hasMore(hasMore)
                                       .build();
     }
 
