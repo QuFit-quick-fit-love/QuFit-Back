@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.chat.controller;
 
+import com.cupid.qufit.domain.chat.dto.ChatMessageDTO;
 import com.cupid.qufit.domain.chat.dto.ChatRoomMessageResponse;
 import com.cupid.qufit.domain.chat.repository.ChatRoomMemberRepository;
 import com.cupid.qufit.domain.chat.service.ChatService;
@@ -70,21 +71,29 @@ public class WebSocketChatController {
      * * 특정 채팅방 들어올 때
      * <p>
      * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
+     * <p>
+     * ! 특정 채팅방 들어가는 것은 개인화된 반응 -> convertAndSendToUser로 변경.
+     * TODO : 현재 memberId 하드코딩 -> JWT 토큰 이용한 인증 이후에 반영
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
     public void enterChatRoom(@DestinationVariable Long chatRoomId, @Payload MessagePaginationRequest pageRequest) {
         Long memberId = 4L;
         Pageable pageable = PageRequest.of(0, pageRequest.getPageSize(), Sort.by(Sort.Direction.ASC, "timestamp"));
         ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
-        messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
+        messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chatroom." + chatRoomId, response);
+//        messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
     }
 
     /**
      * * 채팅방 나갈 때
+     *
+     * ! 해당 채팅방의 메시지 구독 해제
+     * TODO : 현재는 memberId 하드코딩 -> 이후에 갱신
      */
     @MessageMapping("/chat.leaveRoom/{chatRoomId}")
-    public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Header("memberId") Long memberId) {
-        // ! 1. 마지막으로 읽은 메시지 ID 갱신
+    public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageDTO lastMessage) {
+        Long memberId = 3L;
+        chatService.updateChatRoomMember(chatRoomId, memberId, lastMessage);
     }
 
     /**
@@ -114,7 +123,7 @@ public class WebSocketChatController {
      * ! 프론트에서 보유한 가장 마지막 메시지ID로부터 아래로 20개 로딩
      * <p>
      * ! 특정 사용자에게 전송해야 하므로 convertAndSendToUser 메서드 활용
-     *
+     * <p>
      * ! /user/{memberId}/sub/chat.messages.{chatRoomId}
      */
     @MessageMapping("/chat.loadNextMessages/{chatRoomId}")
