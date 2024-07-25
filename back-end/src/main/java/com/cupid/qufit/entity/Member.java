@@ -60,7 +60,7 @@ public class Member {
     @NotNull(message = "생년월일는 null일 수 없습니다.")
     private LocalDate birthDate;
     @NotNull(message = "성별은 null일 수 없습니다.")
-    private String gender;
+    private Character gender;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
