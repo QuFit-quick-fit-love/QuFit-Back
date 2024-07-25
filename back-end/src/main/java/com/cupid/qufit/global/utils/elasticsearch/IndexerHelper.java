@@ -31,9 +31,18 @@ public class IndexerHelper {
     // ! 테이블 생성해 주는 메소드
     public Boolean createIndex(String indexName, Map<String, Object> indexTemplate) throws IOException {
         RestClient restClient = elasticsearchClientManager.getRestClient(indexName);
-        Request request = new Request(HttpPut.METHOD_NAME, "/" + indexName);
 
-        if (ObjectUtils.isNotEmpty(indexTemplate)) {
+        // 인덱스가 이미 존재하는지 확인
+        Request existsRequest = new Request("HEAD", "/" + indexName);
+        Response existsResponse = restClient.performRequest(existsRequest);
+        if (existsResponse.getStatusLine().getStatusCode() == 200) {
+            System.out.println("Index already exists: " + indexName);
+            return false;
+        }
+
+        // 인덱스가 존재하지 않는 경우 인덱스 생성
+        Request request = new Request(HttpPut.METHOD_NAME, "/" + indexName);
+        if (!ObjectUtils.isEmpty(indexTemplate)) {
             String requestBody = jsonMapToString(indexTemplate);
             HttpEntity entity = new NStringEntity(requestBody, ContentType.APPLICATION_JSON);
             request.setEntity(entity);
