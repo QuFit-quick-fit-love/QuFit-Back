@@ -1,0 +1,25 @@
+### 1. video_room 추가 시 elastic서버로 보내는 요청 예시
+PUT http://localhost:9200/video_room/_doc
+Content-Type: application/json
+
+{
+  "video_room_id": "1234567890",
+  "video_room_name": "서울 개발자 모임",
+  "participants": [
+    {
+      "member_id": "dev_jane",
+      "updated_at": "2023-07-24 15:00:00",
+      "mbti": "INTJ",
+      "personalities": [
+        "논리적", "내향적"
+      ],
+      "hobbies": [
+        "프로그래밍", "등산"
+      ],
+      "location": "서울시 강남구",
+      "age": 1990,
+      "bio": "저는 논리적 사고를 좋아하는 내향적인 개발자입니다.",
+      "gender": "F"
+    }
+  ]
+}
