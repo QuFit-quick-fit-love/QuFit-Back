@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class RedisRefreshTokenService {
 
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
-    @Value("${REFRESH_TOKEN_EXPIRATION_PERIOD}")
+    @Value("${jwt.refresh.expiration}")
     private Long REFRESH_TOKEN_EXPIRATION_PERIOD;
 
     /*

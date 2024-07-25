@@ -4,15 +4,12 @@ import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.CustomJWTException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.InvalidClaimException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.InvalidClassException;
 import java.io.UnsupportedEncodingException;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -28,11 +25,11 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class JWTUtil {
 
-    @Value("${ACCESS_TOKEN_EXPIRATION_PERIOD}")
+    @Value("${jwt.access.expiration}")
     private Long ACCESS_TOKEN_EXPIRATION_PERIOD;
-    @Value("${REFRESH_TOKEN_EXPIRATION_PERIOD}")
+    @Value("${jwt.refresh.expiration}")
     private Long REFRESH_TOKEN_EXPIRATION_PERIOD;
-    @Value("${JWT_KEY}")
+    @Value("${jwt.secret.key}")
     private String JWT_KEY;
 
     /*
@@ -79,7 +76,7 @@ public class JWTUtil {
                         .setSigningKey(key)
                         .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
                         .getBody();
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             throw e;
         } catch (MalformedJwtException e) {
             throw new CustomJWTException(ErrorCode.MALFORMED_TOKEN);
@@ -109,9 +106,9 @@ public class JWTUtil {
     }
 
     /*
-    * * 응답 헤더에 accesstoken 저장
-    * */
-    public void setTokenToHeader(HttpServletResponse response, String accessToken){
+     * * 응답 헤더에 accesstoken 저장
+     * */
+    public void setTokenToHeader(HttpServletResponse response, String accessToken) {
         response.setHeader("Authorization", "Bearer " + accessToken);
     }
 

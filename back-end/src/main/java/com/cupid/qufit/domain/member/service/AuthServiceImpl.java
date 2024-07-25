@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final TypeProfilesRepository typeProfilesRepository;
     private final MemberService memberService;
 
-    @Value("${KAKAO_GET_USER_INFO_URL}")
+    @Value("${kakao.user.info.url}")
     private String kakaoGetUserInfoUrl;
 
     /*
