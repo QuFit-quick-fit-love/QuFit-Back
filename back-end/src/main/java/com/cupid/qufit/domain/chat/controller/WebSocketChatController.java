@@ -6,7 +6,7 @@ import com.cupid.qufit.domain.chat.service.ChatService;
 import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
-import com.cupid.qufit.global.common.request.Paging;
+import com.cupid.qufit.global.common.request.MessagePaginationRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class WebSocketChatController {
     @SendTo("/sub/chatroom.{chatRoomId}") // ! 처리된 메시지를 발송할 구독 주제. (어느 목적지로 보낼 지 지정)
     public ChatMessage sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId,
                                    @Payload ChatMessage chatMessage) {
-        log.info("메시지 수신 : {}", chatMessage);
+//        log.info("메시지 수신 : {}", chatMessage);
         return chatService.processChatMessage(chatRoomId, chatMessage);
     }
 
@@ -72,8 +72,8 @@ public class WebSocketChatController {
      * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
-    public void enterChatRoom(@DestinationVariable Long chatRoomId, @Payload Paging pageRequest) {
-        Long memberId = 3L;
+    public void enterChatRoom(@DestinationVariable Long chatRoomId, @Payload MessagePaginationRequest pageRequest) {
+        Long memberId = 4L;
         Pageable pageable = PageRequest.of(0, pageRequest.getPageSize(), Sort.by(Sort.Direction.ASC, "timestamp"));
         ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
         messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
@@ -87,4 +87,44 @@ public class WebSocketChatController {
         // ! 1. 마지막으로 읽은 메시지 ID 갱신
     }
 
+    /**
+     * * 위로 스크롤 (이전 메시지 불러오기)
+     * <p>
+     * ! 프론트에서 보유한 가장 최신 메시지ID로부터 위로 20개 로딩
+     * <p>
+     * ! 특정 사용자에게 전송해야 하므로 convertAndSendToUser 메서드를 활용
+     * <p>
+     * ! convertAndSendToUser는 기본으로 '/user' 가 추가됨 -> 컨벤션 해당 값을 prefix로 해서 수신해야함.
+     */
+    @MessageMapping("/chat.loadPreviousMessages/{chatRoomId}")
+    public void loadPreviousMessages(@DestinationVariable Long chatRoomId,
+                                     @Payload MessagePaginationRequest messagePaginationRequest) {
+        Long memberId = 3L; // ! 일단 하드코딩 -> 이후에 JWT 토큰 반영
+        ChatRoomMessageResponse response = chatService.loadPreviousMessages(chatRoomId, memberId,
+                                                                            messagePaginationRequest);
+//        log.info("response : {}", response);
+
+        messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chat.messages." + chatRoomId, response);
+
+    }
+
+    /**
+     * * 아래로 스크롤 시 (이후 메시지 불러오기)
+     * <p>
+     * ! 프론트에서 보유한 가장 마지막 메시지ID로부터 아래로 20개 로딩
+     * <p>
+     * ! 특정 사용자에게 전송해야 하므로 convertAndSendToUser 메서드 활용
+     *
+     * ! /user/{memberId}/sub/chat.messages.{chatRoomId}
+     */
+    @MessageMapping("/chat.loadNextMessages/{chatRoomId}")
+    public void loadNextMessages(@DestinationVariable Long chatRoomId,
+                                 @Payload MessagePaginationRequest messagePaginationRequest) {
+        Long memberId = 3L; // 일단 하드코딩 -> 이후에 JWT 토큰 반영
+        ChatRoomMessageResponse response = chatService.loadNextMessages(chatRoomId, memberId, messagePaginationRequest);
+
+//        log.info("response = {}", response);
+
+        messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chat.messages." + chatRoomId, response);
+    }
 }

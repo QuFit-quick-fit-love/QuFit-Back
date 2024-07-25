@@ -3,9 +3,7 @@ package com.cupid.qufit.domain.chat.repository;
 import com.cupid.qufit.entity.chat.ChatMessage;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -18,19 +16,12 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
 
     long countByChatRoomIdAndTimestampAfterAndSenderIdNot(Long chatRoomId, LocalDateTime lastReadTime, Long currentMemberId);
 
-    Optional<ChatMessage> findTopByChatRoomIdOrderByTimestampDesc(Long id);
-
-    @Query(value = "{'chatRoomId': ?0, '_id': {$lt: ?1}}", sort = "{'timestamp': -1}")
-    List<ChatMessage> findMessagesBeforeId(Long chatRoomId, String messageId, int limit);
-
-    @Query(value = "{'chatRoomId': ?0, '_id': {$gte: ?1}}", sort = "{'timestamp': 1}")
-    List<ChatMessage> findMessagesOnAndAfterId(Long chatRoomId, String messageId, int limit);
-
-    @Query(value = "{'chatRoomId': ?0, 'timestamp': {$gt: ?1}}", count = true)
-    int countUnreadMessages(Long chatRoomId, LocalDateTime timestamp);
-
-    @Query(value = "{'chatRoomId': ?0}", sort = "{'timestamp': -1}")
-    List<ChatMessage> findLatestMessages(Long chatRoomId, Pageable pageable);
 
     Page<ChatMessage> findByChatRoomIdAndTimestampGreaterThanEqual(Long chatRoomId, LocalDateTime timestamp, Pageable pageable);
+
+    @Query("{'chatRoomId' : ?0, '_id' : {$lt:  ?1}}") // ! chatRoomId가 주어진 값과 일치하고, '_id'가 messageId보다 작은 (이전의) 메시지 조회 -> pagesSize만큼.
+    List<ChatMessage> findPreviousMessages(Long chatRoomId, String messageId, int pageSize);
+
+    @Query(value = "{'chatRoomId': ?0, '_id': {$gt: ?1}}", sort = "{'timestamp': 1}") // ! $gt : greaterThan 사용 -> 주어진 메시지 이후 메시지 조회
+    List<ChatMessage> findNextMessages(Long chatRoomId, String messageId, int pageSize);
 }
