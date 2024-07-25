@@ -416,4 +416,26 @@ public class ChatService {
 
         return ChatRoomMessageResponse.of(messageDTOs, 0L, (long) messages.size(), hasMore);
     }
+
+    /**
+     * * 채팅방 나가는 회원의 정보 갱신 -> 마지막으로 읽은 메시지ID, 메시지 내용
+     * @param chatRoomId
+     * @param memberId
+     */
+    public void updateChatRoomMember(Long chatRoomId, Long memberId, ChatMessageDTO lastMessage) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
+
+        // ! 클라이언트로부터 받은 마지막 메시지 정보 갱신
+        if (lastMessage != null) {
+            chatRoomMember.setLastReadMessageId(lastMessage.getId());
+            chatRoomMember.setLastReadTime(lastMessage.getTimestamp());
+        }
+
+        chatRoomMember.setUnreadCount(0);
+
+        chatRoomMemberRepository.save(chatRoomMember);
+        chatRoomRepository.save(chatRoom);
+    }
 }
