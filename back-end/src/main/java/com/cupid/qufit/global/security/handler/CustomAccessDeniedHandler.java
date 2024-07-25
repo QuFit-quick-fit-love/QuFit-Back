@@ -2,6 +2,7 @@ package com.cupid.qufit.global.security.handler;
 
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.CustomJWTException;
+import com.cupid.qufit.global.security.util.SecurityErrorResponseUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         log.error("---------accessDeniedHandler---------");
-        throw new CustomJWTException(ErrorCode.ACCESS_DENIED_ERROR);
+        CustomJWTException e = new CustomJWTException(ErrorCode.ACCESS_DENIED_ERROR);
+        SecurityErrorResponseUtil.setSecurityErrorResponse(e, response, request);
     }
 }

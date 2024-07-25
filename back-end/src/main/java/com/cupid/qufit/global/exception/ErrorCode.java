@@ -35,9 +35,9 @@ public enum ErrorCode {
     MALFORMED_TOKEN("잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
     UNSUPPORTED_TOKEN("지원하지 않는 토큰입니다.", HttpStatus.UNAUTHORIZED),
     TOKEN_DEFAULT_ERROR("토큰 처리 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST),
-    ACCESS_DENIED_ERROR("접근할 수 없습니다.", HttpStatus.FORBIDDEN)
-
-    ;
+    ACCESS_DENIED_ERROR("접근할 수 없습니다.", HttpStatus.FORBIDDEN),
+    REFRESH_TOKEN_NOT_FOUND("RefreshToken을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    UNSUPPORTED_ENCODING("지원되지 않는 인코딩입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;
