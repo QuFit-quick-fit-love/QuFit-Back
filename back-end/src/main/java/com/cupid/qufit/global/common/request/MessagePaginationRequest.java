@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Paging {
+public class MessagePaginationRequest {
+
+    private String messageId; // ! 기준이 되는 메시지 ID
     private int pageNumber;
     private int pageSize;
 }

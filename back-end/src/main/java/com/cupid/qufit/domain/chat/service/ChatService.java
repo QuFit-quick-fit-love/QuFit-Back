@@ -14,11 +14,10 @@ import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
 import com.cupid.qufit.entity.chat.ChatRoomMemberStatus;
 import com.cupid.qufit.entity.chat.ChatRoomStatus;
+import com.cupid.qufit.global.common.request.MessagePaginationRequest;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -235,7 +233,6 @@ public class ChatService {
         // ! step1. 채팅방_멤버 조회
         ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, findMemberById(currentMemberId));
 
-
         // ! step2. 페이징 처리된 메시지 조회
         Page<ChatMessage> messagePage = chatMessageRepository.findByChatRoomIdOrderByTimestampDesc(chatRoomId,
                                                                                                    pageable);
@@ -255,7 +252,7 @@ public class ChatService {
         }
 
         // ! step6. 종합해서 반환
-        return ChatRoomMessageResponse.of(messages, unreadCount, messagePage);
+        return ChatRoomMessageResponse.of(messages, unreadCount, messagePage.getTotalElements(), null);
     }
 
     /**
@@ -317,6 +314,7 @@ public class ChatService {
 
     /**
      * * 채팅방 입장 시 unreadCount 초기화, 최근 메시지 로딩
+     *
      * @param chatRoomId
      * @param memberId
      * @return
@@ -338,7 +336,8 @@ public class ChatService {
         } else {
             // 읽지 않은 메시지가 있는 경우, 마지막으로 읽은 메시지 이후의 메시지 조회
             ChatMessage lastReadMessage = chatMessageRepository.findById(lastReadMessageId)
-                                                               .orElseThrow(() -> new ChatException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+                                                               .orElseThrow(() -> new ChatException(
+                                                                       ErrorCode.CHAT_MESSAGE_NOT_FOUND));
             messagePage = chatMessageRepository.findByChatRoomIdAndTimestampGreaterThanEqual(
                     chatRoomId, lastReadMessage.getTimestamp(), pageable);
         }
@@ -351,7 +350,7 @@ public class ChatService {
 
         // ! 최신 메시지의 ID와 시간을 마지막으로 읽은 메시지로 업데이트
         if (!messages.isEmpty()) {
-            ChatMessageDTO latestMessage = messages.get(messages.size()-1); // ! 마지막 메시지
+            ChatMessageDTO latestMessage = messages.get(messages.size() - 1); // ! 마지막 메시지
             chatRoomMember.setLastReadMessageId(latestMessage.getId());
             chatRoomMember.setLastReadTime(latestMessage.getTimestamp());
         }
@@ -360,8 +359,33 @@ public class ChatService {
         chatRoomMemberRepository.save(chatRoomMember);
 
         // ! 응답 생성 및 반환
-        return ChatRoomMessageResponse.of(messages, 0, messagePage);
+        return ChatRoomMessageResponse.of(messages, 0L, messagePage.getTotalElements(), null);
     }
 
+    /**
+     * * 위로 스크롤 시 이전 메시지 반환. (오름차순)
+     *
+     * @param chatRoomId
+     * @param memberId
+     * @param request
+     * @return
+     */
+    public ChatRoomMessageResponse loadPreviousMessages(Long chatRoomId, Long memberId,
+                                                        MessagePaginationRequest request) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
 
+        String messageId = request.getMessageId();
+        List<ChatMessage> messages = chatMessageRepository.findPreviousMessages(chatRoomId, messageId,
+                                                                                request.getPageSize());
+        // ! 시간 순 정렬
+        List<ChatMessageDTO> messageDTOS = messages.stream()
+                                                   .sorted(Comparator.comparing(ChatMessage::getTimestamp))
+                                                   .map(ChatMessageDTO::from)
+                                                   .collect(Collectors.toList());
+        // ! 요청한 페이지 크기만큼 메시지가 조회됐다면 더 조회할 수 있다고 알리기 위해.
+        boolean hasMore = messages.size() == request.getPageSize();
+        return ChatRoomMessageResponse.of(messageDTOS, 0L, (long) messages.size(), hasMore);
+    }
 }
