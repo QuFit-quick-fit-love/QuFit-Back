@@ -7,6 +7,7 @@ import com.cupid.qufit.domain.member.service.AuthService;
 import com.cupid.qufit.domain.member.service.MemberService;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/QuFit/auth")
+@Tag(name = "Authentication", description = "인증 관련 API")
 @Log4j2
 public class AuthController {
 
