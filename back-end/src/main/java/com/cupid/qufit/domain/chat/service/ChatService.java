@@ -388,4 +388,32 @@ public class ChatService {
         boolean hasMore = messages.size() == request.getPageSize();
         return ChatRoomMessageResponse.of(messageDTOS, 0L, (long) messages.size(), hasMore);
     }
+
+    /**
+     * * 아래로 스크롤 시 이후 메시지 반환 (오름차순)
+     *
+     * @param chatRoomId
+     * @param memberId
+     * @param request
+     * @return
+     */
+    public ChatRoomMessageResponse loadNextMessages(Long chatRoomId, Long memberId,
+                                                    MessagePaginationRequest request) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
+
+        String messageId = request.getMessageId();
+        List<ChatMessage> messages = chatMessageRepository.findNextMessages(chatRoomId, messageId, request.getPageSize());
+
+        // ! 시간 순 정렬(이미 가져올 때부터 시간 순), DTO 변환을 한 번에 처리
+        List<ChatMessageDTO> messageDTOs = messages.stream()
+                                                   .map(ChatMessageDTO::from)
+                                                   .collect(Collectors.toList());
+
+        // ! 요청한 페이지 크기만큼 메시지가 조회됐다면 더 조회할 수 있다고 알리기 위해.
+        boolean hasMore = messages.size() == request.getPageSize();
+
+        return ChatRoomMessageResponse.of(messageDTOs, 0L, (long) messages.size(), hasMore);
+    }
 }

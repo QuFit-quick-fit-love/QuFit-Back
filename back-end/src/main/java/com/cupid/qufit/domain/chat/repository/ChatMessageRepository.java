@@ -22,5 +22,6 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     @Query("{'chatRoomId' : ?0, '_id' : {$lt:  ?1}}") // ! chatRoomId가 주어진 값과 일치하고, '_id'가 messageId보다 작은 (이전의) 메시지 조회 -> pagesSize만큼.
     List<ChatMessage> findPreviousMessages(Long chatRoomId, String messageId, int pageSize);
 
-
+    @Query(value = "{'chatRoomId': ?0, '_id': {$gt: ?1}}", sort = "{'timestamp': 1}") // ! $gt : greaterThan 사용 -> 주어진 메시지 이후 메시지 조회
+    List<ChatMessage> findNextMessages(Long chatRoomId, String messageId, int pageSize);
 }
