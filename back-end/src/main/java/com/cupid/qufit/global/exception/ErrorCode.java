@@ -35,8 +35,10 @@ public enum ErrorCode {
     MALFORMED_TOKEN("잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
     UNSUPPORTED_TOKEN("지원하지 않는 토큰입니다.", HttpStatus.UNAUTHORIZED),
     TOKEN_DEFAULT_ERROR("토큰 처리 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST),
-    ACCESS_DENIED_ERROR("접근할 수 없습니다.", HttpStatus.FORBIDDEN)
+    ACCESS_DENIED_ERROR("접근할 수 없습니다.", HttpStatus.FORBIDDEN),
 
+    // Elasticsearch Index관련
+    INDEX_ALREADY_EXISTS("이미 존재하는 이름의 인덱스입니다.", HttpStatus.CONFLICT)
     ;
 
     private final String message;

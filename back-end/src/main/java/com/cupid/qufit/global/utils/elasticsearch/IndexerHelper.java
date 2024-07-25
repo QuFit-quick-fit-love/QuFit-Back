@@ -3,6 +3,8 @@ package com.cupid.qufit.global.utils.elasticsearch;
 
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import com.cupid.qufit.global.exception.ErrorCode;
+import com.cupid.qufit.global.exception.exceptionType.ESIndexException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +38,7 @@ public class IndexerHelper {
         Request existsRequest = new Request("HEAD", "/" + indexName);
         Response existsResponse = restClient.performRequest(existsRequest);
         if (existsResponse.getStatusLine().getStatusCode() == 200) {
-            System.out.println("Index already exists: " + indexName);
-            return false;
+            throw new ESIndexException(ErrorCode.INDEX_ALREADY_EXISTS);
         }
 
         // 인덱스가 존재하지 않는 경우 인덱스 생성
