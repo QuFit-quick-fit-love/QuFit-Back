@@ -10,6 +10,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     /*
     * * email로 회원 조회
      */
-    Optional<Member> findByEmail(@Param("email") String email);
+    Optional<Member> findByEmail(String email);
 
+    /*
+    * * 닉네임 존재 유무 확인
+    * */
+    Boolean existsByNickname(String nickname);
 }
