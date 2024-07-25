@@ -2,14 +2,17 @@ package com.cupid.qufit.domain.member.controller;
 
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
+import com.cupid.qufit.domain.member.dto.MemberSigninDTO.response;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.service.AuthService;
 import com.cupid.qufit.domain.member.service.MemberService;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/qufit/auth")
 @Log4j2
 public class AuthController {
 
@@ -31,8 +34,6 @@ public class AuthController {
     /*
      * * 카카오 소셜 로그인
      *
-     * TODO : refreshtoken 설정, 인증처리
-     *
      * @param : accessToken 카카오에서 발급받은 accessToken
      * */
 
@@ -41,9 +42,15 @@ public class AuthController {
         MemberDetails memberDetails = authService.kakaoLogin(accessToken);
 
         if (memberDetails != null) {
-            // JWT 토큰 생성
-            MemberSigninDTO.response responseDTO = memberService.signIn(memberDetails);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            // 유저 정보와 토큰 생성
+            Map<String, response> result = memberService.signIn(memberDetails);
+            String token = result.keySet().iterator().next();
+            log.info("[login token] : " + token);
+
+            // 헤더에 토큰 저장
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", "Bearer " + token);
+            return new ResponseEntity<>(result.get(token), headers, HttpStatus.OK);
         }
         throw new MemberException(ErrorCode.MEMBER_DEFAULT_ERROR);
     }
