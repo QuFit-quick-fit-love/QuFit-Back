@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/qufit/video")
 @RequiredArgsConstructor
-public class videoRoomController {
+public class VideoRoomController {
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -65,4 +65,5 @@ public class videoRoomController {
         }
         return ResponseEntity.ok("ok");
     }
+
 }

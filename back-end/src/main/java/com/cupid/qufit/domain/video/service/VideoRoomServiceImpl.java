@@ -9,6 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Log4j2
 @Transactional
-public class videoRoomServiceImpl implements videoRoomService {
+public class VideoRoomServiceImpl implements VideoRoomService {
 
 }
