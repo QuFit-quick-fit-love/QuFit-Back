@@ -44,7 +44,7 @@ public class ElasticsearchFactory {
         credsProv.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, userpassword));
         return RestClient
                 .builder(HttpHost.create(serverUrl))
-                .setDefaultHeaders(new Header[]{new BasicHeader("Authorization", "ApiKey" + apiKey)})
+                .setDefaultHeaders(new Header[]{new BasicHeader("Authorization", "ApiKey " + apiKey)})
                 .setHttpClientConfigCallback(httpAsyncClientBuilder -> httpAsyncClientBuilder
                         .setSSLContext(sslContext)
                         .setDefaultCredentialsProvider(credsProv))
