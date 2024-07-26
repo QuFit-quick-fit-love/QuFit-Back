@@ -7,6 +7,13 @@ import com.cupid.qufit.domain.chat.dto.ChatRoomRequest;
 import com.cupid.qufit.domain.chat.service.ChatService;
 import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -28,7 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat")
+@RequestMapping("/qufit/chat")
+@Tag(name = "Chat", description = "채팅 관련 REST API")
 public class ChatController {
 
     private final ChatService chatService;
@@ -38,6 +46,13 @@ public class ChatController {
      */
 
     @PostMapping("/rooms")
+    @Operation(summary = "채팅방 생성", description = "새로운 채팅방을 생성한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "채팅방 생성 성공",
+                         content = @Content(schema = @Schema(implementation = ChatRoom.class))),
+            @ApiResponse(responseCode = "404", description = "해당 유저 오류"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<ChatRoom> createChatRoom(@RequestBody ChatRoomRequest request) {
         ChatRoom chatRoom = chatService.createChatRoom(request);
         return new ResponseEntity<>(chatRoom, HttpStatus.OK);
@@ -50,6 +65,13 @@ public class ChatController {
      * TODO : 사용자 정보 지금은 member PK로 사용 이후에 변경 필요
      */
     @GetMapping("/rooms/{memberId}")
+    @Operation(summary = "유저의 채팅방 목록 조회", description = "특정 사용자의 채팅방 목록을 조회. 초기 호출에만 REST API로 호출")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChatRoomDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public ResponseEntity<?> getChatRooms(@PathVariable("memberId") Long memberId) {
         // TODO : 구현 필요
         List<ChatRoomDTO> chatRooms = chatService.getChatRooms(memberId);

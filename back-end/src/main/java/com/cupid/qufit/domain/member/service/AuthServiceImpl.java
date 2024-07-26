@@ -1,8 +1,6 @@
 package com.cupid.qufit.domain.member.service;
 
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
-import com.cupid.qufit.domain.member.dto.MemberSignupDTO.request;
-import com.cupid.qufit.domain.member.dto.MemberSignupDTO.response;
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
@@ -42,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final TypeProfilesRepository typeProfilesRepository;
     private final MemberService memberService;
 
-    @Value("${KAKAO_GET_USER_INFO_URL}")
+    @Value("${kakao.user.info.url}")
     private String kakaoGetUserInfoUrl;
 
     /*
@@ -56,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         // accessToken을 이용해서 사용자 정보 가져오기
         LinkedHashMap<String, LinkedHashMap> kakaoAccount = getKakaoAccountFromKakao(accessToken);
         String email = String.valueOf(kakaoAccount.get("email"));
-        log.info("----------------------------------");
+        log.info("----------------카카오 로그인 시도----------------");
         log.info("email : " + email);
         // 기존 DB에 회원정보 조회
         Optional<Member> resultMember = memberRepository.findByEmail(email);
@@ -71,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
             // 대기중이면 대기중 error
                 throw new CustomException(ErrorCode.ACCEPT_PENDING_USER);
             }
-        } else if (!resultMember.isPresent()){
+        } else {
         // 존재하지 않으면 회원가입 error
             throw new CustomException(ErrorCode.SIGNUP_REQUIRED);
         }
@@ -82,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
      * * 입력받은 회원 부가정보로 회원가입 처리
      */
     @Override
-    public response signup(String accessToken, request requestDTO) {
+    public MemberSignupDTO.Response signup(String accessToken, MemberSignupDTO.Request requestDTO) {
         // accessToken으로 카카오 회원 정보 조회
         LinkedHashMap<String, LinkedHashMap> kakaoAccount = getKakaoAccountFromKakao(accessToken);
 
@@ -97,14 +95,8 @@ public class AuthServiceImpl implements AuthService {
         log.info("중복회원 검증 : " + resultMember.isPresent());
         if (resultMember.isPresent()) throw new MemberException(ErrorCode.USERNAME_ALREADY_EXISTS);
 
-        String profileURL = "";
-        if (kakaoProfile.get("is_default_image") == "false") {
-            profileURL = String.valueOf(kakaoAccount.get("profile_img_url"));
-        }
-//        String nickname = String.valueOf(kakaoAccount.get("nickname"));
-
         // 회원 정보 저장
-        Member newMember = makeNewMemberEntity(email, profileURL, requestDTO);
+        Member newMember = makeNewMemberEntity(email, requestDTO);
 
         // 회원 프로필 mbti, 취미, 성격 저장
         memberService.saveMemberProfiles(newMember, requestDTO);
@@ -117,21 +109,16 @@ public class AuthServiceImpl implements AuthService {
         typeProfilesRepository.save(typeProfiles);
 
         // 응답 DTO 반환 (테스트용)
-        return response.builder()
-                .email(saveMember.getEmail())
-                .nickname(saveMember.getNickname())
-                .memberLocation(saveMember.getLocation())
-                .birthDate(saveMember.getBirthDate())
-                .gender(saveMember.getGender())
-                .bio(saveMember.getBio())
-                .memberMBTITag(saveMember.getMBTI())
-                .memberHobbyTags(saveMember.getMemberHobbies())
-                .memberPersonalityTags(saveMember.getMemberPersonalities())
-                .typeAgeMax(typeProfiles.getTypeAgeMax())
-                .typeAgeMin(typeProfiles.getTypeAgeMin())
-                .typeHobbyTags(typeProfiles.getTypeHobbies())
-                .typePersonalityTags(typeProfiles.getTypePersonalities())
-                .build();
+        return MemberSignupDTO.Response.of(saveMember, typeProfiles);
+    }
+
+    /*
+    * * 회원가입 시 닉네임 중복검사
+    * */
+    @Override
+    public Boolean isNicknameDuplication(String nickname) {
+        boolean isNicknameDuplication = memberRepository.existsByNickname(nickname);
+        return isNicknameDuplication;
     }
 
     /*
@@ -166,8 +153,8 @@ public class AuthServiceImpl implements AuthService {
      * TODO : 랜덤 생성된 비밀번호 암호화해서 저장
      * @param : 카카오 회원 계정 이메일, 프로필사진 url, 부가정보 DTO
      * */
-    private Member makeNewMemberEntity(String email, String profileURL,
-                                       MemberSignupDTO.request requestDTO) {
+    private Member makeNewMemberEntity(String email,
+                                       MemberSignupDTO.Request requestDTO) {
         String tmpPW = makeTmpPW();
 
         return Member.builder()
@@ -177,9 +164,9 @@ public class AuthServiceImpl implements AuthService {
                      .password(tmpPW)
                      .nickname(requestDTO.getNickname())
                      .birthDate(LocalDate.parse(requestDTO.getBirthYear() + "0101", DateTimeFormatter.ofPattern("yyyyMMdd")))
-                     .gender(requestDTO.getGender())
+                     .gender(requestDTO.getGender().charAt(0))
                      .bio(requestDTO.getBio())
-                     .profileImage(profileURL)
+                     .profileImage("")
                      .MBTI(null)
                      .build();
     }

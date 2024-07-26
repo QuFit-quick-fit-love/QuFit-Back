@@ -3,11 +3,13 @@ package com.cupid.qufit.global.exception;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.http.ResponseEntity;
 
 @Getter
 @Setter
 @Builder
+@ToString
 public class ErrorResponse {
     private int status;
     private ErrorCode errorCode;

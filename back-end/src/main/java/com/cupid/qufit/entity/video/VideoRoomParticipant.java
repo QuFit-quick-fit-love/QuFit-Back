@@ -28,8 +28,6 @@ public class VideoRoomParticipant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String connectionId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_room_id", nullable = false)
     private VideoRoom videoRoom;

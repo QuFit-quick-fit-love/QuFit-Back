@@ -1,5 +1,7 @@
 package com.cupid.qufit.global.config;
 
+import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
+import com.cupid.qufit.global.security.filter.JWTCheckExceptionFilter;
 import com.cupid.qufit.global.security.filter.JWTCheckFilter;
 import com.cupid.qufit.global.security.handler.CustomAccessDeniedHandler;
 import com.cupid.qufit.global.security.util.JWTUtil;
@@ -19,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     /*
      * * 각 URL 패턴에 대한 보안 필터 설정
@@ -36,11 +39,13 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // jwt 토큰 확인 필터
-        http.addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(new JWTCheckFilter(jwtUtil, redisRefreshTokenService),
+                             UsernamePasswordAuthenticationFilter.class)
+            // JWTCheckFilter를 실행하면서 발생하는 error를 handle함
+            .addFilterBefore(new JWTCheckExceptionFilter(), JWTCheckFilter.class)
             .exceptionHandling(config -> {
                 config.accessDeniedHandler(new CustomAccessDeniedHandler());
             });
-
 
         return http.build();
     }

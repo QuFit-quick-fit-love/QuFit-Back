@@ -15,9 +15,9 @@ public enum ErrorCode {
     MEMBER_DEFAULT_ERROR("회원 관련 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	SIGNUP_FAILURE("회원가입 도중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     USERNAME_ALREADY_EXISTS("이미 사용 중인 계정입니다.", HttpStatus.CONFLICT),
-    ACCEPT_PENDING_USER("가입 승인 대기 중인 계정입니다.", HttpStatus.NOT_FOUND),
+    ACCEPT_PENDING_USER("가입 승인 대기 중인 계정입니다.", HttpStatus.UNAUTHORIZED),
     MEMBER_NOT_FOUND("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    SIGNUP_REQUIRED("회원 가입이 필요합니다.", HttpStatus.NOT_FOUND),
+    SIGNUP_REQUIRED("회원 가입이 필요합니다.", HttpStatus.UNAUTHORIZED),
 
     // 태그 관련
     TAG_NOT_FOUND("태그를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
@@ -36,6 +36,8 @@ public enum ErrorCode {
     UNSUPPORTED_TOKEN("지원하지 않는 토큰입니다.", HttpStatus.UNAUTHORIZED),
     TOKEN_DEFAULT_ERROR("토큰 처리 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST),
     ACCESS_DENIED_ERROR("접근할 수 없습니다.", HttpStatus.FORBIDDEN),
+    REFRESH_TOKEN_NOT_FOUND("RefreshToken을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    UNSUPPORTED_ENCODING("지원되지 않는 인코딩입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // Elasticsearch Index관련
     INDEX_ALREADY_EXISTS("이미 존재하는 이름의 인덱스입니다.", HttpStatus.CONFLICT),

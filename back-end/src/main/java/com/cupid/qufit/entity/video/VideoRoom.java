@@ -34,8 +34,6 @@ public class VideoRoom {
     @Column(nullable = false, length = 30)
     private String videoRoomName;
 
-    private String sessionId;
-
     @Enumerated(EnumType.STRING)
     private VideoRoomStatus status;
 
