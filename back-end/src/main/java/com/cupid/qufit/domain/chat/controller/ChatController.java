@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/QuFit/chat")
+@RequestMapping("/qufit/chat")
 @Tag(name = "Chat", description = "채팅 관련 REST API")
 public class ChatController {
 
