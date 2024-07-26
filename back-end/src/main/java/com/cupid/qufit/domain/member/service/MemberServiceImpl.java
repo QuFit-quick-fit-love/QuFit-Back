@@ -2,7 +2,6 @@ package com.cupid.qufit.domain.member.service;
 
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
-import com.cupid.qufit.domain.member.dto.MemberSigninDTO.response;
 import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.tag.LocationRepository;
@@ -45,9 +44,9 @@ public class MemberServiceImpl implements MemberService {
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
      * */
     @Override
-    public void saveMemberProfiles(Member member, MemberSignupDTO.request requestDTO) {
+    public void saveMemberProfiles(Member member, MemberSignupDTO.Request requestDTO) {
         // location 저장
-        this.saveMemberLocation(member, requestDTO.getMemberLocationId());
+        this.saveMemberLocation(member, requestDTO.getLocationId());
 
         // mbti 저장
         this.saveMemberMBTI(member, requestDTO.getMemberMBTITagId());
@@ -66,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
      * * 이상형 프로필 생성, 나이차 저장
      * */
     @Override
-    public TypeProfiles createTypeProfiles(Member member, MemberSignupDTO.request requestDTO) {
+    public TypeProfiles createTypeProfiles(Member member, MemberSignupDTO.Request requestDTO) {
         return TypeProfiles.builder()
                            .member(member)
                            .typeAgeMax(requestDTO.getTypeAgeMax())
@@ -78,7 +77,7 @@ public class MemberServiceImpl implements MemberService {
      * * 이상형 프로필 (지역, mbti, 취미, 성격) 저장
      * */
     @Override
-    public void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberSignupDTO.request requestDTO) {
+    public void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberSignupDTO.Request requestDTO) {
         // mbti 저장
         List<Long> typeMBTIIds = requestDTO.getTypeMBTITagIds();
         this.saveTypeMBTI(typeProfiles, typeMBTIIds);
@@ -100,7 +99,7 @@ public class MemberServiceImpl implements MemberService {
      * - 카카오 로그인된 회원 email이 db에 존재하며 승인된 회원일 경우 로그인 처리
      * */
     @Override
-    public Map<String, response> signIn(MemberDetails memberDetails) {
+    public Map<String, MemberSigninDTO.Response> signIn(MemberDetails memberDetails) {
         String accessToken = jwtUtil.generateToken(memberDetails.getClaims(), "access");
         String refreshToken = jwtUtil.generateToken(memberDetails.getClaims(), "refresh");
         redisRefreshTokenService.saveRedisData(memberDetails.getId(), refreshToken, accessToken); // refreshToken redis에 저장
@@ -108,14 +107,14 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberDetails.getId())
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        MemberSigninDTO.response responseDTO = MemberSigninDTO.response.builder()
+        MemberSigninDTO.Response responseDTO = MemberSigninDTO.Response.builder()
                                        .email(member.getEmail())
                                        .nickname(member.getNickname())
                                        .profileImage(member.getProfileImage())
                                        .gender(member.getGender())
                                        .build();
 
-        Map<String, response> result = new HashMap<>();
+        Map<String, MemberSigninDTO.Response> result = new HashMap<>();
         result.put(accessToken, responseDTO);
         return result;
     }

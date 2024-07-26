@@ -6,10 +6,10 @@ import lombok.Getter;
 public class MemberSigninDTO {
     @Getter
     @Builder
-    public static class response {
+    public static class Response {
         private String email;
         private String nickname;
         private String profileImage;
-        private String gender;
+        private Character gender;
     }
 }

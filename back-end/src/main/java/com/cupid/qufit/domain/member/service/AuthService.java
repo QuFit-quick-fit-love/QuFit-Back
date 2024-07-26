@@ -8,7 +8,9 @@ public interface AuthService {
 
     MemberDetails kakaoLogin(String accessToken);
 
-    MemberSignupDTO.response signup(String accessToken, MemberSignupDTO.request memberSignupRequestDTO);
+    MemberSignupDTO.Response signup(String accessToken, MemberSignupDTO.Request memberSignupRequestDTO);
+
+    Boolean isNicknameDuplication(String nickname);
 
     /*
     * * member 객체를 PrincipalDetails DTO로 만드는 생성자

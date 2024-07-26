@@ -68,7 +68,7 @@ public class ElasticVideoRoom {
             private String location;
             private Integer age;
             private String bio;
-            private String gender;
+            private Character gender;
         }
     }
 
