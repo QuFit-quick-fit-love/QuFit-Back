@@ -36,9 +36,7 @@ public class IndexerHelper {
 
         try {
             Request request = new Request("GET", "/" + indexName);
-            HttpEntity entity = restClient.performRequest(request).getEntity();
-
-            return entity;
+            return restClient.performRequest(request).getEntity();
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
                 throw new ESIndexException(ErrorCode.INDEX_NOT_FOUND);

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/es")
+@RequestMapping("/qufit/es")
 public class ElasticsearchController {
 
     private final ElasticsearchService elasticsearchService;
