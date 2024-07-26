@@ -11,6 +11,5 @@ public class MemberSigninDTO {
         private String nickname;
         private String profileImage;
         private String gender;
-        private String accessToken;
     }
 }
