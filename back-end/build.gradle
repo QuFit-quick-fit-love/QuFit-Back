@@ -69,7 +69,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
     // ! LiveKit 관련
-    implementation 'io.livekit:livekit-java-client:0.6.1'
+    implementation 'io.livekit:livekit-server:0.6.1'
 }
 
 tasks.named('test') {
