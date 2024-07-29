@@ -1,20 +1,43 @@
 package com.cupid.qufit.domain.member.service;
 
 import com.cupid.qufit.domain.member.dto.MemberDetails;
+import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
-import com.cupid.qufit.domain.member.dto.MemberSigninDTO.Response;
-import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.TypeProfiles;
 import java.util.Map;
 
 public interface MemberService {
 
-    void saveMemberProfiles(Member member, MemberSignupDTO.Request requestDTO);
+    /*
+    * * 회원 프로필 정보 저장
+    * */
+    void saveMemberProfiles(Member member, MemberInfoDTO.Request requestDTO);
 
-    TypeProfiles createTypeProfiles(Member member, MemberSignupDTO.Request requestDTO);
+    /*
+    * * 이상형 프로필 생성
+    * */
+    TypeProfiles createTypeProfiles(Member member, MemberInfoDTO.Request requestDTO);
 
-    void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberSignupDTO.Request requestDTO);
+    /*
+    * * 이상형 프로필 정보 저장
+    * */
+    void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberInfoDTO.Request requestDTO);
 
-    Map<String, Response> signIn(MemberDetails memberDetails);
+    Map<String, MemberSigninDTO.Response> signIn(MemberDetails memberDetails);
+
+    /*
+    * * 회원 정보 조회
+    * */
+    MemberInfoDTO.Response getMemberInfo(Long memberId);
+
+    /*
+    * * 회원 정보 수정
+    * */
+    MemberInfoDTO.Response updateMemberInfo(MemberInfoDTO.Request request, Long currentMemberId);
+
+    /*
+    * * 회원 탈퇴 설정
+    * */
+    Member deleteService(Long currentMemberId);
 }
