@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,12 +34,16 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     * */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        // 로그인, 회원가입 관련 api와 swagger 관련 api는 check하지 않음
+        String[] excludePath = {"/qufit/auth",
+                "/swagger-ui",
+                "/api-docs",
+                "/images"};
 
         String path = request.getRequestURI();
-        if (path.startsWith("/qufit/auth")) {
-            return true; // 로그인, 회원가입 관련 api는 check하지 않음
-        }
-        return false;
+
+//        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+        return true; // 테스트를 위해 모두 true로 열어둠(임시)
     }
 
     @Override

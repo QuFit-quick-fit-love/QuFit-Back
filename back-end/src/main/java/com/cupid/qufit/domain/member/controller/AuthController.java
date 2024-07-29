@@ -5,8 +5,14 @@ import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO.Response;
 import com.cupid.qufit.domain.member.service.AuthService;
 import com.cupid.qufit.domain.member.service.MemberService;
+import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Map;
@@ -39,6 +45,12 @@ public class AuthController {
      * @param : accessToken 카카오에서 발급받은 accessToken
      * */
     @GetMapping(path = "/login", headers = "accessToken")
+    @Operation(summary = "카카오 소셜 로그인", description = "카카오 소셜 로그인을 시도한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "401", description = "ACCEPT_PENDING_USER : 가입 승인 대기 중"),
+            @ApiResponse(responseCode = "401", description = "SIGNUP_REQUIRED : 회원가입 필요")
+    })
     public ResponseEntity<?> kakaoLogin(@RequestHeader("accessToken") String accessToken) {
         MemberDetails memberDetails = authService.kakaoLogin(accessToken);
 
@@ -57,6 +69,12 @@ public class AuthController {
     }
 
     @PostMapping(path = "/signup", headers = "accessToken")
+    @Operation(summary = "회원가입 및 부가정보 입력", description = "회원가입을 시도한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "400", description = "요청 dto 필드값 오류"),
+            @ApiResponse(responseCode = "500", description = "SIGNUP_FAILURE : 서버 오류")
+    })
     public ResponseEntity<?> signup(@RequestHeader("accessToken") String accessToken,
                                     @Valid @RequestBody MemberInfoDTO.Request requestDTO) {
         log.info("---------------회원가입 시도-----------");
@@ -72,6 +90,11 @@ public class AuthController {
     }
 
     @GetMapping("/check-nickname")
+    @Operation(summary = "닉네임 중복검사", description = "닉네임 중복검사를 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "사용가능한 닉네임"),
+            @ApiResponse(responseCode = "400", description = "중복된 닉네임")
+    })
     public ResponseEntity<?> checkUniqueNickname(@RequestParam("nickname") String nickname){
         log.info("---------------닉네임 중복검사-----------");
         Boolean isNicknameDuplication = authService.isNicknameDuplication(nickname);
