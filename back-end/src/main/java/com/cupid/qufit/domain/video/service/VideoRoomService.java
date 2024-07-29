@@ -14,4 +14,6 @@ public interface VideoRoomService {
     void deleteVideoRoom(Long videoRoomId);
 
     void leaveVideoRoom(Long videoRoomId, Long participantId);
+
+    VideoRoomResponse getVideoRoomDetail(Long videoRoomId);
 }

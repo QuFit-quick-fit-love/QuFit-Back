@@ -5,8 +5,8 @@ import com.cupid.qufit.global.common.response.FieldValidationExceptionResponse;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
+import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +39,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ChatException.class)
     public ResponseEntity<ErrorResponse> handleChatException(ChatException e) {
         log.debug("[ChatException] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
+    }
+
+    @ExceptionHandler(VideoException.class)
+    public ResponseEntity<ErrorResponse> handleChatException(VideoException e) {
+        log.debug("[VideoException] : {} is occurred", e.getErrorCode());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
