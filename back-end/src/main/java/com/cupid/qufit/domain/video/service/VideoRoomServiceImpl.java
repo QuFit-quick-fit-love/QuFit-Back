@@ -131,15 +131,21 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
-        // ! 2. 참가자 찾기
+        // ! 2. 방 인원 1명일 경우 방 삭제
+        if (videoRoom.getCurMCount()+videoRoom.getCurWCount() == 1) {
+            videoRoomRepository.delete(videoRoom);
+            return ;
+        }
+
+        // ! 3. 참가자 찾기
         VideoRoomParticipant participant = videoRoomParticipantRepository.findById(participantId)
                                                                          .orElseThrow(
                                                                                  () -> new VideoException(
                                                                                          ErrorCode.PARTICIPANT_NOT_FOUND));
-        // ! 3. 방에서 참가자 제거
+        // ! 4. 방에서 참가자 제거
         videoRoom.getParticipants().remove(participant);
 
-        // ! 4. 방 현재 인원 수 업데이트
+        // ! 5. 방 현재 인원 수 업데이트
         if (participant.getMember().getGender() == 'm') {
             videoRoom.setCurMCount(videoRoom.getCurMCount() - 1);
         } else if (participant.getMember().getGender() == 'f') {
