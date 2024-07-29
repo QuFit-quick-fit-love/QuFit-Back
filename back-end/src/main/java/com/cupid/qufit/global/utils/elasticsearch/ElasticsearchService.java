@@ -35,7 +35,7 @@ public class ElasticsearchService {
     }
 
     // ! 인덱스 삭제
-    public Boolean deleteIndex(String indexName) throws IOException {
+    public Boolean deleteIndex(String indexName) {
         log.info("[deleteIndex] indexName: {}", indexName);
         return indexerHelper.deleteIndex(indexName);
     }
