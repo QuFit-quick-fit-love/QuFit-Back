@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @Setter
@@ -26,6 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
+@DynamicUpdate
 public class TypeProfiles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,18 +55,26 @@ public class TypeProfiles {
     private List<TypeMBTI> typeMBTIs = new ArrayList<>();
 
     // 연관관계 메소드
-    public void addTypeHobbies(TypeHobby typeHobby){
+    public void addTypeHobbies(TypeHobby typeHobby) {
         this.typeHobbies.add(typeHobby);
         typeHobby.setTypeProfiles(this);
     }
 
-    public void addTypePersonalities(TypePersonality typePersonality){
+    public void addTypePersonalities(TypePersonality typePersonality) {
         this.typePersonalities.add(typePersonality);
         typePersonality.setTypeProfiles(this);
     }
 
-    public void addtypeMBTIs(TypeMBTI typeMBTI){
+    public void addtypeMBTIs(TypeMBTI typeMBTI) {
         this.typeMBTIs.add(typeMBTI);
         typeMBTI.setTypeProfiles(this);
+    }
+
+    public void updateTyeAgeMax(Integer typeAgeMax) {
+        this.typeAgeMax = typeAgeMax;
+    }
+
+    public void updateTypeAgeMin(Integer typeAgeMin) {
+        this.typeAgeMin = typeAgeMin;
     }
 }
