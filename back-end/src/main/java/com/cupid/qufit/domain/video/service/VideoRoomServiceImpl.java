@@ -122,4 +122,29 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.delete(videoRoom);
     }
 
+    /**
+     * 방 떠나기
+     */
+    @Override
+    public void leaveVideoRoom(Long videoRoomId, Long participantId) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        // ! 2. 참가자 찾기
+        VideoRoomParticipant participant = videoRoomParticipantRepository.findById(participantId)
+                                                                         .orElseThrow(
+                                                                                 () -> new VideoException(
+                                                                                         ErrorCode.PARTICIPANT_NOT_FOUND));
+        // ! 3. 방에서 참가자 제거
+        videoRoom.getParticipants().remove(participant);
+
+        // ! 4. 방 현재 인원 수 업데이트
+        if (participant.getMember().getGender() == 'm') {
+            videoRoom.setCurMCount(videoRoom.getCurMCount() - 1);
+        } else if (participant.getMember().getGender() == 'f') {
+            videoRoom.setCurWCount(videoRoom.getCurWCount() - 1);
+        }
+        videoRoomRepository.save(videoRoom);
+    }
 }

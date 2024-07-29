@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -62,4 +63,16 @@ public class VideoRoomController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 방 떠나기
+     */
+    @DeleteMapping("/{videoRoomId}/leave")
+    public ResponseEntity<?> leaveVideoRoom(@PathVariable Long videoRoomId, @RequestParam Long participantId) {
+        videoRoomService.leaveVideoRoom(videoRoomId, participantId);
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message("미팅룸에서 성공적으로 나왔습니다.")
+                                                            .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
