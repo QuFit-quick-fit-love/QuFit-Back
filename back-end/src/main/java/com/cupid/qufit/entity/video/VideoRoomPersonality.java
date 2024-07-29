@@ -21,11 +21,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-public class VideoHobby {
+public class VideoRoomPersonality {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "video_hobby_id")
+    @Column(name = "video_personality_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

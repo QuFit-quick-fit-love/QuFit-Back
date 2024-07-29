@@ -50,4 +50,11 @@ public class VideoRoom {
     @Builder.Default
     private List<VideoRoomParticipant> participants = new ArrayList<>();
 
+    @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VideoRoomHobby> videoRoomHobby = new ArrayList<>();
+
+    @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VideoRoomPersonality> videoRoomPersonality = new ArrayList<>();
 }
