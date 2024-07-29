@@ -1,6 +1,7 @@
 package com.cupid.qufit.global.utils.elasticsearch;
 
 import com.cupid.qufit.global.exception.exceptionType.ESIndexException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/qufit/es")
+@Tag(name = "Elasticsearch", description = "ES관련 기본 기능. 관리자 페이지에서 사용 필요.")
 public class ElasticsearchController {
 
     private final ElasticsearchService elasticsearchService;
