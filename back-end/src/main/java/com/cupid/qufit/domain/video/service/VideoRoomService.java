@@ -10,4 +10,6 @@ public interface VideoRoomService {
     String joinVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequset);
 
     VideoRoomResponse updateVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequest);
+
+    void deleteVideoRoom(Long videoRoomId);
 }

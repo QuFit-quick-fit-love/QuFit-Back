@@ -3,6 +3,7 @@ package com.cupid.qufit.domain.video.service;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
 import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
+import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.video.VideoRoom;
@@ -28,6 +29,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
     private final VideoRoomRepository videoRoomRepository;
     private final MemberRepository memberRepository;
+    private final VideoRoomParticipantRepository videoRoomParticipantRepository;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -107,4 +109,17 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         return VideoRoomResponse.from(videoRoom, null);
     }
+
+    /**
+     * 방 삭제
+     */
+    @Override
+    public void deleteVideoRoom(Long videoRoomId) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+        // ! 2. 방 제거
+        videoRoomRepository.delete(videoRoom);
+    }
+
 }
