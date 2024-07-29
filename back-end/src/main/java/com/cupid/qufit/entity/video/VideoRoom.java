@@ -35,17 +35,26 @@ public class VideoRoom {
     private String videoRoomName;
 
     @Enumerated(EnumType.STRING)
-    private VideoRoomStatus status;
+    private VideoRoomStatus status = VideoRoomStatus.READY;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     private int maxParticipants;
 
-    private int curMCount;
+    private int curMCount = 0;
 
-    private int curWCount;
+    private int curWCount = 0;
 
     @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<VideoRoomParticipant> participants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VideoRoomHobby> videoRoomHobby = new ArrayList<>();
+
+    @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VideoRoomPersonality> videoRoomPersonality = new ArrayList<>();
 }
