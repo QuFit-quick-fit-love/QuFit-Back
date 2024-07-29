@@ -3,6 +3,7 @@ package com.cupid.qufit.domain.video.service;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
 import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
+import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.video.VideoRoom;
@@ -28,6 +29,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
     private final VideoRoomRepository videoRoomRepository;
     private final MemberRepository memberRepository;
+    private final VideoRoomParticipantRepository videoRoomParticipantRepository;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -106,5 +108,49 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.save(videoRoom);
 
         return VideoRoomResponse.from(videoRoom, null);
+    }
+
+    /**
+     * 방 삭제
+     */
+    @Override
+    public void deleteVideoRoom(Long videoRoomId) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+        // ! 2. 방 제거
+        videoRoomRepository.delete(videoRoom);
+    }
+
+    /**
+     * 방 떠나기
+     */
+    @Override
+    public void leaveVideoRoom(Long videoRoomId, Long participantId) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        // ! 2. 방 인원 1명일 경우 방 삭제
+        if (videoRoom.getCurMCount()+videoRoom.getCurWCount() == 1) {
+            videoRoomRepository.delete(videoRoom);
+            return ;
+        }
+
+        // ! 3. 참가자 찾기
+        VideoRoomParticipant participant = videoRoomParticipantRepository.findById(participantId)
+                                                                         .orElseThrow(
+                                                                                 () -> new VideoException(
+                                                                                         ErrorCode.PARTICIPANT_NOT_FOUND));
+        // ! 4. 방에서 참가자 제거
+        videoRoom.getParticipants().remove(participant);
+
+        // ! 5. 방 현재 인원 수 업데이트
+        if (participant.getMember().getGender() == 'm') {
+            videoRoom.setCurMCount(videoRoom.getCurMCount() - 1);
+        } else if (participant.getMember().getGender() == 'f') {
+            videoRoom.setCurWCount(videoRoom.getCurWCount() - 1);
+        }
+        videoRoomRepository.save(videoRoom);
     }
 }
