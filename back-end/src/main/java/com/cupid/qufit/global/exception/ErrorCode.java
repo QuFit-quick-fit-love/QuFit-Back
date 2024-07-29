@@ -18,6 +18,8 @@ public enum ErrorCode {
     ACCEPT_PENDING_USER("가입 승인 대기 중인 계정입니다.", HttpStatus.UNAUTHORIZED),
     MEMBER_NOT_FOUND("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SIGNUP_REQUIRED("회원 가입이 필요합니다.", HttpStatus.UNAUTHORIZED),
+    TYPE_PROFILES_NOT_FOUND("이상형 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    MEMBER_ALREADY_WITHDRAWN("이미 탈퇴한 회원입니다.", HttpStatus.BAD_REQUEST),
 
     // 태그 관련
     TAG_NOT_FOUND("태그를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
