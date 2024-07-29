@@ -1,11 +1,10 @@
 package com.cupid.qufit.domain.member.service;
 
-import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
+import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.entity.Member;
-import com.cupid.qufit.entity.MemberRole;
 import com.cupid.qufit.entity.MemberStatus;
 import com.cupid.qufit.entity.TypeProfiles;
 import com.cupid.qufit.global.exception.CustomException;
@@ -13,8 +12,6 @@ import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
      * * 입력받은 회원 부가정보로 회원가입 처리
      */
     @Override
-    public MemberSignupDTO.Response signup(String accessToken, MemberSignupDTO.Request requestDTO) {
+    public MemberInfoDTO.Response signup(String accessToken, MemberInfoDTO.Request requestDTO) {
         // accessToken으로 카카오 회원 정보 조회
         LinkedHashMap<String, LinkedHashMap> kakaoAccount = getKakaoAccountFromKakao(accessToken);
 
@@ -96,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
         if (resultMember.isPresent()) throw new MemberException(ErrorCode.USERNAME_ALREADY_EXISTS);
 
         // 회원 정보 저장
-        Member newMember = makeNewMemberEntity(email, requestDTO);
+        Member newMember = MemberInfoDTO.Request.toEntity(email, requestDTO);
 
         // 회원 프로필 mbti, 취미, 성격 저장
         memberService.saveMemberProfiles(newMember, requestDTO);
@@ -108,8 +105,7 @@ public class AuthServiceImpl implements AuthService {
         memberService.saveTypeProfilesInfo(typeProfiles, requestDTO);
         typeProfilesRepository.save(typeProfiles);
 
-        // 응답 DTO 반환 (테스트용)
-        return MemberSignupDTO.Response.of(saveMember, typeProfiles);
+        return MemberInfoDTO.Response.of(saveMember, typeProfiles);
     }
 
     /*
@@ -147,36 +143,12 @@ public class AuthServiceImpl implements AuthService {
         return kakaoAccount;
     }
 
-    /*
-     * * 카카오 회원 계정 정보와 부가정보로 Member 엔티티 생성
-     *
-     * TODO : 랜덤 생성된 비밀번호 암호화해서 저장
-     * @param : 카카오 회원 계정 이메일, 프로필사진 url, 부가정보 DTO
-     * */
-    private Member makeNewMemberEntity(String email,
-                                       MemberSignupDTO.Request requestDTO) {
-        String tmpPW = makeTmpPW();
-
-        return Member.builder()
-                     .location(null)
-                     .role(MemberRole.USER)
-                     .email(email)
-                     .password(tmpPW)
-                     .nickname(requestDTO.getNickname())
-                     .birthDate(LocalDate.parse(requestDTO.getBirthYear() + "0101", DateTimeFormatter.ofPattern("yyyyMMdd")))
-                     .gender(requestDTO.getGender().charAt(0))
-                     .bio(requestDTO.getBio())
-                     .profileImage("")
-                     .MBTI(null)
-                     .build();
-    }
-
-    private String makeTmpPW() {
-        StringBuffer buffer = new StringBuffer();
-
-        for (int i = 0; i < 10; i++) {
-            buffer.append((char) ((int) (Math.random() * 55) * 65));
-        }
-        return buffer.toString();
-    }
+//    private String makeTmpPW() {
+//        StringBuffer buffer = new StringBuffer();
+//
+//        for (int i = 0; i < 10; i++) {
+//            buffer.append((char) ((int) (Math.random() * 55) * 65));
+//        }
+//        return buffer.toString();
+//    }
 }

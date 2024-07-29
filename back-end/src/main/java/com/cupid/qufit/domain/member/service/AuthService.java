@@ -1,6 +1,6 @@
 package com.cupid.qufit.domain.member.service;
 
-import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
+import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.entity.Member;
 
@@ -8,7 +8,7 @@ public interface AuthService {
 
     MemberDetails kakaoLogin(String accessToken);
 
-    MemberSignupDTO.Response signup(String accessToken, MemberSignupDTO.Request memberSignupRequestDTO);
+    MemberInfoDTO.Response signup(String accessToken, MemberInfoDTO.Request memberSignupRequestDTO);
 
     Boolean isNicknameDuplication(String nickname);
 
