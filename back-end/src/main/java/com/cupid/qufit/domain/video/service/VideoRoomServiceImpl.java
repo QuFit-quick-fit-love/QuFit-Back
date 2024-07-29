@@ -153,4 +153,14 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         }
         videoRoomRepository.save(videoRoom);
     }
+
+    @Override
+    public VideoRoomResponse getVideoRoomDetail(Long videoRoomId) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        // ! 2. 방 참가자의 태그를 포함한 반환
+        return VideoRoomResponse.withDetails(videoRoom);
+    }
 }

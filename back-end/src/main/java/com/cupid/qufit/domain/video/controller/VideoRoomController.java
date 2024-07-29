@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -74,5 +75,13 @@ public class VideoRoomController {
                                                             .message("미팅룸에서 성공적으로 나왔습니다.")
                                                             .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 방 상세 정보 조회
+     */
+    @GetMapping("/{videoRoomId}")
+    public ResponseEntity<?> getVideoRoomDetail(@PathVariable Long videoRoomId) {
+        return new ResponseEntity<>(videoRoomService.getVideoRoomDetail(videoRoomId), HttpStatus.OK);
     }
 }
