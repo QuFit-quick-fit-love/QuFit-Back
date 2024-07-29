@@ -30,11 +30,7 @@ public class SecurityConfig {
      * */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-//                                new AntPathRequestMatcher("/api/auth/login")
-                            "/**" // (임시 테스트용) 모두 접근가능
-                    ).permitAll())
+        http
             // csrf 사용 x
             .csrf(AbstractHttpConfigurer::disable)
             // 세션 사용 x
