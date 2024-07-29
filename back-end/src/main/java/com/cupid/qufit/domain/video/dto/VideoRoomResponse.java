@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.video.dto;
 
+import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.video.VideoRoom;
 import com.cupid.qufit.entity.video.VideoRoomHobby;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
@@ -31,6 +32,10 @@ public class VideoRoomResponse {
     private List<VideoRoomPersonality> videoRoomPersonality = new ArrayList<>(); // 방 성격 태그
     private String token; // 방 참가 토큰
 
+    // 참가자의 성격 및 취미 정보를 담을 필드
+    private List<String> participantPersonalities = new ArrayList<>();
+    private List<String> participantHobbies = new ArrayList<>();
+
     public static VideoRoomResponse from(VideoRoom videoRoom, String token) {
         return VideoRoomResponse.builder()
                                 .videoRoomId(videoRoom.getVideoRoomId())
@@ -44,6 +49,35 @@ public class VideoRoomResponse {
                                 .videoRoomHobby(videoRoom.getVideoRoomHobby())
                                 .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
                                 .token(token)
+                                .build();
+    }
+
+    public static VideoRoomResponse withDetails(VideoRoom videoRoom) {
+        List<String> personalities = new ArrayList<>();
+        List<String> hobbies = new ArrayList<>();
+        for (VideoRoomParticipant participant : videoRoom.getParticipants()) {
+            Member member = participant.getMember();
+            personalities.addAll(member.getMemberPersonalities().stream()
+                                       .map(personality -> personality.getTag().getTagName())
+                                       .toList());
+            hobbies.addAll(member.getMemberHobbies().stream()
+                                 .map(hobby -> hobby.getTag().getTagName())
+                                 .toList());
+        }
+
+        return VideoRoomResponse.builder()
+                                .videoRoomId(videoRoom.getVideoRoomId())
+                                .videoRoomName(videoRoom.getVideoRoomName())
+                                .status(videoRoom.getStatus())
+                                .createdAt(videoRoom.getCreatedAt())
+                                .maxParticipants(videoRoom.getMaxParticipants())
+                                .curMCount(videoRoom.getCurMCount())
+                                .curWCount(videoRoom.getCurWCount())
+                                .participants(videoRoom.getParticipants())
+                                .videoRoomHobby(videoRoom.getVideoRoomHobby())
+                                .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
+                                .participantPersonalities(personalities)
+                                .participantHobbies(hobbies)
                                 .build();
     }
 }
