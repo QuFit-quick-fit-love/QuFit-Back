@@ -3,11 +3,13 @@ package com.cupid.qufit.domain.video.service;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
 import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
-import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.video.VideoRoom;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
+import com.cupid.qufit.global.exception.ErrorCode;
+import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
@@ -26,7 +28,6 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
     private final VideoRoomRepository videoRoomRepository;
     private final MemberRepository memberRepository;
-    private final VideoRoomParticipantRepository videoRoomParticipantRepository;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -34,6 +35,9 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     @Value("${livekit.api.secret}")
     private String LIVEKIT_API_SECRET;
 
+    /**
+     * 방 생성
+     */
     @Override
     public VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequest) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
@@ -46,17 +50,17 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     }
 
     /**
-     *
+     * 방 참가
      */
     @Override
     public String joinVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequset) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
-                                                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // ! 2. 멤버 찾기
         Member member = memberRepository.findById(videoRoomRequset.getParticipantId())
-                                        .orElseThrow(() -> new IllegalArgumentException("Participant not found"));
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         // ! 3. 참가자 업데이트
         VideoRoomParticipant newParticipant = VideoRoomParticipant.builder()
@@ -83,5 +87,24 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         token.addGrants(new RoomJoin(true), new RoomName(videoRoomId.toString()));
 
         return token.toJwt();
+    }
+
+    /**
+     * 방 업데이트
+     */
+    @Override
+    public VideoRoomResponse updateVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequest) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        // ! 2. 방 정보 업데이트 (방 제목, 최대 인원 수, 취미, 성격 태그)
+        videoRoom.setVideoRoomName(videoRoomRequest.getVideoRoomName());
+        videoRoom.setMaxParticipants(videoRoomRequest.getMaxParticipants());
+        videoRoom.setVideoRoomHobby(VideoRoomRequest.toHobbyList(videoRoomRequest, videoRoom));
+        videoRoom.setVideoRoomPersonality(VideoRoomRequest.toPersonalityList(videoRoomRequest, videoRoom));
+        videoRoomRepository.save(videoRoom);
+
+        return VideoRoomResponse.from(videoRoom, null);
     }
 }
