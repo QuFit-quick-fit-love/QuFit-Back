@@ -4,6 +4,7 @@ import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.filter.JWTCheckExceptionFilter;
 import com.cupid.qufit.global.security.filter.JWTCheckFilter;
 import com.cupid.qufit.global.security.handler.CustomAccessDeniedHandler;
+import com.cupid.qufit.global.security.handler.CustomLogoutSuccessHandler;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @RequiredArgsConstructor
@@ -46,6 +48,15 @@ public class SecurityConfig {
             .exceptionHandling(config -> {
                 config.accessDeniedHandler(new CustomAccessDeniedHandler());
             });
+
+        // 로그아웃
+        http.logout(
+                logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/qufit/member/logout"))
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                        .logoutSuccessHandler(new CustomLogoutSuccessHandler())
+        );
 
         return http.build();
     }
