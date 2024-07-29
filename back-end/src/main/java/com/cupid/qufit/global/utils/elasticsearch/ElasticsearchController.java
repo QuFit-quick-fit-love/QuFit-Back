@@ -34,9 +34,21 @@ public class ElasticsearchController {
      */
     // TODO: 성공 response dto 만들어서 리턴해주기
     @GetMapping("/create-index")
-    public Boolean createIndex(@RequestParam("index-name") String indexName, @RequestParam("type") String type)
+    public ResponseEntity<CommonResultResponse> createIndex(@RequestParam("index-name") String indexName, @RequestParam("type") String type)
             throws IOException {
-        return elasticsearchService.createIndex(indexName, type);
+        CommonResultResponse response;
+        if (elasticsearchService.createIndex(indexName, type)) {
+            response = CommonResultResponse.builder()
+                                           .isSuccess(true)
+                                           .message("index 생성 성공")
+                                           .build();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response = CommonResultResponse.builder()
+                                           .isSuccess(false)
+                                           .message("index 생성 실패").build();
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -74,5 +86,12 @@ public class ElasticsearchController {
                                            .message("index 삭제 실패").build();
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // ! 저장되어있는 문서의 개수 세는 메소드. 혹시 몰라서 일단 만들어 놓음.
+    @GetMapping("/count")
+    public Long countIndex(@RequestParam("index-name") String indexName)
+            throws IOException {
+        return elasticsearchService.countIndex(indexName);
     }
 }
