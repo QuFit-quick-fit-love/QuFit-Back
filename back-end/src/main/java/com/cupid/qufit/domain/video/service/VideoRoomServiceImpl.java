@@ -154,6 +154,9 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.save(videoRoom);
     }
 
+    /**
+     * 방 상세 정보 조회
+     */
     @Override
     public VideoRoomResponse getVideoRoomDetail(Long videoRoomId) {
         // ! 1. 방 찾기
