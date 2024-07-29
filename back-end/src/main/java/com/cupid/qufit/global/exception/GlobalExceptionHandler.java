@@ -60,15 +60,14 @@ public class GlobalExceptionHandler {
         log.error("field validation error : [MethodArgumentNotValidException] : ", e);
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 
-        List<FieldValidationExceptionResponse> errorResponse = fieldErrors.stream()
-                                                                          .map(error -> FieldValidationExceptionResponse.builder()
-                                                                                                                        .field(error.getField())
-                                                                                                                        .rejectedValue(
-                                                                                                                                error.getRejectedValue())
-                                                                                                                        .errorMessage(
-                                                                                                                                error.getDefaultMessage())
-                                                                                                                        .build())
-                                                                          .toList();
+        List<FieldValidationExceptionResponse> errorResponse
+                = fieldErrors.stream()
+                             .map(error -> FieldValidationExceptionResponse.builder()
+                                                                           .field(error.getField())
+                                                                           .rejectedValue(error.getRejectedValue())
+                                                                           .errorMessage(error.getDefaultMessage())
+                                                                           .build())
+                             .toList();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

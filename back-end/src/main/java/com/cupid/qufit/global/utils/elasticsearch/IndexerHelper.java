@@ -1,8 +1,13 @@
 package com.cupid.qufit.global.utils.elasticsearch;
 
 
+import static com.cupid.qufit.global.exception.ErrorCode.ES_IO_ERROR;
+import static com.cupid.qufit.global.exception.ErrorCode.UNEXPECTED_ERROR;
+
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.ESIndexException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -72,15 +77,35 @@ public class IndexerHelper {
         return true;
     }
 
-    public Boolean deleteIndex(String indexName) throws IOException {
+    public Boolean deleteIndex(String indexName) {
+        try {
+            DeleteIndexRequest deleteIndexRequest = DeleteIndexRequest.of(d -> d.index(indexName));
+            DeleteIndexResponse deleteIndexResponse = elasticsearchClientManager.getElasticsearchClient(indexName)
+                                                                                .indices()
+                                                                                .delete(deleteIndexRequest);
+            // 삭제 성공
+            if (deleteIndexResponse.acknowledged()) {
+                log.info("[deleteIndex] 인덱스 삭제 성공. {}", indexName);
+                return true;
+            } else {
+                throw new ESIndexException(UNEXPECTED_ERROR);
+            }
+        } catch (ElasticsearchException e) {
+            if (e.status() == 404) {
+                System.out.println(e.getMessage());
+            } else if (e.status() == 409) {
+                System.out.println(e.getMessage());
+            } else {
+                System.out.println(e.getMessage());
+                throw new ESIndexException(UNEXPECTED_ERROR);
+            }
+        } catch (IOException e) {
+            throw new ESIndexException(ES_IO_ERROR);
+        } catch (Exception e) {
+            throw new ESIndexException(UNEXPECTED_ERROR);
+        }
 
-        DeleteIndexRequest deleteIndexRequest = DeleteIndexRequest.of(d -> d.index(indexName));
-
-        elasticsearchClientManager.getElasticsearchClient(indexName)
-                                  .indices()
-                                  .delete(deleteIndexRequest);
-
-        return true;
+        return false;
     }
 
     // ! index안에 있는 document의 수 세기
