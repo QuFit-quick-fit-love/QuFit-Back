@@ -1,8 +1,8 @@
 package com.cupid.qufit.domain.member.controller;
 
 import com.cupid.qufit.domain.member.dto.MemberDetails;
+import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO.Response;
-import com.cupid.qufit.domain.member.dto.MemberSignupDTO;
 import com.cupid.qufit.domain.member.service.AuthService;
 import com.cupid.qufit.domain.member.service.MemberService;
 import com.cupid.qufit.global.exception.ErrorCode;
@@ -15,11 +15,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,9 +38,8 @@ public class AuthController {
      *
      * @param : accessToken 카카오에서 발급받은 accessToken
      * */
-
-    @GetMapping("/login")
-    public ResponseEntity<?> kakaoLogin(@RequestParam("accessToken") String accessToken) {
+    @GetMapping(path = "/login", headers = "accessToken")
+    public ResponseEntity<?> kakaoLogin(@RequestHeader("accessToken") String accessToken) {
         MemberDetails memberDetails = authService.kakaoLogin(accessToken);
 
         if (memberDetails != null) {
@@ -58,12 +56,12 @@ public class AuthController {
         throw new MemberException(ErrorCode.MEMBER_DEFAULT_ERROR);
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestParam("accessToken") String accessToken,
-                                    @Valid @RequestBody MemberSignupDTO.Request requestDTO) {
+    @PostMapping(path = "/signup", headers = "accessToken")
+    public ResponseEntity<?> signup(@RequestHeader("accessToken") String accessToken,
+                                    @Valid @RequestBody MemberInfoDTO.Request requestDTO) {
         log.info("---------------회원가입 시도-----------");
 
-        MemberSignupDTO.Response responseDTO;
+        MemberInfoDTO.Response responseDTO;
         try {
             responseDTO = authService.signup(accessToken, requestDTO);
         } catch (Exception e) {

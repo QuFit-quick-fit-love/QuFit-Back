@@ -15,6 +15,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @Setter
@@ -32,6 +35,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
+@DynamicUpdate
 public class Member {
 
     @Id
@@ -53,10 +57,9 @@ public class Member {
     @NotNull(message = "닉네임은 null일 수 없습니다.")
     private String nickname;
 
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-    @Builder.Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     @NotNull(message = "생년월일는 null일 수 없습니다.")
     private LocalDate birthDate;
     @NotNull(message = "성별은 null일 수 없습니다.")
@@ -109,5 +112,36 @@ public class Member {
 
     public void updateMBTI(Tag mbti) {
         this.MBTI = mbti;
+    }
+
+    public void updateStatus(MemberStatus status) {
+        this.status = status;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateBirthDate(LocalDate localDate) {
+        this.birthDate = localDate;
+    }
+
+    public void updateGender(Character gender) {
+        this.gender = gender;
+    }
+
+    public void updateBio(String bio) {
+        this.bio = bio;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
