@@ -8,6 +8,7 @@ import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
 import com.cupid.qufit.global.common.request.MessagePaginationRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
+@Tag(name = "Chat-WebSocket", description = "채팅 관련 웹소켓 통신 API")
 public class WebSocketChatController {
 
     private final ChatService chatService;

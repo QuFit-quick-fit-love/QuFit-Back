@@ -322,7 +322,7 @@ public class ChatService {
 
         int unreadCount = chatRoomMember.getUnreadCount();
         String lastReadMessageId = chatRoomMember.getLastReadMessageId();
-        Page<ChatMessage> messagePage = null;
+        Page<ChatMessage> messagePage;
 
         if (unreadCount > 20 && lastReadMessageId != null) {
             // ! 읽지 않은 메시지가 있는 경우
