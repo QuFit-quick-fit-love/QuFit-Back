@@ -81,7 +81,6 @@ public class WebSocketChatController {
         Pageable pageable = PageRequest.of(0, pageRequest.getPageSize(), Sort.by(Sort.Direction.ASC, "timestamp"));
         ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chatroom." + chatRoomId, response);
-//        messagingTemplate.convertAndSend("/sub/chatroom." + chatRoomId + "." + memberId, response);
     }
 
     /**
@@ -92,7 +91,7 @@ public class WebSocketChatController {
      */
     @MessageMapping("/chat.leaveRoom/{chatRoomId}")
     public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageDTO lastMessage) {
-        Long memberId = 3L;
+        Long memberId = 4L;
         chatService.updateChatRoomMember(chatRoomId, memberId, lastMessage);
     }
 
@@ -108,13 +107,12 @@ public class WebSocketChatController {
     @MessageMapping("/chat.loadPreviousMessages/{chatRoomId}")
     public void loadPreviousMessages(@DestinationVariable Long chatRoomId,
                                      @Payload MessagePaginationRequest messagePaginationRequest) {
-        Long memberId = 3L; // ! 일단 하드코딩 -> 이후에 JWT 토큰 반영
+        Long memberId = 4L; // ! 일단 하드코딩 -> 이후에 JWT 토큰 반영
         ChatRoomMessageResponse response = chatService.loadPreviousMessages(chatRoomId, memberId,
                                                                             messagePaginationRequest);
 //        log.info("response : {}", response);
 
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chat.messages." + chatRoomId, response);
-
     }
 
     /**
@@ -129,7 +127,7 @@ public class WebSocketChatController {
     @MessageMapping("/chat.loadNextMessages/{chatRoomId}")
     public void loadNextMessages(@DestinationVariable Long chatRoomId,
                                  @Payload MessagePaginationRequest messagePaginationRequest) {
-        Long memberId = 3L; // 일단 하드코딩 -> 이후에 JWT 토큰 반영
+        Long memberId = 4L; // 일단 하드코딩 -> 이후에 JWT 토큰 반영
         ChatRoomMessageResponse response = chatService.loadNextMessages(chatRoomId, memberId, messagePaginationRequest);
 
 //        log.info("response = {}", response);
