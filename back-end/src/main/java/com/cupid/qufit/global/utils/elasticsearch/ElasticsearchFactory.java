@@ -13,6 +13,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,11 +22,16 @@ public class ElasticsearchFactory {
 
     // TODO: AWS 서버 띄운 후 application.properties에 설정 필요.
     //  연동이 안되더라도 프로젝트 실행 가능
-    private final String serverUrl = "  ";
-    private final String apiKey = "  ";
-    private final String username = "  ";
-    private final String userpassword = "  ";
-    private final String fingerprint = "  ";
+    @Value("${elasticsearch.url}")
+    private String serverUrl;
+    @Value("${elasticsearch.apikey}")
+    private String apiKey;
+    @Value("${elasticsearch.username}")
+    private String username;
+    @Value("${elasticsearch.password}")
+    private String userpassword;
+    @Value("${elasticsearch.fingerprint}")
+    private String fingerprint;
 
     ElasticsearchClient getElasticsearchClient() {
         RestClient restClient = getRestClient();
@@ -38,7 +44,7 @@ public class ElasticsearchFactory {
         credsProv.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, userpassword));
         return RestClient
                 .builder(HttpHost.create(serverUrl))
-                .setDefaultHeaders(new Header[]{new BasicHeader("Authorization", "ApiKey" + apiKey)})
+                .setDefaultHeaders(new Header[]{new BasicHeader("Authorization", "ApiKey " + apiKey)})
                 .setHttpClientConfigCallback(httpAsyncClientBuilder -> httpAsyncClientBuilder
                         .setSSLContext(sslContext)
                         .setDefaultCredentialsProvider(credsProv))
