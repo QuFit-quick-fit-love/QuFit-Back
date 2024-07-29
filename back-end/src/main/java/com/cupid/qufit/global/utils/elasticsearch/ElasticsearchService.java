@@ -21,10 +21,16 @@ public class ElasticsearchService {
     private final ObjectMapper objectMapper;
 
     // ! 인덱스 생성
-    public Boolean createIndex(String indexName) throws IOException {
+    public Boolean createIndex(String indexName, String type) throws IOException {
         log.info("[createIndex] indexName: {}", indexName);
-        Map<String, Object> indexTemplate = new ElasticsearchFileUtil().getFileContent(
-                "/index/room_recommend_template.json");
+        Map<String, Object> indexTemplate;
+
+        if (type.equals("p")) {
+            indexTemplate = new ElasticsearchFileUtil().getFileContent("/index/participant_template.json");
+        } else {
+            indexTemplate = new ElasticsearchFileUtil().getFileContent("/index/video_room_template.json");
+        }
+
         return indexerHelper.createIndex(indexName, indexTemplate);
     }
 
