@@ -46,7 +46,8 @@ public enum ErrorCode {
     INDEX_NOT_FOUND("해당 인덱스 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // 미팅룸 관련
-    VIDEO_ROOM_NOT_FOUND("미팅룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+    VIDEO_ROOM_NOT_FOUND("미팅룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    PARTICIPANT_NOT_FOUND("참가자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String message;
