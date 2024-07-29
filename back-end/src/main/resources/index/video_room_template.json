@@ -37,43 +37,11 @@
       "video_room_id": {
         "type": "keyword"
       },
-      "video_room_name": {
-        "type": "text",
-        "analyzer": "nori"
+      "participant": {
+        "type": "keyword"
       },
-      "participants": {
-        "type": "nested",
-        "properties": {
-          "member_id": {
-            "type": "constant_keyword"
-          },
-          "updated_at": {
-            "type": "date",
-            "format": "yyyy-MM-dd HH:mm:ss"
-          },
-          "mbti": {
-            "type": "keyword"
-          },
-          "personalities": {
-            "type": "keyword"
-          },
-          "hobbies": {
-            "type": "keyword"
-          },
-          "location": {
-            "type": "keyword"
-          },
-          "age": {
-            "type": "integer"
-          },
-          "bio": {
-            "type": "text",
-            "analyzer": "nori"
-          },
-          "gender": {
-            "type": "keyword"
-          }
-        }
+      "room_tags": {
+        "type": "keyword"
       }
     }
   }
