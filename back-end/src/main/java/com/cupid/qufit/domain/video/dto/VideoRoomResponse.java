@@ -53,6 +53,7 @@ public class VideoRoomResponse {
     }
 
     public static VideoRoomResponse withDetails(VideoRoom videoRoom) {
+        // ! 방 참가자 태그들 가져오는 로직
         List<String> personalities = new ArrayList<>();
         List<String> hobbies = new ArrayList<>();
         for (VideoRoomParticipant participant : videoRoom.getParticipants()) {
