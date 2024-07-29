@@ -58,7 +58,7 @@ public class ElasticsearchController {
     }
 
     @DeleteMapping("/{index-name}")
-    public ResponseEntity<CommonResultResponse> deleteIndex(@RequestParam("index-name") String indexName)
+    public ResponseEntity<CommonResultResponse> deleteIndex(@PathVariable("index-name") String indexName)
             throws IOException {
         CommonResultResponse response;
 
