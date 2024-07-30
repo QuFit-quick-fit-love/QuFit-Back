@@ -111,7 +111,7 @@ public class VideoRoomController {
     @Operation(summary = "비디오 방 목록 조회", description = "모든 비디오 방의 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<?> getVideoRoomList(@RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "10") int size) {
+                                              @RequestParam(defaultValue = "6") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
     }
