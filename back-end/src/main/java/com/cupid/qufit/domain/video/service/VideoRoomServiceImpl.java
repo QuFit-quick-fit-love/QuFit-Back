@@ -1,21 +1,26 @@
 package com.cupid.qufit.domain.video.service;
 
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
+import com.cupid.qufit.domain.member.repository.tag.TagRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
 import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
 import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.video.VideoRoom;
+import com.cupid.qufit.entity.video.VideoRoomHobby;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
+import com.cupid.qufit.entity.video.VideoRoomPersonality;
 import com.cupid.qufit.entity.video.VideoRoomStatus;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +42,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     private final VideoRoomRepository videoRoomRepository;
     private final MemberRepository memberRepository;
     private final VideoRoomParticipantRepository videoRoomParticipantRepository;
+    private final TagRepository tagRepository;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -51,6 +57,8 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     public VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequest) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
         VideoRoom videoRoom = VideoRoomRequest.to(videoRoomRequest);
+        videoRoom.setVideoRoomHobby(toHobbyList(videoRoomRequest, videoRoom));
+        videoRoom.setVideoRoomPersonality(toPersonalityList(videoRoomRequest, videoRoom));
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
@@ -110,8 +118,8 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 2. 방 정보 업데이트 (방 제목, 최대 인원 수, 취미, 성격 태그)
         videoRoom.setVideoRoomName(videoRoomRequest.getVideoRoomName());
         videoRoom.setMaxParticipants(videoRoomRequest.getMaxParticipants());
-        videoRoom.setVideoRoomHobby(VideoRoomRequest.toHobbyList(videoRoomRequest, videoRoom));
-        videoRoom.setVideoRoomPersonality(VideoRoomRequest.toPersonalityList(videoRoomRequest, videoRoom));
+        videoRoom.setVideoRoomHobby(toHobbyList(videoRoomRequest, videoRoom));
+        videoRoom.setVideoRoomPersonality(toPersonalityList(videoRoomRequest, videoRoom));
         videoRoomRepository.save(videoRoom);
 
         return VideoRoomResponse.from(videoRoom, null);
@@ -195,5 +203,41 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                 "pageSize", videoRoomPage.getSize()
         ));
         return response;
+    }
+
+    /**
+     * 미팅룸 취미 태그 찾아오기
+     */
+    public List<VideoRoomHobby> toHobbyList(VideoRoomRequest videoRoomRequest, VideoRoom videoRoom) {
+        List<VideoRoomHobby> videoRoomHobbies = new ArrayList<>();
+        if (videoRoomRequest.getVideoRoomHobbies() != null) {
+            for (Long tagId : videoRoomRequest.getVideoRoomHobbies()) {
+                videoRoomHobbies.add(VideoRoomHobby.builder()
+                                                   .tag(tagRepository.findById(tagId)
+                                                                     .orElseThrow(() -> new TagException(
+                                                                             ErrorCode.TAG_NOT_FOUND)))
+                                                   .videoRoom(videoRoom)
+                                                   .build());
+            }
+        }
+        return videoRoomHobbies;
+    }
+    
+    /**
+     * 미팅룸 성격 태그 찾아오기
+     */
+    public List<VideoRoomPersonality> toPersonalityList(VideoRoomRequest videoRoomRequest, VideoRoom videoRoom) {
+        List<VideoRoomPersonality> videoRoomPersonalities = new ArrayList<>();
+        if (videoRoomRequest.getVideoRoomPersonalities() != null) {
+            for (Long tagId : videoRoomRequest.getVideoRoomPersonalities()) {
+                videoRoomPersonalities.add(VideoRoomPersonality.builder()
+                                                               .tag(tagRepository.findById(tagId)
+                                                                                 .orElseThrow(() -> new TagException(
+                                                                                         ErrorCode.TAG_NOT_FOUND)))
+                                                               .videoRoom(videoRoom)
+                                                               .build());
+            }
+        }
+        return videoRoomPersonalities;
     }
 }
