@@ -1,6 +1,7 @@
 package com.cupid.qufit.domain.member.dto;
 
 import static com.cupid.qufit.domain.member.util.MemberBirthDateUtil.convertToLocalDate;
+
 import com.cupid.qufit.entity.Location;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.MemberHobby;
@@ -24,15 +25,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 
 @Data
 public class MemberInfoDTO {
 
-/*
-* * 회원 가입, 회원 정보 수정 요청 DTO
-* */
+    /*
+     * * 회원 가입, 회원 정보 수정 요청 DTO
+     * */
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
@@ -110,6 +110,7 @@ public class MemberInfoDTO {
         private Integer birthYear;
         private Character gender;
         private String bio;
+        private String profileImage;
         private Tag memberMBTITag;
         private List<Tag> memberHobbyTags;
         private List<Tag> memberPersonalityTags;
@@ -122,32 +123,33 @@ public class MemberInfoDTO {
 
         public static MemberInfoDTO.Response of(Member member, TypeProfiles typeProfiles) {
             return MemberInfoDTO.Response.builder()
-                                .memberId(member.getId())
-                                .email(member.getEmail())
-                                .nickname(member.getNickname())
-                                .location(member.getLocation())
-                                .birthYear(member.getBirthDate().getYear())
-                                .gender(member.getGender())
-                                .bio(member.getBio())
-                                .memberMBTITag(member.getMBTI())
-                                .memberHobbyTags(member.getMemberHobbies().stream()
-                                                       .map(MemberHobby::getTag)
-                                                       .collect(Collectors.toList()))
-                                .memberPersonalityTags(member.getMemberPersonalities().stream()
-                                                             .map(MemberPersonality::getTag)
-                                                             .collect(Collectors.toList()))
-                                .typeAgeMax(typeProfiles.getTypeAgeMax())
-                                .typeAgeMin(typeProfiles.getTypeAgeMin())
-                                .typeMBTI(typeProfiles.getTypeMBTIs().stream()
-                                                      .map(TypeMBTI::getTag)
-                                                      .collect(Collectors.toList()))
-                                .typeHobby(typeProfiles.getTypeHobbies().stream()
-                                                       .map(TypeHobby::getTag)
-                                                       .collect(Collectors.toList()))
-                                .typePersonality(typeProfiles.getTypePersonalities().stream()
-                                                             .map(TypePersonality::getTag)
-                                                             .collect(Collectors.toList()))
-                                .build();
+                                         .memberId(member.getId())
+                                         .email(member.getEmail())
+                                         .nickname(member.getNickname())
+                                         .location(member.getLocation())
+                                         .birthYear(member.getBirthDate().getYear())
+                                         .gender(member.getGender())
+                                         .bio(member.getBio())
+                                         .profileImage(member.getProfileImage())
+                                         .memberMBTITag(member.getMBTI())
+                                         .memberHobbyTags(member.getMemberHobbies().stream()
+                                                                .map(MemberHobby::getTag)
+                                                                .collect(Collectors.toList()))
+                                         .memberPersonalityTags(member.getMemberPersonalities().stream()
+                                                                      .map(MemberPersonality::getTag)
+                                                                      .collect(Collectors.toList()))
+                                         .typeAgeMax(typeProfiles.getTypeAgeMax())
+                                         .typeAgeMin(typeProfiles.getTypeAgeMin())
+                                         .typeMBTI(typeProfiles.getTypeMBTIs().stream()
+                                                               .map(TypeMBTI::getTag)
+                                                               .collect(Collectors.toList()))
+                                         .typeHobby(typeProfiles.getTypeHobbies().stream()
+                                                                .map(TypeHobby::getTag)
+                                                                .collect(Collectors.toList()))
+                                         .typePersonality(typeProfiles.getTypePersonalities().stream()
+                                                                      .map(TypePersonality::getTag)
+                                                                      .collect(Collectors.toList()))
+                                         .build();
         }
     }
 }
