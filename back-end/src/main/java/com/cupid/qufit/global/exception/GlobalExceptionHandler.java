@@ -4,6 +4,7 @@ package com.cupid.qufit.global.exception;
 import com.cupid.qufit.global.common.response.FieldValidationExceptionResponse;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import com.cupid.qufit.global.exception.exceptionType.S3Exception;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import java.util.List;
@@ -69,5 +70,11 @@ public class GlobalExceptionHandler {
                                                                            .build())
                              .toList();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(S3Exception.class)
+    public ResponseEntity<ErrorResponse> handleS3Exception(S3Exception e) {
+        log.debug("[S3Exception] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 }
