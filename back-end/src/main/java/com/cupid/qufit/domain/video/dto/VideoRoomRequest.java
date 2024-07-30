@@ -22,7 +22,7 @@ public class VideoRoomRequest {
     private int maxParticipants; // 최대 인원수
     private List<Long> videoRoomHobbies; // 방 취미 태그
     private List<Long> videoRoomPersonalities; // 방 성격 태그
-    private Long participantId; // 참가자 아이디
+    private Long memberId; // 멤버 아이디
 
     public static VideoRoom to(VideoRoomRequest videoRoomRequest) {
         return VideoRoom.builder()

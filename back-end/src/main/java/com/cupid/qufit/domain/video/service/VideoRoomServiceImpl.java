@@ -62,7 +62,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
-        String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest.getParticipantId());
+        String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest.getMemberId());
         return VideoRoomResponse.from(videoRoom, token);
     }
 
@@ -70,13 +70,13 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 참가
      */
     @Override
-    public String joinVideoRoom(Long videoRoomId, Long participantId) {
+    public String joinVideoRoom(Long videoRoomId, Long memberId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // ! 2. 멤버 찾기
-        Member member = memberRepository.findById(participantId)
+        Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         // ! 3. 참가자 생성
@@ -99,8 +99,8 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 6. 토큰 생성
         AccessToken token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
-        token.setName(participantId.toString());
-        token.setIdentity(participantId.toString());
+        token.setName(memberId.toString());
+        token.setIdentity(memberId.toString());
         token.addGrants(new RoomJoin(true), new RoomName(videoRoomId.toString()));
 
         return token.toJwt();
@@ -141,7 +141,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 떠나기
      */
     @Override
-    public void leaveVideoRoom(Long videoRoomId, Long participantId) {
+    public void leaveVideoRoom(Long videoRoomId, Long memberId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
@@ -154,11 +154,12 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 3. 참가자 찾기
         VideoRoomParticipant participant = videoRoom.getParticipants().stream()
-                                                    .filter(p -> p.getMember().getId().equals(participantId))
+                                                    .filter(p -> p.getMember().getId().equals(memberId))
                                                     .findFirst()
-                                                    .orElseThrow(() -> new VideoException(ErrorCode.PARTICIPANT_NOT_FOUND));
+                                                    .orElseThrow(
+                                                            () -> new VideoException(ErrorCode.PARTICIPANT_NOT_FOUND));
 
-       // ! 4. 방에서 참가자 제거
+        // ! 4. 방에서 참가자 제거
         videoRoom.getParticipants().remove(participant);
 
         // ! 5. 방 현재 인원 수 업데이트
@@ -223,7 +224,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         }
         return videoRoomHobbies;
     }
-    
+
     /**
      * 미팅룸 성격 태그 찾아오기
      */
