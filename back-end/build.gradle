@@ -70,6 +70,9 @@ dependencies {
 
     // ! LiveKit 관련
     implementation 'io.livekit:livekit-server:0.6.1'
+
+    // ! AWS S3 관련
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {
