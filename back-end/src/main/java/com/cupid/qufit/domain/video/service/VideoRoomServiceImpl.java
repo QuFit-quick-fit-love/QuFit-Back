@@ -54,7 +54,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
-        String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest);
+        String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest.getParticipantId());
         return VideoRoomResponse.from(videoRoom, token);
     }
 
@@ -62,13 +62,13 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 참가
      */
     @Override
-    public String joinVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequset) {
+    public String joinVideoRoom(Long videoRoomId, Long participantId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // ! 2. 멤버 찾기
-        Member member = memberRepository.findById(videoRoomRequset.getParticipantId())
+        Member member = memberRepository.findById(participantId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         // ! 3. 참가자 생성
@@ -91,8 +91,8 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 6. 토큰 생성
         AccessToken token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
-        token.setName(videoRoomRequset.getParticipantId().toString());
-        token.setIdentity(videoRoomRequset.getParticipantId().toString());
+        token.setName(participantId.toString());
+        token.setIdentity(participantId.toString());
         token.addGrants(new RoomJoin(true), new RoomName(videoRoomId.toString()));
 
         return token.toJwt();

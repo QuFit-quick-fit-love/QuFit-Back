@@ -9,7 +9,7 @@ public interface VideoRoomService {
 
     VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequset);
 
-    String joinVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequset);
+    String joinVideoRoom(Long videoRoomId, Long participantId);
 
     VideoRoomResponse updateVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequest);
 
