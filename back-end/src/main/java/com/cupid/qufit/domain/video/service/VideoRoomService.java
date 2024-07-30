@@ -9,13 +9,13 @@ public interface VideoRoomService {
 
     VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequset);
 
-    String joinVideoRoom(Long videoRoomId, Long participantId);
+    String joinVideoRoom(Long videoRoomId, Long memberId);
 
     VideoRoomResponse updateVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequest);
 
     void deleteVideoRoom(Long videoRoomId);
 
-    void leaveVideoRoom(Long videoRoomId, Long participantId);
+    void leaveVideoRoom(Long videoRoomId, Long memberId);
 
     VideoRoomResponse getVideoRoomDetail(Long videoRoomId);
 

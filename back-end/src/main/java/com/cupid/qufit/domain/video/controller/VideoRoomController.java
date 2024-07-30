@@ -1,17 +1,10 @@
 package com.cupid.qufit.domain.video.controller;
 
-import com.cupid.qufit.domain.chat.dto.ChatRoomDTO;
 import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
-import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
 import com.cupid.qufit.domain.video.service.VideoRoomService;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -55,8 +48,8 @@ public class VideoRoomController {
     @PostMapping("{videoRoomId}/join")
     public ResponseEntity<?> joinVideoRoom(
             @Parameter(description = "참여할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
-            @Parameter(description = "참가자의 ID", required = true) @RequestParam Long participantId) {
-        return new ResponseEntity<>(Map.of("token", videoRoomService.joinVideoRoom(videoRoomId, participantId)),
+            @Parameter(description = "멤버의 ID", required = true) @RequestParam Long memberId) {
+        return new ResponseEntity<>(Map.of("token", videoRoomService.joinVideoRoom(videoRoomId, memberId)),
                 HttpStatus.OK);
     }
 
@@ -93,8 +86,8 @@ public class VideoRoomController {
     @DeleteMapping("/{videoRoomId}/leave")
     public ResponseEntity<?> leaveVideoRoom(
             @Parameter(description = "퇴장할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
-            @Parameter(description = "비디오 방에서 퇴장할 참가자의 ID", required = true) @RequestParam Long participantId) {
-        videoRoomService.leaveVideoRoom(videoRoomId, participantId);
+            @Parameter(description = "비디오 방에서 퇴장할 멤버의 ID", required = true) @RequestParam Long memberId) {
+        videoRoomService.leaveVideoRoom(videoRoomId, memberId);
         CommonResultResponse response = CommonResultResponse.builder()
                                                             .isSuccess(true)
                                                             .message("미팅룸에서 성공적으로 나왔습니다.")
