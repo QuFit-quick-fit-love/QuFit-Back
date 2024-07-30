@@ -1,7 +1,7 @@
 package com.cupid.qufit.global.config;
 
 import com.cupid.qufit.global.security.util.JWTUtil;
-import java.security.Principal;
+import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +10,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,26 +33,41 @@ public class ChatPreHandler implements ChannelInterceptor {
                 try {
                     // ! JWT 토큰 검증
                     Map<String, Object> claims = jwtUtil.validateToken(token);
-//                    log.info("claims = {}", claims); // ! 전체 클레임 로깅
+                    log.info("claims = {}", claims); // ! 전체 클레임 로깅
                     Long memberId = Long.parseLong(claims.get("id").toString());
-//                    log.info("memberId = {}", memberId);
-                    accessor.setUser(new Principal() {
-                        @Override
-                        public String getName() {
-                            return memberId.toString();
-                        }
-                    });
+                    log.info("memberId = {}", memberId);
+                    // 인증 정보를 세션 속성에 저장
+                    accessor.getSessionAttributes().put("AUTHENTICATED_MEMBER_ID", memberId);
+
+                    // 인증 객체 생성 및 설정
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(memberId, null, Collections.emptyList());
+                    accessor.setUser(auth);
+
+                    log.info("Authentication set for user: {}", memberId);
                 } catch (Exception e) {
                     // ! 토큰 검증 실패
-                    log.info("error = {}", e.getMessage());
+                    log.error("토큰 유효하지 않음 or 실패", e);
                     return null;
                 }
+            } else {
+                log.error("유효한 토큰을 찾지 못함");
+                return null; // ! 토큰 없거나 형식 잘못됨
             }
         } else {
-            return null; // ! 토큰 없거나 형식 잘못됨
+            // CONNECT 이외의 명령에 대해 인증 정보 확인
+            Object memberId = accessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID");
+            if (memberId != null) {
+                log.info("Authenticated user for non-CONNECT message: {}", memberId);
+            } else {
+                log.error("유저가 인증되지 못함");
+                return null;
+            }
         }
 
+        // ! 모든 경우에 대해 인증 통과
         return message;
 
     }
+
 }
