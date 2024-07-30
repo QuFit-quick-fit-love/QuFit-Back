@@ -101,4 +101,16 @@ public class VideoRoomResponse {
                                 .participantPersonalities(personalities)
                                 .build();
     }
+
+    public static VideoRoomResponse toBasicResponse(VideoRoom videoRoom) {
+        return VideoRoomResponse.builder()
+                                .videoRoomId(videoRoom.getVideoRoomId())
+                                .videoRoomName(videoRoom.getVideoRoomName())
+                                .maxParticipants(videoRoom.getMaxParticipants())
+                                .curMCount(videoRoom.getCurMCount())
+                                .curWCount(videoRoom.getCurWCount())
+                                .videoRoomHobby(videoRoom.getVideoRoomHobby())
+                                .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
+                                .build();
+    }
 }
