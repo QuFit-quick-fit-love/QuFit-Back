@@ -8,6 +8,7 @@ import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.video.VideoRoom;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
+import com.cupid.qufit.entity.video.VideoRoomStatus;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.VideoException;
@@ -175,11 +176,16 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      */
     @Override
     public List<VideoRoomResponse> getVideoRoomList() {
+        // ! 1. 방 정보 리스트 최신순 조회
         List<VideoRoom> videoRoomList = videoRoomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
 
+        // ! 2. 응답용 리스트 데이터 가공
         List<VideoRoomResponse> responses = new ArrayList<>();
         for (VideoRoom videoRoom : videoRoomList) {
-            responses.add(VideoRoomResponse.toBasicResponse(videoRoom));
+            // 대기방 일 경우에만 보여준다.
+            if (videoRoom.getStatus().equals(VideoRoomStatus.READY)) {
+                responses.add(VideoRoomResponse.toBasicResponse(videoRoom));
+            }
         }
         return responses;
     }
