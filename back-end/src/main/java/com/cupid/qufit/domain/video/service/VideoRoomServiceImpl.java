@@ -153,11 +153,12 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         }
 
         // ! 3. 참가자 찾기
-        VideoRoomParticipant participant = videoRoomParticipantRepository.findById(participantId)
-                                                                         .orElseThrow(
-                                                                                 () -> new VideoException(
-                                                                                         ErrorCode.PARTICIPANT_NOT_FOUND));
-        // ! 4. 방에서 참가자 제거
+        VideoRoomParticipant participant = videoRoom.getParticipants().stream()
+                                                    .filter(p -> p.getMember().getId().equals(participantId))
+                                                    .findFirst()
+                                                    .orElseThrow(() -> new VideoException(ErrorCode.PARTICIPANT_NOT_FOUND));
+
+       // ! 4. 방에서 참가자 제거
         videoRoom.getParticipants().remove(participant);
 
         // ! 5. 방 현재 인원 수 업데이트
