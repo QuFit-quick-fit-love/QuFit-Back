@@ -87,14 +87,11 @@ public class VideoRoomResponse {
                                                         .toList();
 
         return VideoRoomResponse.builder()
-                                .videoRoomId(videoRoom.getVideoRoomId())
                                 .videoRoomName(videoRoom.getVideoRoomName())
-                                .status(videoRoom.getStatus())
                                 .createdAt(videoRoom.getCreatedAt())
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
-                                .participants(videoRoom.getParticipants())
                                 .videoRoomHobby(videoRoom.getVideoRoomHobby())
                                 .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
                                 .participantHobbies(hobbies)
