@@ -88,4 +88,13 @@ public class SwaggerConfig {
                              .pathsToMatch("/stomp/chat")
                              .build();
     }
+
+    // ! video 관련 API 모음
+    @Bean
+    public GroupedOpenApi videoApi() {
+        return GroupedOpenApi.builder()
+                             .group("video")
+                             .pathsToMatch("/qufit/video/**")
+                             .build();
+    }
 }
