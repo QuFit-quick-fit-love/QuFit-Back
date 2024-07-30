@@ -16,12 +16,11 @@ import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,9 +135,9 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // ! 2. 방 인원 1명일 경우 방 삭제
-        if (videoRoom.getCurMCount()+videoRoom.getCurWCount() == 1) {
+        if (videoRoom.getCurMCount() + videoRoom.getCurWCount() == 1) {
             videoRoomRepository.delete(videoRoom);
-            return ;
+            return;
         }
 
         // ! 3. 참가자 찾기
@@ -176,17 +175,12 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      */
     @Override
     public List<VideoRoomResponse> getVideoRoomList() {
-        // ! 1. 방 정보 리스트 최신순 조회
-        List<VideoRoom> videoRoomList = videoRoomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        // 1. 대기방 리스트 최신순 조회
+        List<VideoRoom> videoRoomList = videoRoomRepository.findByStatusOrderByCreatedAtDesc(VideoRoomStatus.READY);
 
-        // ! 2. 응답용 리스트 데이터 가공
-        List<VideoRoomResponse> responses = new ArrayList<>();
-        for (VideoRoom videoRoom : videoRoomList) {
-            // 대기방 일 경우에만 보여준다.
-            if (videoRoom.getStatus().equals(VideoRoomStatus.READY)) {
-                responses.add(VideoRoomResponse.toBasicResponse(videoRoom));
-            }
-        }
-        return responses;
+        // 2. 응답용 리스트 데이터 가공
+        return videoRoomList.stream()
+                            .map(VideoRoomResponse::toBasicResponse)
+                            .collect(Collectors.toList());
     }
 }
