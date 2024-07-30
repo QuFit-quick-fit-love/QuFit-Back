@@ -2,7 +2,8 @@ package com.cupid.qufit.domain.video.service;
 
 import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
 import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
-import java.util.List;
+import java.util.Map;
+import org.springframework.data.domain.Pageable;
 
 public interface VideoRoomService {
 
@@ -18,5 +19,5 @@ public interface VideoRoomService {
 
     VideoRoomResponse getVideoRoomDetail(Long videoRoomId);
 
-    List<VideoRoomResponse> getVideoRoomList();
+    Map<String, Object> getVideoRoomList(Pageable pageable);
 }

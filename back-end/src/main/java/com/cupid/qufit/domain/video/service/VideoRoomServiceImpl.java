@@ -16,11 +16,15 @@ import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -174,13 +178,22 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 리스트 조회(최신순)
      */
     @Override
-    public List<VideoRoomResponse> getVideoRoomList() {
-        // 1. 대기방 리스트 최신순 조회
-        List<VideoRoom> videoRoomList = videoRoomRepository.findByStatusOrderByCreatedAtDesc(VideoRoomStatus.READY);
+    public Map<String, Object> getVideoRoomList(Pageable pageable) {
+        // ! 1. 대기방 리스트 최신순 조회
+        Page<VideoRoom> videoRoomPage = videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
 
-        // 2. 응답용 리스트 데이터 가공
-        return videoRoomList.stream()
-                            .map(VideoRoomResponse::toBasicResponse)
-                            .collect(Collectors.toList());
+        List<VideoRoomResponse> videoRoomResponses = videoRoomPage.stream()
+                                                                  .map(VideoRoomResponse::toBasicResponse)
+                                                                  .collect(Collectors.toList());
+        // ! 2. 응답용 리스트 데이터 가공
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoRoomList", videoRoomResponses);
+        response.put("page", Map.of(
+                "totalElements", videoRoomPage.getTotalElements(),
+                "totalPages", videoRoomPage.getTotalPages(),
+                "currentPage", videoRoomPage.getNumber(),
+                "pageSize", videoRoomPage.getSize()
+        ));
+        return response;
     }
 }
