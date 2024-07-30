@@ -87,6 +87,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                                   .build();
 
         // ! 4. 방에 참가자 추가
+        videoRoomParticipantRepository.save(newParticipant);
         videoRoom.getParticipants().add(newParticipant);
 
         // ! 5. 방 정보 업데이트
@@ -160,6 +161,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                             () -> new VideoException(ErrorCode.PARTICIPANT_NOT_FOUND));
 
         // ! 4. 방에서 참가자 제거
+        videoRoomParticipantRepository.delete(participant);
         videoRoom.getParticipants().remove(participant);
 
         // ! 5. 방 현재 인원 수 업데이트
