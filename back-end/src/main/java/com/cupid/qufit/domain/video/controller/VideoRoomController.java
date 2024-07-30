@@ -43,11 +43,6 @@ public class VideoRoomController {
      */
     @PostMapping
     @Operation(summary = "새 비디오 방 생성", description = "제공된 세부 정보를 사용하여 새 비디오 방을 생성합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공",
-                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomResponse.class)))),
-            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
-    })
     public ResponseEntity<?> createVideoRoom(
             @Parameter(description = "생성할 비디오 방의 세부 정보", required = true) @RequestBody VideoRoomRequest videoRoomRequest) {
         return new ResponseEntity<>(videoRoomService.createVideoRoom(videoRoomRequest), HttpStatus.OK);
