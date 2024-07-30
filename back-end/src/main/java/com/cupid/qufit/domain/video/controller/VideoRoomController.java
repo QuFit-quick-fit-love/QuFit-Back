@@ -84,4 +84,12 @@ public class VideoRoomController {
     public ResponseEntity<?> getVideoRoomDetail(@PathVariable Long videoRoomId) {
         return new ResponseEntity<>(videoRoomService.getVideoRoomDetail(videoRoomId), HttpStatus.OK);
     }
+
+    /**
+     * 방 리스트 조회
+     */
+    @GetMapping
+    public ResponseEntity<?> getVideoRoomList() {
+        return new ResponseEntity<>(videoRoomService.getVideoRoomList(), HttpStatus.OK);
+    }
 }

@@ -15,9 +15,12 @@ import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -165,5 +168,19 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2. 방 참가자의 태그를 포함한 반환
         return VideoRoomResponse.withDetails(videoRoom);
+    }
+
+    /**
+     * 방 리스트 조회(최신순)
+     */
+    @Override
+    public List<VideoRoomResponse> getVideoRoomList() {
+        List<VideoRoom> videoRoomList = videoRoomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        List<VideoRoomResponse> responses = new ArrayList<>();
+        for (VideoRoom videoRoom : videoRoomList) {
+            responses.add(VideoRoomResponse.toBasicResponse(videoRoom));
+        }
+        return responses;
     }
 }
