@@ -1,0 +1,36 @@
+{
+  "properties": {
+    "participant_id": {
+      "type": "constant_keyword"
+    },
+    "video_room_id": {
+      "type": "keyword"
+    },
+    "updated_at": {
+      "type": "date",
+      "format": "yyyy-MM-dd HH:mm:ss"
+    },
+    "mbti": {
+      "type": "keyword"
+    },
+    "personalities": {
+      "type": "keyword"
+    },
+    "hobbies": {
+      "type": "keyword"
+    },
+    "location": {
+      "type": "keyword"
+    },
+    "age": {
+      "type": "integer"
+    },
+    "bio": {
+      "type": "text",
+      "analyzer": "my_custom_analyzer"
+    },
+    "gender": {
+      "type": "keyword"
+    }
+  }
+}
