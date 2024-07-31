@@ -52,6 +52,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-messaging'
 
     // ! Elasticsearch 관련
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.13.3'
 
     // ! QUerydsl 관련
