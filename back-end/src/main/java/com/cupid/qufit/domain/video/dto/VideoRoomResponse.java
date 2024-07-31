@@ -10,7 +10,6 @@ import com.cupid.qufit.entity.video.VideoRoomPersonality;
 import com.cupid.qufit.entity.video.VideoRoomStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,17 +41,17 @@ public class VideoRoomResponse {
     @Schema(description = "참가자")
     private List<VideoRoomParticipant> participants; // 참가자
     @Schema(description = "방 취미 태그")
-    private List<VideoRoomHobby> videoRoomHobby = new ArrayList<>(); // 방 취미 태그
+    private List<VideoRoomHobby> videoRoomHobby; // 방 취미 태그
     @Schema(description = "방 성격 태그")
-    private List<VideoRoomPersonality> videoRoomPersonality = new ArrayList<>(); // 방 성격 태그
+    private List<VideoRoomPersonality> videoRoomPersonality; // 방 성격 태그
     @Schema(description = "방 참가 토큰")
     private String token; // 방 참가 토큰
 
     // 참가자의 성격 및 취미 정보를 담을 필드
     @Schema(description = "참가자들의 취미")
-    private List<String> participantHobbies = new ArrayList<>();
+    private List<String> participantHobbies;
     @Schema(description = "참가자들의 성격")
-    private List<String> participantPersonalities = new ArrayList<>();
+    private List<String> participantPersonalities;
 
     public static VideoRoomResponse from(VideoRoom videoRoom, String token) {
         return VideoRoomResponse.builder()

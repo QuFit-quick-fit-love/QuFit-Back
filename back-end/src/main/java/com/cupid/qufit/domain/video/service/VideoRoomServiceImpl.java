@@ -94,7 +94,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         if (newParticipant.getMember().getGender() == 'm') {
             videoRoom.setCurMCount(videoRoom.getCurMCount() + 1);
         } else if (newParticipant.getMember().getGender() == 'f') {
-            videoRoom.setCurMCount(videoRoom.getCurWCount() + 1);
+            videoRoom.setCurWCount(videoRoom.getCurWCount() + 1);
         }
         videoRoomRepository.save(videoRoom);
 
