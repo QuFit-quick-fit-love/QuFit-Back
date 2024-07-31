@@ -1,6 +1,8 @@
 package com.cupid.qufit.global.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -9,7 +11,10 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final ChatPreHandler chatPreHandler;
 
     /**
      * TODO : 메시지 브로커 구성.
@@ -38,10 +43,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/stomp/chat")
                 .setAllowedOriginPatterns("*");
-//                .withSockJS();
-
-//        registry.addEndpoint("/stomp/chat")
-//                .setAllowedOriginPatterns("*");
     }
 
     @Override
@@ -49,5 +50,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.setMessageSizeLimit(8192)
                     .setSendBufferSizeLimit(8192)
                     .setSendTimeLimit(10000);
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(chatPreHandler);
     }
 }
