@@ -23,6 +23,7 @@ public class LocationRepositoryTest {
     private LocationRepository locationRepository;
 
     @Test
+    @Transactional
     void 더미지역생성(){
 
         Location location1 = Location.builder()

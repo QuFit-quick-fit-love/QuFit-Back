@@ -21,7 +21,9 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -79,11 +81,11 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<MemberHobby> memberHobbies = new ArrayList<>();
+    private Set<MemberHobby> memberHobbies = new HashSet<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<MemberPersonality> memberPersonalities = new ArrayList<>();
+    private Set<MemberPersonality> memberPersonalities = new HashSet<>();
 
     // ! 채팅 관련 관계 설정
     @OneToMany(mappedBy = "member1", cascade = CascadeType.ALL, orphanRemoval = true)

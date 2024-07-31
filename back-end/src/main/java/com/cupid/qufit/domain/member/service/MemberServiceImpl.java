@@ -25,7 +25,6 @@ import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,15 +54,15 @@ public class MemberServiceImpl implements MemberService {
         this.saveMemberLocation(member, requestDTO.getLocationId());
 
         // mbti 저장
-        this.saveMemberMBTI(member, requestDTO.getMemberMBTITagId());
+        this.saveMemberMBTI(member, requestDTO.getMemberMBTITag());
 
         // hobby 저장
-        List<Long> memberHobbyIds = requestDTO.getMemberHobbyTagIds();
-        this.saveMemberHobbies(member, memberHobbyIds);
+        List<String> memberHobbyTagNames = requestDTO.getMemberHobbyTags();
+        this.saveMemberHobbies(member, memberHobbyTagNames);
 
         // Personality 저장
-        List<Long> memberPersonalityIds = requestDTO.getMemberHobbyTagIds();
-        this.saveMemberPersonalities(member, memberPersonalityIds);
+        List<String> memberPersonalityTagNames = requestDTO.getMemberPersonalityTags();
+        this.saveMemberPersonalities(member, memberPersonalityTagNames);
 
     }
 
@@ -85,16 +84,16 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void saveTypeProfilesInfo(TypeProfiles typeProfiles, MemberInfoDTO.Request requestDTO) {
         // mbti 저장
-        List<Long> typeMBTIIds = requestDTO.getTypeMBTITagIds();
-        this.saveTypeMBTI(typeProfiles, typeMBTIIds);
+        List<String> typeMBTINames = requestDTO.getTypeMBTITags();
+        this.saveTypeMBTI(typeProfiles, typeMBTINames);
 
         // hobby 저장
-        List<Long> typeHobbyIds = requestDTO.getMemberHobbyTagIds();
-        this.saveTypeHobbies(typeProfiles, typeHobbyIds);
+        List<String> typeHobbyNames = requestDTO.getMemberHobbyTags();
+        this.saveTypeHobbies(typeProfiles, typeHobbyNames);
 
         // Personality 저장
-        List<Long> typePersonalityIds = requestDTO.getMemberHobbyTagIds();
-        this.saveTypePersonalities(typeProfiles, typePersonalityIds);
+        List<String> typePersonalityNames = requestDTO.getMemberHobbyTags();
+        this.saveTypePersonalities(typeProfiles, typePersonalityNames);
 
     }
 
@@ -200,21 +199,23 @@ public class MemberServiceImpl implements MemberService {
         member.updateLocation(location);
     }
 
-    private void saveMemberMBTI(Member member, Long tagId) {
-        if (tagId != null) {
-            Tag mbti = tagRepository.findById(tagId)
+    private void saveMemberMBTI(Member member, String tagName) {
+        if (tagName != null) {
+            Tag mbti = tagRepository.findByTagName(tagName)
                                     .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND));
             member.updateMBTI(mbti);
         }
     }
 
-    private void saveMemberHobbies(Member member, List<Long> memberHobbyIds) {
-        if(!member.getMemberHobbies().isEmpty()) member.getMemberHobbies().clear();
+    private void saveMemberHobbies(Member member, List<String> memberHobbyTagNames) {
+        if (!member.getMemberHobbies().isEmpty()) {
+            member.getMemberHobbies().clear();
+        }
 
-        if (!memberHobbyIds.isEmpty()) {
-            memberHobbyIds.forEach(tagId -> {
+        if (!memberHobbyTagNames.isEmpty()) {
+            memberHobbyTagNames.forEach(name -> {
                 MemberHobby memberHobby = MemberHobby.builder()
-                                                     .tag(tagRepository.findById(tagId)
+                                                     .tag(tagRepository.findByTagName(name)
                                                                        .orElseThrow(() -> new TagException(
                                                                                ErrorCode.TAG_NOT_FOUND)))
                                                      .build();
@@ -223,28 +224,33 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    private void saveMemberPersonalities(Member member, List<Long> memberPersonalityIds) {
-        if(!member.getMemberPersonalities().isEmpty()) member.getMemberPersonalities().clear();
+    private void saveMemberPersonalities(Member member, List<String> memberPersonalityTagNames) {
+        if (!member.getMemberPersonalities().isEmpty()) {
+            member.getMemberPersonalities().clear();
+        }
 
-        if (!memberPersonalityIds.isEmpty()) {
-            memberPersonalityIds.forEach(tagId -> {
+        if (!memberPersonalityTagNames.isEmpty()) {
+            memberPersonalityTagNames.forEach(name -> {
                 MemberPersonality memberPersonality = MemberPersonality.builder()
-                                                                       .tag(tagRepository.findById(tagId).orElseThrow(
-                                                                               () -> new TagException(
-                                                                                       ErrorCode.TAG_NOT_FOUND)))
+                                                                       .tag(tagRepository.findByTagName(name)
+                                                                                         .orElseThrow(
+                                                                                                 () -> new TagException(
+                                                                                                         ErrorCode.TAG_NOT_FOUND)))
                                                                        .build();
                 member.addMemberPersonalities(memberPersonality);
             });
         }
     }
 
-    private void saveTypeMBTI(TypeProfiles typeProfiles, List<Long> typeMBTIIds) {
-        if(!typeProfiles.getTypeMBTIs().isEmpty()) typeProfiles.getTypeMBTIs().clear();
+    private void saveTypeMBTI(TypeProfiles typeProfiles, List<String> typeMBTINames) {
+        if (!typeProfiles.getTypeMBTIs().isEmpty()) {
+            typeProfiles.getTypeMBTIs().clear();
+        }
 
-        if (typeMBTIIds != null && !typeMBTIIds.isEmpty()) {
-            typeMBTIIds.forEach(tagId -> {
+        if (typeMBTINames != null && !typeMBTINames.isEmpty()) {
+            typeMBTINames.forEach(name -> {
                 TypeMBTI typeMBTI = TypeMBTI.builder()
-                                            .tag(tagRepository.findById(tagId).orElseThrow(
+                                            .tag(tagRepository.findByTagName(name).orElseThrow(
                                                     () -> new TagException(ErrorCode.TAG_NOT_FOUND)))
                                             .build();
                 typeProfiles.addtypeMBTIs(typeMBTI);
@@ -252,13 +258,15 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    private void saveTypeHobbies(TypeProfiles typeProfiles, List<Long> typeHobbyIds) {
-        if(!typeProfiles.getTypeHobbies().isEmpty()) typeProfiles.getTypeHobbies().clear();
+    private void saveTypeHobbies(TypeProfiles typeProfiles, List<String> typeHobbyNames) {
+        if (!typeProfiles.getTypeHobbies().isEmpty()) {
+            typeProfiles.getTypeHobbies().clear();
+        }
 
-        if (!typeHobbyIds.isEmpty()) {
-            typeHobbyIds.forEach(tagId -> {
+        if (!typeHobbyNames.isEmpty()) {
+            typeHobbyNames.forEach(name -> {
                 TypeHobby typeHobby = TypeHobby.builder()
-                                               .tag(tagRepository.findById(tagId).orElseThrow(
+                                               .tag(tagRepository.findByTagName(name).orElseThrow(
                                                        () -> new TagException(ErrorCode.TAG_NOT_FOUND)))
                                                .build();
                 typeProfiles.addTypeHobbies(typeHobby);
@@ -266,13 +274,15 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    private void saveTypePersonalities(TypeProfiles typeProfiles, List<Long> typePersonalityIds) {
-        if(!typeProfiles.getTypePersonalities().isEmpty()) typeProfiles.getTypePersonalities().clear();
+    private void saveTypePersonalities(TypeProfiles typeProfiles, List<String> typePersonalityNames) {
+        if (!typeProfiles.getTypePersonalities().isEmpty()) {
+            typeProfiles.getTypePersonalities().clear();
+        }
 
-        if (!typePersonalityIds.isEmpty()) {
-            typePersonalityIds.forEach(tagId -> {
+        if (!typePersonalityNames.isEmpty()) {
+            typePersonalityNames.forEach(name -> {
                 TypePersonality typePersonality = TypePersonality.builder()
-                                                                 .tag(tagRepository.findById(tagId).orElseThrow(
+                                                                 .tag(tagRepository.findByTagName(name).orElseThrow(
                                                                          () -> new TagException(
                                                                                  ErrorCode.TAG_NOT_FOUND)))
                                                                  .build();
