@@ -35,6 +35,7 @@ public class VideoRoom {
     private String videoRoomName;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private VideoRoomStatus status = VideoRoomStatus.READY;
 
     @CreatedDate
@@ -42,8 +43,10 @@ public class VideoRoom {
 
     private int maxParticipants;
 
+    @Builder.Default
     private int curMCount = 0;
 
+    @Builder.Default
     private int curWCount = 0;
 
     @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
