@@ -10,6 +10,7 @@ import com.cupid.qufit.entity.video.VideoRoomPersonality;
 import com.cupid.qufit.entity.video.VideoRoomStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +42,9 @@ public class VideoRoomResponse {
     @Schema(description = "참가자")
     private List<VideoRoomParticipant> participants; // 참가자
     @Schema(description = "방 취미 태그")
-    private List<VideoRoomHobby> videoRoomHobby; // 방 취미 태그
+    private List<String> videoRoomHobby; // 방 취미 태그
     @Schema(description = "방 성격 태그")
-    private List<VideoRoomPersonality> videoRoomPersonality; // 방 성격 태그
+    private List<String> videoRoomPersonality; // 방 성격 태그
     @Schema(description = "방 참가 토큰")
     private String token; // 방 참가 토큰
 
@@ -62,9 +63,8 @@ public class VideoRoomResponse {
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
-                                .participants(videoRoom.getParticipants())
-                                .videoRoomHobby(videoRoom.getVideoRoomHobby())
-                                .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
+                                .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
+                                .videoRoomPersonality(toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
                                 .token(token)
                                 .build();
     }
@@ -105,8 +105,8 @@ public class VideoRoomResponse {
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
-                                .videoRoomHobby(videoRoom.getVideoRoomHobby())
-                                .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
+                                .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
+                                .videoRoomPersonality(toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
                                 .participantHobbies(hobbies)
                                 .participantPersonalities(personalities)
                                 .build();
@@ -119,8 +119,25 @@ public class VideoRoomResponse {
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
-                                .videoRoomHobby(videoRoom.getVideoRoomHobby())
-                                .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
+                                .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
+                                .videoRoomPersonality(toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
                                 .build();
+    }
+
+
+    public static List<String> toVideoRoomHobbiesList(List<VideoRoomHobby> hobbies) {
+        List<String> participantHobbies = new ArrayList<>();
+        for (VideoRoomHobby videoRoomHobby : hobbies) {
+            participantHobbies.add(videoRoomHobby.getTag().getTagName());
+        }
+        return participantHobbies;
+    }
+
+    public static List<String> toVideoRoomPersonalitiesList(List<VideoRoomPersonality> personalities) {
+        List<String> participantPersonalities = new ArrayList<>();
+        for (VideoRoomPersonality videoRoomPersonality : personalities) {
+            participantPersonalities.add(videoRoomPersonality.getTag().getTagName());
+        }
+        return participantPersonalities;
     }
 }
