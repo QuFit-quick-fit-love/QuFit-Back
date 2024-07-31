@@ -48,7 +48,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+    // ! Spring Security와 Spring Messaging (WebSocket 포함) 보안 기능
+    implementation 'org.springframework.security:spring-security-messaging'
+
     // ! Elasticsearch 관련
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation group: 'co.elastic.clients', name: 'elasticsearch-java', version: '8.13.3'
 
     // ! QUerydsl 관련

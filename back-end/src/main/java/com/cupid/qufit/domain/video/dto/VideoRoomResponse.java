@@ -8,6 +8,7 @@ import com.cupid.qufit.entity.video.VideoRoomHobby;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
 import com.cupid.qufit.entity.video.VideoRoomPersonality;
 import com.cupid.qufit.entity.video.VideoRoomStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,20 +25,33 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VideoRoomResponse {
 
+    @Schema(description = "채팅방ID")
     private Long videoRoomId; // 방 id
+    @Schema(description = "방 제목")
     private String videoRoomName; // 방 제목
+    @Schema(description = "방 상태")
     private VideoRoomStatus status; //방 상태
+    @Schema(description = "생성일시")
     private LocalDateTime createdAt; // 생성일시
+    @Schema(description = "최대 인원수")
     private int maxParticipants; // 최대 인원수
+    @Schema(description = "현재 남자 수")
     private int curMCount; // 현재 남자 수
+    @Schema(description = "현재 여자 수")
     private int curWCount; // 현재 여자 수
+    @Schema(description = "참가자")
     private List<VideoRoomParticipant> participants; // 참가자
+    @Schema(description = "방 취미 태그")
     private List<VideoRoomHobby> videoRoomHobby = new ArrayList<>(); // 방 취미 태그
+    @Schema(description = "방 성격 태그")
     private List<VideoRoomPersonality> videoRoomPersonality = new ArrayList<>(); // 방 성격 태그
+    @Schema(description = "방 참가 토큰")
     private String token; // 방 참가 토큰
 
     // 참가자의 성격 및 취미 정보를 담을 필드
+    @Schema(description = "참가자들의 취미")
     private List<String> participantHobbies = new ArrayList<>();
+    @Schema(description = "참가자들의 성격")
     private List<String> participantPersonalities = new ArrayList<>();
 
     public static VideoRoomResponse from(VideoRoom videoRoom, String token) {
@@ -87,18 +101,27 @@ public class VideoRoomResponse {
                                                         .toList();
 
         return VideoRoomResponse.builder()
-                                .videoRoomId(videoRoom.getVideoRoomId())
                                 .videoRoomName(videoRoom.getVideoRoomName())
-                                .status(videoRoom.getStatus())
                                 .createdAt(videoRoom.getCreatedAt())
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
-                                .participants(videoRoom.getParticipants())
                                 .videoRoomHobby(videoRoom.getVideoRoomHobby())
                                 .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
                                 .participantHobbies(hobbies)
                                 .participantPersonalities(personalities)
+                                .build();
+    }
+
+    public static VideoRoomResponse toBasicResponse(VideoRoom videoRoom) {
+        return VideoRoomResponse.builder()
+                                .videoRoomId(videoRoom.getVideoRoomId())
+                                .videoRoomName(videoRoom.getVideoRoomName())
+                                .maxParticipants(videoRoom.getMaxParticipants())
+                                .curMCount(videoRoom.getCurMCount())
+                                .curWCount(videoRoom.getCurWCount())
+                                .videoRoomHobby(videoRoom.getVideoRoomHobby())
+                                .videoRoomPersonality(videoRoom.getVideoRoomPersonality())
                                 .build();
     }
 }

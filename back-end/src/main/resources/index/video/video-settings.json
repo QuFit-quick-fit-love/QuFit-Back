@@ -1,0 +1,28 @@
+{
+  "number_of_shards": 1,
+  "number_of_replicas": 2,
+  "refresh_interval": "30s",
+  "codec": "best_compression",
+  "routing": {
+    "allocation": {
+      "include": { "_tier_preference": "data_content" }
+    }
+  },
+  "analysis": {
+    "filter": {
+      "my_nori_filter": {
+        "type": "nori_part_of_speech",
+        "stoptags": [
+          "NR", "IC", "J", "E", "MAG", "MAJ", "MM", "SP", "NA", "XSA", "NNB", "NNBC",
+          "SC", "SE", "SF", "SH", "SN", "SSC", "SSO", "SY", "UNA", "VCN", "VCP", "VSV"
+        ]
+      }
+    },
+    "tokenizer": {
+      "my_nori_tokenizer": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed"
+      }
+    }
+  }
+}

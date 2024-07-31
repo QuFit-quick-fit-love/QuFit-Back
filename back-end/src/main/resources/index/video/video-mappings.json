@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "video_room_id": {
+      "type": "keyword"
+    },
+    "participants": {
+      "type": "keyword"
+    },
+    "room_tags": {
+      "type": "keyword"
+    }
+  }
+}

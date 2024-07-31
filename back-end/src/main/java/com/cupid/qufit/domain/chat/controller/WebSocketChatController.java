@@ -8,17 +8,15 @@ import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
 import com.cupid.qufit.global.common.request.MessagePaginationRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
+@Tag(name = "Chat-WebSocket", description = "채팅 관련 웹소켓 통신 API")
 public class WebSocketChatController {
 
     private final ChatService chatService;
@@ -47,7 +46,6 @@ public class WebSocketChatController {
     @SendTo("/sub/chatroom.{chatRoomId}") // ! 처리된 메시지를 발송할 구독 주제. (어느 목적지로 보낼 지 지정)
     public ChatMessage sendMessage(@DestinationVariable("chatRoomId") Long chatRoomId,
                                    @Payload ChatMessage chatMessage) {
-//        log.info("메시지 수신 : {}", chatMessage);
         return chatService.processChatMessage(chatRoomId, chatMessage);
     }
 
@@ -73,25 +71,30 @@ public class WebSocketChatController {
      * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
      * <p>
      * ! 특정 채팅방 들어가는 것은 개인화된 반응 -> convertAndSendToUser로 변경.
-     * TODO : 현재 memberId 하드코딩 -> JWT 토큰 이용한 인증 이후에 반영
+     *
+     * @return
      */
     @MessageMapping("/chat.enterRoom/{chatRoomId}")
-    public void enterChatRoom(@DestinationVariable Long chatRoomId, @Payload MessagePaginationRequest pageRequest) {
-        Long memberId = 4L;
-        Pageable pageable = PageRequest.of(0, pageRequest.getPageSize(), Sort.by(Sort.Direction.ASC, "timestamp"));
-        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
+    public void enterChatRoom(@DestinationVariable Long chatRoomId,
+                              @Payload MessagePaginationRequest pageRequest,
+                              SimpMessageHeaderAccessor headerAccessor) {
+        Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
+        log.info("현재 회원의 ID = {}", memberId);
+        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId,
+                                                                                    pageRequest.getPageSize());
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chatroom." + chatRoomId, response);
     }
 
     /**
      * * 채팅방 나갈 때
-     *
+     * <p>
      * ! 해당 채팅방의 메시지 구독 해제
-     * TODO : 현재는 memberId 하드코딩 -> 이후에 갱신
      */
     @MessageMapping("/chat.leaveRoom/{chatRoomId}")
-    public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId, @Payload ChatMessageDTO lastMessage) {
-        Long memberId = 4L;
+    public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId,
+                              @Payload ChatMessageDTO lastMessage,
+                              SimpMessageHeaderAccessor headerAccessor) {
+        Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
         chatService.updateChatRoomMember(chatRoomId, memberId, lastMessage);
     }
 
@@ -106,12 +109,10 @@ public class WebSocketChatController {
      */
     @MessageMapping("/chat.loadPreviousMessages/{chatRoomId}")
     public void loadPreviousMessages(@DestinationVariable Long chatRoomId,
-                                     @Payload MessagePaginationRequest messagePaginationRequest) {
-        Long memberId = 4L; // ! 일단 하드코딩 -> 이후에 JWT 토큰 반영
-        ChatRoomMessageResponse response = chatService.loadPreviousMessages(chatRoomId, memberId,
-                                                                            messagePaginationRequest);
-//        log.info("response : {}", response);
-
+                                     @Payload MessagePaginationRequest messagePaginationRequest,
+                                     SimpMessageHeaderAccessor headerAccessor) {
+        Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
+        ChatRoomMessageResponse response = chatService.loadPreviousMessages(chatRoomId, memberId, messagePaginationRequest);
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chat.messages." + chatRoomId, response);
     }
 
@@ -126,12 +127,10 @@ public class WebSocketChatController {
      */
     @MessageMapping("/chat.loadNextMessages/{chatRoomId}")
     public void loadNextMessages(@DestinationVariable Long chatRoomId,
-                                 @Payload MessagePaginationRequest messagePaginationRequest) {
-        Long memberId = 4L; // 일단 하드코딩 -> 이후에 JWT 토큰 반영
+                                 @Payload MessagePaginationRequest messagePaginationRequest,
+                                 SimpMessageHeaderAccessor headerAccessor) {
+        Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
         ChatRoomMessageResponse response = chatService.loadNextMessages(chatRoomId, memberId, messagePaginationRequest);
-
-//        log.info("response = {}", response);
-
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chat.messages." + chatRoomId, response);
     }
 }

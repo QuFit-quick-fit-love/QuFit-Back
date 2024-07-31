@@ -10,9 +10,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // ! 모든 경로에 대해 이 CORS 설정을 적용한다는 뜻
-                .allowedOrigins("http://localhost:3000")
-//                .allowedOriginPatterns("*")
+        registry.addMapping("/**") // 모든 경로에 대해 이 CORS 설정을 적용
+                .allowedOriginPatterns("*")
+//                .allowedOrigins(
+//                        "http://localhost:3000",
+//                        "http://i11a209.p.ssafy.io:8080",
+//                        "https://i11a209.p.ssafy.io:8080",
+//                        "http://i11a209.p.ssafy.io",
+//                        "https://i11a209.p.ssafy.io"
+//                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
