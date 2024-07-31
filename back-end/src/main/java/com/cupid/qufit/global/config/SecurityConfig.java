@@ -51,8 +51,12 @@ public class SecurityConfig {
                         .logoutRequestMatcher(new AntPathRequestMatcher("/qufit/member/logout"))
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
-                        .logoutSuccessHandler(new CustomLogoutSuccessHandler())
-        );
+                        .logoutSuccessHandler(new CustomLogoutSuccessHandler()));
+
+        // 권한 설정
+//        http.authorizeHttpRequests(auth -> auth
+//                .requestMatchers("/qufit/admin/**").hasRole("ADMIN") // admin으로 시작하는 url은 admin 권한 보유자만 접근 가능
+//                .anyRequest().permitAll());
 
         return http.build();
     }
