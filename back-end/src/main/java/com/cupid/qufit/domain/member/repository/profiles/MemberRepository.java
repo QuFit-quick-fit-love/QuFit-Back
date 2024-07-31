@@ -24,21 +24,18 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     /*
      * * 멤버 조회
      * */
-    @EntityGraph(attributePaths = {"location", "memberHobbies", "memberHobbies.tag", "memberPersonalities",
-            "memberPersonalities.tag", "MBTI"})
+    @EntityGraph(attributePaths = {"location", "memberHobbies", "memberPersonalities", "MBTI"})
     Optional<Member> findById(Long id);
 
     /*
      * * 멤버 역할에 따라 멤버 조회
      * */
-    @EntityGraph(attributePaths = {"location", "memberHobbies", "memberHobbies.tag", "memberPersonalities",
-            "memberPersonalities.tag", "MBTI"})
+    @EntityGraph(attributePaths = {"location", "memberHobbies", "memberPersonalities", "MBTI"})
     Page<Member> findAllByRole(Pageable pageable, MemberRole role);
 
     /*
      * * 멤버 역할과 멤버 상태에 따라 멤버 조회
      * */
-    @EntityGraph(attributePaths = {"location", "memberHobbies", "memberHobbies.tag", "memberPersonalities",
-            "memberPersonalities.tag", "MBTI"})
+    @EntityGraph(attributePaths = {"location", "memberHobbies", "memberPersonalities", "MBTI"})
     Page<Member> findAllByRoleAndStatus(Pageable pageable, MemberRole role, MemberStatus Status);
 }

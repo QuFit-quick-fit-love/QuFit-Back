@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TypeProfilesRepository extends JpaRepository<TypeProfiles,Long> {
 
-    @EntityGraph(attributePaths = {"typeHobbies", "typeHobbies.tag", "typePersonalities", "typePersonalities.tag", "typeMBTIs", "typeMBTIs.tag"})
+    @EntityGraph(attributePaths = {"typeHobbies", "typePersonalities", "typeMBTIs"})
     Optional<TypeProfiles> findByMemberId(Long memberId);
 }
