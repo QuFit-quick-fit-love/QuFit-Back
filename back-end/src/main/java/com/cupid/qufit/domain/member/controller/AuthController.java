@@ -49,6 +49,7 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
             @ApiResponse(responseCode = "401", description = "ACCEPT_PENDING_USER : 가입 승인 대기 중"),
+            @ApiResponse(responseCode = "403", description = "ACCEPT_REJECTED_USER : 가입 승인 거절"),
             @ApiResponse(responseCode = "401", description = "SIGNUP_REQUIRED : 회원가입 필요")
     })
     public ResponseEntity<?> kakaoLogin(@RequestHeader("accessToken") String accessToken) {
@@ -68,6 +69,11 @@ public class AuthController {
         throw new MemberException(ErrorCode.MEMBER_DEFAULT_ERROR);
     }
 
+    /*
+     * * 회원가입
+     *
+     * @param : accessToken 카카오에서 발급받은 accessToken
+     * */
     @PostMapping(path = "/signup", headers = "accessToken")
     @Operation(summary = "회원가입 및 부가정보 입력", description = "회원가입을 시도한다.")
     @ApiResponses(value = {
@@ -89,6 +95,9 @@ public class AuthController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+    /*
+    * * 닉네임 중복 검사
+    * */
     @GetMapping("/check-nickname")
     @Operation(summary = "닉네임 중복검사", description = "닉네임 중복검사를 합니다.")
     @ApiResponses(value = {
