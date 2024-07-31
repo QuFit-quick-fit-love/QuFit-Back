@@ -32,7 +32,7 @@ public class TagRepositoryTest {
 
         Tag personalityTag2 = Tag.builder()
                       .tagCategory(TagCateg.PERSONALITY)
-                      .tagName("personality-tag-1")
+                      .tagName("personality-tag-2")
                       .build();
         dummyTags.add(personalityTag2);
 

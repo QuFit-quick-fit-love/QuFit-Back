@@ -60,11 +60,13 @@ public class AuthServiceImpl implements AuthService {
             // 존재하면 대기/승인 상태 확인
             if (resultMember.get().getStatus() == MemberStatus.APPROVED) {
                 // 승인 회원이면 로그인 처리
-                MemberDetails existedDTO = entityToMemberDetails(resultMember.get());
-                return existedDTO;
+                return entityToMemberDetails(resultMember.get());
             } else if (resultMember.get().getStatus() == MemberStatus.PENDING){
-            // 대기중이면 대기중 error
+                // 대기중이면 대기중 error
                 throw new CustomException(ErrorCode.ACCEPT_PENDING_USER);
+            } else if (resultMember.get().getStatus() == MemberStatus.REJECTED){
+                // 승인 거절이면 가입 거절 error
+                throw new CustomException(ErrorCode.ACCEPT_REJECTED_USER);
             }
         } else {
         // 존재하지 않으면 회원가입 error
@@ -113,8 +115,7 @@ public class AuthServiceImpl implements AuthService {
     * */
     @Override
     public Boolean isNicknameDuplication(String nickname) {
-        boolean isNicknameDuplication = memberRepository.existsByNickname(nickname);
-        return isNicknameDuplication;
+        return memberRepository.existsByNickname(nickname);
     }
 
     /*

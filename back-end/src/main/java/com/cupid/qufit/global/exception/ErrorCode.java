@@ -16,10 +16,12 @@ public enum ErrorCode {
 	SIGNUP_FAILURE("회원가입 도중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     USERNAME_ALREADY_EXISTS("이미 사용 중인 계정입니다.", HttpStatus.CONFLICT),
     ACCEPT_PENDING_USER("가입 승인 대기 중인 계정입니다.", HttpStatus.UNAUTHORIZED),
+    ACCEPT_REJECTED_USER("가입 승인 거절된 계정입니다.", HttpStatus.FORBIDDEN),
     MEMBER_NOT_FOUND("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SIGNUP_REQUIRED("회원 가입이 필요합니다.", HttpStatus.UNAUTHORIZED),
     TYPE_PROFILES_NOT_FOUND("이상형 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     MEMBER_ALREADY_WITHDRAWN("이미 탈퇴한 회원입니다.", HttpStatus.BAD_REQUEST),
+    MEMBER_STATUS_NOT_PENDING("회원이 대기 중 상태가 아닙니다.", HttpStatus.BAD_REQUEST),
 
     // 태그 관련
     TAG_NOT_FOUND("태그를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
