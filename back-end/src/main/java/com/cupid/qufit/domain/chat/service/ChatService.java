@@ -3,7 +3,6 @@ package com.cupid.qufit.domain.chat.service;
 import com.cupid.qufit.domain.chat.dto.ChatMessageDTO;
 import com.cupid.qufit.domain.chat.dto.ChatRoomDTO;
 import com.cupid.qufit.domain.chat.dto.ChatRoomMessageResponse;
-import com.cupid.qufit.domain.chat.dto.ChatRoomRequest;
 import com.cupid.qufit.domain.chat.repository.ChatMessageRepository;
 import com.cupid.qufit.domain.chat.repository.ChatRoomMemberRepository;
 import com.cupid.qufit.domain.chat.repository.ChatRoomRepository;
@@ -149,20 +148,21 @@ public class ChatService {
     /**
      * * 채팅방 생성 or 기존 채팅방 반환
      * <p>
-     * TODO : Member의 PK 대신 다른 식별 방식 적용 (본인은 JWT, 반대는 ? )
-     *
-     * @param request 채팅방 생성 요청 객체
      * @return 생성되거나 조회된 채팅방
      */
-    public ChatRoom createChatRoom(ChatRoomRequest request) {
+    public ChatRoom createChatRoom(Long memberId, Long otherMemberId) {
         // ! step1. 회원 찾음
-        Member member1 = findMemberById(request.getMember1Id());
-        Member member2 = findMemberById(request.getMember2Id());
+        Member member1 = findMemberById(memberId);
+        Member member2 = findMemberById(otherMemberId);
 
         // ! 두 회원의 채팅방이 이미 존재하는지 확인
         // ! 존재하지 않으면 생성하고 반환
-        return findExistingChatRoom(member1, member2).orElseGet(() -> createAndSaveNewChatRoom(member1, member2));
+        Optional<ChatRoom> existingChatRoom = findExistingChatRoom(member1, member2);
+        if (existingChatRoom.isPresent()) {
+            throw new ChatException(ErrorCode.CHAT_ROOM_ALREADY_EXISTS);
+        }
 
+        return createAndSaveNewChatRoom(member1, member2);
     }
 
     /**
@@ -318,8 +318,7 @@ public class ChatService {
         Member member = findMemberById(memberId);
         ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
 
-        Page<ChatMessage> messagePage;
-        boolean hasMore = false;
+        List<ChatMessage> messages;
         String firstMessageId = chatMessageRepository.findTopByChatRoomIdOrderByTimestampAsc(chatRoomId)
                                                      .orElseThrow(
                                                              () -> new ChatException(ErrorCode.CHAT_MESSAGE_NOT_FOUND))
@@ -335,26 +334,14 @@ public class ChatService {
                                                                .orElseThrow(() -> new ChatException(
                                                                        ErrorCode.CHAT_MESSAGE_NOT_FOUND));
 
-            messagePage = chatMessageRepository.findMessagesAfterTimestamp(
-                    chatRoomId,
-                    lastReadMessage.getTimestamp(),
-                    PageRequest.of(0, pageSize, Sort.by(Sort.Direction.ASC, "timestamp"))
-            );
-
+            messages = chatMessageRepository.findMessagesAfterTimestamp(chatRoomId, lastReadMessage.getTimestamp());
         } else {
             // 안 읽은 메시지가 pageSize 이하이거나 처음 입장하는 경우
-            messagePage = chatMessageRepository.findLatestMessages(
-                    chatRoomId,
-                    PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "timestamp"))
-            );
-
-        }
-
-        List<ChatMessage> messages = new ArrayList<>(messagePage.getContent());
-        if (chatRoomMember.getUnreadCount() <= pageSize) {
+            Page<ChatMessage> messagePage = chatMessageRepository.findLatestMessages(chatRoomId,
+                                                                                     PageRequest.of(0, pageSize));
+            messages = new ArrayList<>(messagePage.getContent());
             Collections.reverse(messages);
         }
-        hasMore = messagePage.hasNext();
 
         List<ChatMessageDTO> messageDTOs = messages.stream()
                                                    .map(ChatMessageDTO::from)
@@ -367,9 +354,10 @@ public class ChatService {
             chatRoomMember.setUnreadCount(0);
             chatRoomMemberRepository.save(chatRoomMember);
         }
-        log.info("mesages = {}", messageDTOs);
 
-        return ChatRoomMessageResponse.of(messageDTOs, 0L, hasMore, firstMessageId, lastMessageId);
+        log.info("messages = {}", messageDTOs);
+
+        return ChatRoomMessageResponse.of(messageDTOs, null, null, firstMessageId, lastMessageId);
     }
 
     /**
