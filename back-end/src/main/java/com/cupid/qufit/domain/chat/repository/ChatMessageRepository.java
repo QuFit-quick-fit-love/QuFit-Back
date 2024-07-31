@@ -19,6 +19,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
                                                           Long currentMemberId);
 
     Optional<ChatMessage> findTopByChatRoomIdOrderByTimestampAsc(Long chatRoomId);
+
     Optional<ChatMessage> findTopByChatRoomIdOrderByTimestampDesc(Long chatRoomId);
 
 
@@ -29,11 +30,11 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     Page<ChatMessage> findNextMessages(Long chatRoomId, String messageId, Pageable pageable);
 
 
+    @Query(value = "{'chatRoomId': ?0, 'timestamp': {$gte: ?1}}", sort = "{'timestamp': 1}")
+    List<ChatMessage> findMessagesAfterTimestamp(Long chatRoomId, LocalDateTime timestamp);
 
-    @Query("{'chatRoomId' : ?0, 'timestamp' : {$gte :  ?1}}")
-    Page<ChatMessage> findMessagesAfterTimestamp(Long chatRoomId, LocalDateTime timestamp, Pageable pageable);
-
-    @Query("{'chatRoomId' :  ?0}")
+    @Query(value = "{'chatRoomId': ?0}", sort = "{'timestamp': -1}")
     Page<ChatMessage> findLatestMessages(Long chatRoomId, Pageable pageable);
+
 
 }

@@ -32,6 +32,7 @@ public enum ErrorCode {
     CHAT_MESSAGE_NOT_FOUND("채팅 메시지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     CHAT_ROOM_MEMBER_NOT_FOUND("채팅방 멤버 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     UNAUTHORIZED_CHAT_ACCESS("채팅방에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN), // ! 사용자가 채팅방의 멤버인지 확인하는 것.
+    CHAT_ROOM_ALREADY_EXISTS("이미 해당 사용자와 채팅방이 존재합니다.", HttpStatus.CONFLICT),
 
     // 인증,인가 관련
     EXPIRED_TOKEN("토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),

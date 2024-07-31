@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -41,8 +42,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-//        return Arrays.stream(excludePath).anyMatch(path::startsWith);
-        return true; // 테스트를 위해 모두 true로 열어둠(임시)
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+//        return true; // 테스트를 위해 모두 true로 열어둠(임시)
     }
 
     @Override
