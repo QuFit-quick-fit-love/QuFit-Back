@@ -5,8 +5,9 @@ import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO.Response;
 import com.cupid.qufit.domain.member.service.AuthService;
 import com.cupid.qufit.domain.member.service.MemberService;
-import com.cupid.qufit.entity.chat.ChatRoom;
+import com.cupid.qufit.global.common.response.FieldValidationExceptionResponse;
 import com.cupid.qufit.global.exception.ErrorCode;
+import com.cupid.qufit.global.exception.ErrorResponse;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -78,11 +79,13 @@ public class AuthController {
     @Operation(summary = "회원가입 및 부가정보 입력", description = "회원가입을 시도한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "요청 dto 필드값 오류"),
-            @ApiResponse(responseCode = "500", description = "SIGNUP_FAILURE : 서버 오류")
+            @ApiResponse(responseCode = "400", description = "요청 dto 필드값 오류",
+                         content = @Content(schema = @Schema(implementation = FieldValidationExceptionResponse.class))),
+            @ApiResponse(responseCode = "500", description = "SIGNUP_FAILURE : 서버 오류",
+                         content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    public ResponseEntity<?> signup(@RequestHeader("accessToken") String accessToken,
-                                    @Valid @RequestBody MemberInfoDTO.Request requestDTO) {
+    public ResponseEntity<MemberInfoDTO.Response> signup(@RequestHeader("accessToken") String accessToken,
+                                                         @Valid @RequestBody MemberInfoDTO.Request requestDTO) {
         log.info("---------------회원가입 시도-----------");
 
         MemberInfoDTO.Response responseDTO;
@@ -96,18 +99,18 @@ public class AuthController {
     }
 
     /*
-    * * 닉네임 중복 검사
-    * */
+     * * 닉네임 중복 검사
+     * */
     @GetMapping("/check-nickname")
     @Operation(summary = "닉네임 중복검사", description = "닉네임 중복검사를 합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "사용가능한 닉네임"),
             @ApiResponse(responseCode = "400", description = "중복된 닉네임")
     })
-    public ResponseEntity<?> checkUniqueNickname(@RequestParam("nickname") String nickname){
+    public ResponseEntity<?> checkUniqueNickname(@RequestParam("nickname") String nickname) {
         log.info("---------------닉네임 중복검사-----------");
         Boolean isNicknameDuplication = authService.isNicknameDuplication(nickname);
-        if(!isNicknameDuplication) {
+        if (!isNicknameDuplication) {
             return new ResponseEntity<>(nickname + " 은(는) 사용가능한 닉네임입니다.", HttpStatus.OK);
         }
         return new ResponseEntity<>(nickname + " 은(는) 중복된 닉네임입니다.", HttpStatus.BAD_REQUEST);
