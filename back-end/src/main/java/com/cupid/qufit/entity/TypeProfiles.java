@@ -11,8 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +28,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @DynamicUpdate
 public class TypeProfiles {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "type_profiles_id")
@@ -44,15 +45,15 @@ public class TypeProfiles {
 
     @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TypeHobby> typeHobbies = new ArrayList<>();
+    private Set<TypeHobby> typeHobbies = new HashSet<>();
 
     @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TypePersonality> typePersonalities = new ArrayList<>();
+    private Set<TypePersonality> typePersonalities = new HashSet<>();
 
     @OneToMany(mappedBy = "typeProfiles", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TypeMBTI> typeMBTIs = new ArrayList<>();
+    private Set<TypeMBTI> typeMBTIs = new HashSet<>();
 
     // 연관관계 메소드
     public void addTypeHobbies(TypeHobby typeHobby) {
