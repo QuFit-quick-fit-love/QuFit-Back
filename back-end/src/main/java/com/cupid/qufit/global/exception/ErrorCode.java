@@ -44,6 +44,20 @@ public enum ErrorCode {
     // Elasticsearch Index관련
     INDEX_ALREADY_EXISTS("이미 존재하는 이름의 인덱스입니다.", HttpStatus.CONFLICT),
     INDEX_NOT_FOUND("해당 인덱스 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ES_IO_ERROR("입출력 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR),
+
+
+    // 미팅룸 관련
+    VIDEO_ROOM_NOT_FOUND("미팅룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    PARTICIPANT_NOT_FOUND("참가자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    // S3 관련
+    EMPTY_FILE("파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
+    EMPTY_FILE_EXTENSION("파일 확장자명이 비어있습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_EXTENSION("잘못된 확장자명입니다.", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILURE("파일 업로드 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_FILE_URL("잘못된 파일주소입니다.", HttpStatus.BAD_REQUEST),
+    FILE_DELETE_FAILURE("파일 삭제 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     private final String message;

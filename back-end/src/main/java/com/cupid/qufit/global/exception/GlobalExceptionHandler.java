@@ -4,9 +4,10 @@ package com.cupid.qufit.global.exception;
 import com.cupid.qufit.global.common.response.FieldValidationExceptionResponse;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import com.cupid.qufit.global.exception.exceptionType.S3Exception;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
+import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
+    @ExceptionHandler(VideoException.class)
+    public ResponseEntity<ErrorResponse> handleChatException(VideoException e) {
+        log.debug("[VideoException] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("예상치 못한 오류 : [UnexpectedException] : ", e);
@@ -54,15 +61,20 @@ public class GlobalExceptionHandler {
         log.error("field validation error : [MethodArgumentNotValidException] : ", e);
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 
-        List<FieldValidationExceptionResponse> errorResponse = fieldErrors.stream()
-                                                                          .map(error -> FieldValidationExceptionResponse.builder()
-                                                                                                                        .field(error.getField())
-                                                                                                                        .rejectedValue(
-                                                                                                                                error.getRejectedValue())
-                                                                                                                        .errorMessage(
-                                                                                                                                error.getDefaultMessage())
-                                                                                                                        .build())
-                                                                          .toList();
+        List<FieldValidationExceptionResponse> errorResponse
+                = fieldErrors.stream()
+                             .map(error -> FieldValidationExceptionResponse.builder()
+                                                                           .field(error.getField())
+                                                                           .rejectedValue(error.getRejectedValue())
+                                                                           .errorMessage(error.getDefaultMessage())
+                                                                           .build())
+                             .toList();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(S3Exception.class)
+    public ResponseEntity<ErrorResponse> handleS3Exception(S3Exception e) {
+        log.debug("[S3Exception] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 }
