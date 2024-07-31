@@ -12,9 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -74,7 +71,6 @@ public class WebSocketChatController {
      * ! 읽지 않은 메시지 카운트 초기화 , 최근 메시지 로딩
      * <p>
      * ! 특정 채팅방 들어가는 것은 개인화된 반응 -> convertAndSendToUser로 변경.
-     * TODO : 현재 memberId 하드코딩 -> JWT 토큰 이용한 인증 이후에 반영
      *
      * @return
      */
@@ -84,8 +80,8 @@ public class WebSocketChatController {
                               SimpMessageHeaderAccessor headerAccessor) {
         Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
         log.info("현재 회원의 ID = {}", memberId);
-        Pageable pageable = PageRequest.of(0, pageRequest.getPageSize(), Sort.by(Sort.Direction.ASC, "timestamp"));
-        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId, pageable);
+        ChatRoomMessageResponse response = chatService.enterChatRoom(chatRoomId, memberId,
+                                                                                    pageRequest.getPageSize());
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chatroom." + chatRoomId, response);
     }
 
@@ -93,7 +89,6 @@ public class WebSocketChatController {
      * * 채팅방 나갈 때
      * <p>
      * ! 해당 채팅방의 메시지 구독 해제
-     * TODO : 현재는 memberId 하드코딩 -> 이후에 갱신
      */
     @MessageMapping("/chat.leaveRoom/{chatRoomId}")
     public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId,
