@@ -31,5 +31,6 @@ public class Tag {
     private TagCateg tagCategory;
 
     @NotNull(message = "태그이름은 null일 수 없습니다.")
+    @Column(name = "tag_name", unique = true)
     private String tagName;
 }
