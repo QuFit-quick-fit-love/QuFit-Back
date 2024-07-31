@@ -19,16 +19,19 @@ public class ChatRoomMessageResponse {
     @JsonIgnore
     private Long unreadCount;
     @JsonIgnore
-    private Long totalElements;
-    @JsonIgnore
     private Boolean hasMore;
+    @JsonIgnore
+    private String firstMessageId;
+    @JsonIgnore
+    private String lastMessageId;
 
     public static ChatRoomMessageResponse of(List<ChatMessageDTO> messages, Long unreadCount,
-                                             Long totalElements, Boolean hasMore) {
+                                              Boolean hasMore, String firstMessageId, String lastMessageId) {
         return ChatRoomMessageResponse.builder()
                                       .messages(messages)
                                       .unreadCount(unreadCount)
-                                      .totalElements(totalElements)
+                                      .firstMessageId(firstMessageId)
+                                      .lastMessageId(lastMessageId)
                                       .hasMore(hasMore)
                                       .build();
     }
