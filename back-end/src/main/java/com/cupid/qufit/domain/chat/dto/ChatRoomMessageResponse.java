@@ -22,15 +22,17 @@ public class ChatRoomMessageResponse {
     private Boolean hasMore;
     private String firstMessageId;
     private String lastMessageId;
+    private Boolean isUnreadCountExceeded;
 
     public static ChatRoomMessageResponse of(List<ChatMessageDTO> messages, Long unreadCount,
-                                              Boolean hasMore, String firstMessageId, String lastMessageId) {
+                                              Boolean hasMore, String firstMessageId, String lastMessageId, Boolean isUnreadCountExceeded) {
         return ChatRoomMessageResponse.builder()
                                       .messages(messages)
                                       .unreadCount(unreadCount)
                                       .hasMore(hasMore)
                                       .firstMessageId(firstMessageId)
                                       .lastMessageId(lastMessageId)
+                                      .isUnreadCountExceeded(isUnreadCountExceeded)
                                       .build();
     }
 
