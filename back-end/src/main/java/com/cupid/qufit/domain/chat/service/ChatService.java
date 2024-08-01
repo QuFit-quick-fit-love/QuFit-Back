@@ -253,7 +253,7 @@ public class ChatService {
         }
 
         // ! step6. 종합해서 반환
-        return ChatRoomMessageResponse.of(messages, unreadCount, null, null, null);
+        return ChatRoomMessageResponse.of(messages, unreadCount, null, null, null, null);
     }
 
     /**
@@ -328,6 +328,9 @@ public class ChatService {
                                                             () -> new ChatException(ErrorCode.CHAT_MESSAGE_NOT_FOUND))
                                                     .getId();
 
+        Boolean isUnreadCountExceeded = chatRoomMember.getUnreadCount() > pageSize;
+
+
         if (chatRoomMember.getUnreadCount() > pageSize && chatRoomMember.getLastReadMessageId() != null) {
             // 안 읽은 메시지가 pageSize를 초과하는 경우
             ChatMessage lastReadMessage = chatMessageRepository.findById(chatRoomMember.getLastReadMessageId())
@@ -355,9 +358,7 @@ public class ChatService {
             chatRoomMemberRepository.save(chatRoomMember);
         }
 
-        log.info("messages = {}", messageDTOs);
-
-        return ChatRoomMessageResponse.of(messageDTOs, null, null, firstMessageId, lastMessageId);
+        return ChatRoomMessageResponse.of(messageDTOs, null, null, firstMessageId, lastMessageId, isUnreadCountExceeded);
     }
 
     /**
@@ -384,7 +385,7 @@ public class ChatService {
                                                       .collect(Collectors.toList());
         // ! 요청한 페이지 크기만큼 메시지가 조회됐다면 더 조회할 수 있다고 알리기 위해.
         boolean hasMore = messagePage.hasNext();
-        return ChatRoomMessageResponse.of(messageDTOs, null, hasMore, null, null);
+        return ChatRoomMessageResponse.of(messageDTOs, null, hasMore, null, null, null);
     }
 
     /**
@@ -412,7 +413,7 @@ public class ChatService {
         // ! 요청한 페이지 크기만큼 메시지가 조회됐다면 더 조회할 수 있다고 알리기 위해.
         boolean hasMore = messagePage.hasNext();
 
-        return ChatRoomMessageResponse.of(messageDTOs, null, hasMore, null, null);
+        return ChatRoomMessageResponse.of(messageDTOs, null, hasMore, null, null, null);
     }
 
     /**
