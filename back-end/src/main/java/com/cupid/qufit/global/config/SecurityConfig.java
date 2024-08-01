@@ -4,7 +4,9 @@ import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.filter.JWTCheckExceptionFilter;
 import com.cupid.qufit.global.security.filter.JWTCheckFilter;
 import com.cupid.qufit.global.security.handler.CustomAccessDeniedHandler;
+import com.cupid.qufit.global.security.handler.CustomLoginSuccessHandler;
 import com.cupid.qufit.global.security.handler.CustomLogoutSuccessHandler;
+import com.cupid.qufit.global.security.service.CustomLogoutService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
@@ -49,15 +52,28 @@ public class SecurityConfig {
         http.logout(
                 logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/qufit/member/logout"))
-                        .deleteCookies("JSESSIONID")
-                        .invalidateHttpSession(true)
+                        .addLogoutHandler(new CustomLogoutService(jwtUtil, redisRefreshTokenService))
                         .logoutSuccessHandler(new CustomLogoutSuccessHandler()));
 
+        // 관리자 로그인
+        http.formLogin(login -> login
+                .usernameParameter("userId")
+                .passwordParameter("password")
+                .loginProcessingUrl("/qufit/admin/login")
+                .successHandler(new CustomLoginSuccessHandler(jwtUtil, redisRefreshTokenService))
+        );
+
         // 권한 설정
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/qufit/admin/**").hasRole("ADMIN") // admin으로 시작하는 url은 admin 권한 보유자만 접근 가능
-//                .anyRequest().permitAll());
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/qufit/admin/**").hasRole("ADMIN") // admin으로 시작하는 url은 admin 권한 보유자만 접근 가능
+                .anyRequest().permitAll());
 
         return http.build();
+    }
+
+    // 비밀번호 암호화
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

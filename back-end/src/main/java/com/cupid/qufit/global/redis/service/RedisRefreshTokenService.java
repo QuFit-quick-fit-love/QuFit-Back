@@ -62,4 +62,14 @@ public class RedisRefreshTokenService {
                                                                             ErrorCode.REFRESH_TOKEN_NOT_FOUND));
         return refreshToken.getRefreshToken();
     }
+
+    /*
+     * * redis에 로그아웃 처리된 access token을 black list로 등록함
+     *
+     * */
+    public void saveBlackList(Long memberId, String accessToken, Long time) {
+        log.info("[Redis] : save blackList");
+        RedisRefreshToken blackList = new RedisRefreshToken(String.valueOf(memberId), "logout", accessToken, time * 60);
+        redisRefreshTokenRepository.save(blackList);
+    }
 }

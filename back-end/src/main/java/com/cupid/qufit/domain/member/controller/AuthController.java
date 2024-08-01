@@ -60,7 +60,6 @@ public class AuthController {
             // 유저 정보와 토큰 생성
             Map<String, Response> result = memberService.signIn(memberDetails);
             String token = result.keySet().iterator().next();
-            log.info("[login token] : " + token);
 
             // 헤더에 토큰 저장
             HttpHeaders headers = new HttpHeaders();
