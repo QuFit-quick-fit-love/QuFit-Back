@@ -1,23 +1,22 @@
 package com.cupid.qufit.domain.video.service;
 
-import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
-import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
+import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
 import java.util.Map;
 import org.springframework.data.domain.Pageable;
 
 public interface VideoRoomService {
 
-    VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequset);
+    VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest);
 
     String joinVideoRoom(Long videoRoomId, Long memberId);
 
-    VideoRoomResponse updateVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequest);
+    VideoRoomDTO.BasicResponse updateVideoRoom(Long videoRoomId, VideoRoomDTO.Request videoRoomRequest);
 
     void deleteVideoRoom(Long videoRoomId);
 
     void leaveVideoRoom(Long videoRoomId, Long memberId);
 
-    VideoRoomResponse getVideoRoomDetail(Long videoRoomId);
+    VideoRoomDTO.DetailResponse getVideoRoomDetail(Long videoRoomId);
 
     Map<String, Object> getVideoRoomList(Pageable pageable);
 }

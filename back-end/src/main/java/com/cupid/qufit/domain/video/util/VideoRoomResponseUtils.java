@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoRoomResponseUtils {
+
     public static List<String> toVideoRoomHobbiesList(List<VideoRoomHobby> hobbies) {
         List<String> participantHobbies = new ArrayList<>();
         for (VideoRoomHobby videoRoomHobby : hobbies) {

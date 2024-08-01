@@ -2,8 +2,7 @@ package com.cupid.qufit.domain.video.service;
 
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
-import com.cupid.qufit.domain.video.dto.VideoRoomRequest;
-import com.cupid.qufit.domain.video.dto.VideoRoomResponse;
+import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
 import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
@@ -54,16 +53,16 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 생성
      */
     @Override
-    public VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequest) {
+    public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
-        VideoRoom videoRoom = VideoRoomRequest.to(videoRoomRequest);
+        VideoRoom videoRoom = VideoRoomDTO.Request.to(videoRoomRequest);
         videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
         videoRoom.getVideoRoomPersonality().addAll(toPersonalityList(videoRoomRequest, videoRoom));
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
         String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest.getMemberId());
-        return VideoRoomResponse.from(videoRoom, token);
+        return VideoRoomDTO.BasicResponse.from(videoRoom, token);
     }
 
     /**
@@ -111,7 +110,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 업데이트
      */
     @Override
-    public VideoRoomResponse updateVideoRoom(Long videoRoomId, VideoRoomRequest videoRoomRequest) {
+    public VideoRoomDTO.BasicResponse updateVideoRoom(Long videoRoomId, VideoRoomDTO.Request videoRoomRequest) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
@@ -133,7 +132,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 3. 방 정보 저장
         videoRoomRepository.save(videoRoom);
 
-        return VideoRoomResponse.from(videoRoom, null);
+        return VideoRoomDTO.BasicResponse.from(videoRoom, null);
     }
 
     /**
@@ -187,13 +186,13 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 상세 정보 조회
      */
     @Override
-    public VideoRoomResponse getVideoRoomDetail(Long videoRoomId) {
+    public VideoRoomDTO.DetailResponse getVideoRoomDetail(Long videoRoomId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // ! 2. 방 참가자의 태그를 포함한 반환
-        return VideoRoomResponse.withDetails(videoRoom);
+        return VideoRoomDTO.DetailResponse.withDetails(videoRoom);
     }
 
     /**
@@ -204,9 +203,10 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 1. 대기방 리스트 최신순 조회
         Page<VideoRoom> videoRoomPage = videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
 
-        List<VideoRoomResponse> videoRoomResponses = videoRoomPage.stream()
-                                                                  .map(VideoRoomResponse::toBasicResponse)
-                                                                  .collect(Collectors.toList());
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = videoRoomPage.stream()
+                                                                          .map(videoRoom -> (VideoRoomDTO.BaseResponse) VideoRoomDTO.BasicResponse.from(
+                                                                                  videoRoom, null))
+                                                                          .collect(Collectors.toList());
         // ! 2. 응답용 리스트 데이터 가공
         Map<String, Object> response = new HashMap<>();
         response.put("videoRoomList", videoRoomResponses);
@@ -222,7 +222,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     /**
      * 미팅룸 취미 태그 찾아오기
      */
-    public List<VideoRoomHobby> toHobbyList(VideoRoomRequest videoRoomRequest, VideoRoom videoRoom) {
+    public List<VideoRoomHobby> toHobbyList(VideoRoomDTO.Request videoRoomRequest, VideoRoom videoRoom) {
         List<VideoRoomHobby> videoRoomHobbies = new ArrayList<>();
         if (videoRoomRequest.getVideoRoomHobbies() != null) {
             for (Long tagId : videoRoomRequest.getVideoRoomHobbies()) {
@@ -240,7 +240,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     /**
      * 미팅룸 성격 태그 찾아오기
      */
-    public List<VideoRoomPersonality> toPersonalityList(VideoRoomRequest videoRoomRequest, VideoRoom videoRoom) {
+    public List<VideoRoomPersonality> toPersonalityList(VideoRoomDTO.Request videoRoomRequest, VideoRoom videoRoom) {
         List<VideoRoomPersonality> videoRoomPersonalities = new ArrayList<>();
         if (videoRoomRequest.getVideoRoomPersonalities() != null) {
             for (Long tagId : videoRoomRequest.getVideoRoomPersonalities()) {
