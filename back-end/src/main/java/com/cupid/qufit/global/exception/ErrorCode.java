@@ -22,6 +22,7 @@ public enum ErrorCode {
     TYPE_PROFILES_NOT_FOUND("이상형 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     MEMBER_ALREADY_WITHDRAWN("이미 탈퇴한 회원입니다.", HttpStatus.BAD_REQUEST),
     MEMBER_STATUS_NOT_PENDING("회원이 대기 중 상태가 아닙니다.", HttpStatus.BAD_REQUEST),
+    NOT_ADMIN_MEMBER("관리자가 아닙니다.", HttpStatus.FORBIDDEN),
 
     // 태그 관련
     TAG_NOT_FOUND("태그를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
@@ -43,6 +44,7 @@ public enum ErrorCode {
     ACCESS_DENIED_ERROR("접근할 수 없습니다.", HttpStatus.FORBIDDEN),
     REFRESH_TOKEN_NOT_FOUND("RefreshToken을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     UNSUPPORTED_ENCODING("지원되지 않는 인코딩입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ALREADY_LOGOUT_TOKEN("이미 로그아웃 처리된 토큰입니다.", HttpStatus.BAD_REQUEST),
 
     // Elasticsearch Index관련
     INDEX_ALREADY_EXISTS("이미 존재하는 이름의 인덱스입니다.", HttpStatus.CONFLICT),

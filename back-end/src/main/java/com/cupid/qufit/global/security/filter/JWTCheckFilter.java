@@ -36,6 +36,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // 로그인, 회원가입 관련 api와 swagger 관련 api는 check하지 않음
         String[] excludePath = {"/qufit/auth",
+                "/qufit/admin/login", "/login",
                 "/swagger-ui",
                 "/api-docs",
                 "/images",
@@ -43,7 +44,6 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         };
 
         String path = request.getRequestURI();
-
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
 //        return true; // 테스트를 위해 모두 true로 열어둠(임시)
     }
@@ -59,7 +59,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (!jwtUtil.checkTokenExpired(accessToken)) {
             // AccessToken 유효
             log.info("[accessToken is valid]");
-            setAuthentication(accessToken);
+            // 로그아웃 검사
+            if(!checkAccessTokenLogout(accessToken)) setAuthentication(accessToken);
         } else {
             log.info("[accessToken is invalid]");
             // AccessToken 만료 -> RefreshToken 확인
@@ -75,6 +76,18 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    /*
+    * * 유효시간이 남은 accessToken이 로그아웃된 토큰인지 확인
+    *
+    * - 로그아웃된 accessToken은 Redis에 blackList로 등록되어 있음
+    * */
+    private Boolean checkAccessTokenLogout(String accessToken) {
+        log.info("[checkAccessTokenLogout]");
+        String checkTokenLogout = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
+        if(checkTokenLogout.equals("logout")) throw new CustomJWTException(ErrorCode.ALREADY_LOGOUT_TOKEN);
+        return false; // 로그아웃처리 되지 않은 유효한 토큰임
     }
 
     /*
