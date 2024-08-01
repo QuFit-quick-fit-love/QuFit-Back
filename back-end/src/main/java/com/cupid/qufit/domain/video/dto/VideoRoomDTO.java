@@ -49,7 +49,7 @@ public class VideoRoomDTO {
 
     @Getter
     @SuperBuilder
-    public abstract static class BaseResponse {
+    public static class BaseResponse {
 
         @Schema(description = "미팅방 id")
         private Long videoRoomId; // 방 id
@@ -67,6 +67,20 @@ public class VideoRoomDTO {
         private List<String> videoRoomHobby; // 방 취미 태그
         @Schema(description = "방 성격 태그")
         private List<String> videoRoomPersonality; // 방 성격 태그
+
+        public static BaseResponse from(VideoRoom videoRoom) {
+            return BaseResponse.builder()
+                               .videoRoomId(videoRoom.getVideoRoomId())
+                               .videoRoomName(videoRoom.getVideoRoomName())
+                               .createdAt(videoRoom.getCreatedAt())
+                               .maxParticipants(videoRoom.getMaxParticipants())
+                               .curMCount(videoRoom.getCurMCount())
+                               .curWCount(videoRoom.getCurWCount())
+                               .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
+                               .videoRoomPersonality(
+                                       toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
+                               .build();
+        }
     }
 
     @Getter

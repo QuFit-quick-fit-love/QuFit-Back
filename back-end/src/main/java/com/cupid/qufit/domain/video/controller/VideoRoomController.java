@@ -75,7 +75,7 @@ public class VideoRoomController {
     @Operation(summary = "비디오 방 업데이트", description = "제공된 세부 정보로 지정된 비디오 방을 업데이트합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "비디오 방이 성공적으로 업데이트되었습니다.",
-                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomDTO.BasicResponse.class)))),
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomDTO.BaseResponse.class)))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다."),
             @ApiResponse(responseCode = "404", description = "비디오 방을 찾을 수 없습니다."),
             @ApiResponse(responseCode = "500", description = "서버 오류가 발생했습니다.")})

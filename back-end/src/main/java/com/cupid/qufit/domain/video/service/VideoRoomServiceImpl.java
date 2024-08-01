@@ -3,6 +3,7 @@ package com.cupid.qufit.domain.video.service;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
+import com.cupid.qufit.domain.video.dto.VideoRoomDTO.BaseResponse;
 import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
@@ -110,7 +111,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 업데이트
      */
     @Override
-    public VideoRoomDTO.BasicResponse updateVideoRoom(Long videoRoomId, VideoRoomDTO.Request videoRoomRequest) {
+    public VideoRoomDTO.BaseResponse updateVideoRoom(Long videoRoomId, VideoRoomDTO.Request videoRoomRequest) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
@@ -132,7 +133,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 3. 방 정보 저장
         videoRoomRepository.save(videoRoom);
 
-        return VideoRoomDTO.BasicResponse.from(videoRoom, null);
+        return VideoRoomDTO.BasicResponse.from(videoRoom);
     }
 
     /**
@@ -204,8 +205,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         Page<VideoRoom> videoRoomPage = videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
 
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = videoRoomPage.stream()
-                                                                          .map(videoRoom -> (VideoRoomDTO.BaseResponse) VideoRoomDTO.BasicResponse.from(
-                                                                                  videoRoom, null))
+                                                                          .map(BaseResponse::from)
                                                                           .collect(Collectors.toList());
         // ! 2. 응답용 리스트 데이터 가공
         Map<String, Object> response = new HashMap<>();

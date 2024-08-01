@@ -10,7 +10,7 @@ public interface VideoRoomService {
 
     String joinVideoRoom(Long videoRoomId, Long memberId);
 
-    VideoRoomDTO.BasicResponse updateVideoRoom(Long videoRoomId, VideoRoomDTO.Request videoRoomRequest);
+    VideoRoomDTO.BaseResponse updateVideoRoom(Long videoRoomId, VideoRoomDTO.Request videoRoomRequest);
 
     void deleteVideoRoom(Long videoRoomId);
 
