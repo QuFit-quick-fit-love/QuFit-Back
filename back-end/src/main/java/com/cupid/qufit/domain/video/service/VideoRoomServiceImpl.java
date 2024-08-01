@@ -79,6 +79,13 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
+        // ! 2.1 멤버가 이미 참여중인 방일 경우
+        for (VideoRoomParticipant videoRoomParticipant : videoRoom.getParticipants()) {
+            if (videoRoomParticipant.getMember().getId().equals(memberId)) {
+                throw new VideoException(ErrorCode.PARTICIPANT_ALREADY_EXISTS);
+            }
+        }
+
         // ! 3. 참가자 생성
         VideoRoomParticipant newParticipant = VideoRoomParticipant.builder()
                                                                   .videoRoom(videoRoom)
