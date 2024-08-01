@@ -16,18 +16,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class MemberDetails implements UserDetails {
 
     private final Long id;
-    private final String email;
+    private final String email, pw;
     private final MemberRole role;
 
     public MemberDetails(Long id, String email, MemberRole role) {
+        this(id, email, null, role);
+    }
+
+    public MemberDetails(Long id, String email, String pw, MemberRole role) {
         this.id = id;
         this.email = email;
         this.role = role;
+        this.pw = pw;
     }
 
     @Override
     public String getPassword() {
-        return "";
+        return pw;
     }
 
     @Override
