@@ -57,8 +57,8 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     public VideoRoomResponse createVideoRoom(VideoRoomRequest videoRoomRequest) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
         VideoRoom videoRoom = VideoRoomRequest.to(videoRoomRequest);
-        videoRoom.setVideoRoomHobby(toHobbyList(videoRoomRequest, videoRoom));
-        videoRoom.setVideoRoomPersonality(toPersonalityList(videoRoomRequest, videoRoom));
+        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
+        videoRoom.getVideoRoomPersonality().addAll(toPersonalityList(videoRoomRequest, videoRoom));
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
@@ -117,10 +117,20 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // ! 2. 방 정보 업데이트 (방 제목, 최대 인원 수, 취미, 성격 태그)
+
+        // ! 2-1. 방 제목, 최대 인원 수 업데이트
         videoRoom.setVideoRoomName(videoRoomRequest.getVideoRoomName());
         videoRoom.setMaxParticipants(videoRoomRequest.getMaxParticipants());
-        videoRoom.setVideoRoomHobby(toHobbyList(videoRoomRequest, videoRoom));
-        videoRoom.setVideoRoomPersonality(toPersonalityList(videoRoomRequest, videoRoom));
+
+        // ! 2-2. 방 취미 태그 업데이트
+        videoRoom.getVideoRoomHobby().clear();
+        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
+
+        // ! 2-3. 방 성격 태그 업데이트
+        videoRoom.getVideoRoomPersonality().clear();
+        videoRoom.getVideoRoomPersonality().addAll(toPersonalityList(videoRoomRequest, videoRoom));
+
+        // ! 3. 방 정보 저장
         videoRoomRepository.save(videoRoom);
 
         return VideoRoomResponse.from(videoRoom, null);
