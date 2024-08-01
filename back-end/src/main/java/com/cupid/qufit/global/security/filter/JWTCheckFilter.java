@@ -38,7 +38,9 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         String[] excludePath = {"/qufit/auth",
                 "/swagger-ui",
                 "/api-docs",
-                "/images"};
+                "/images",
+                "/stomp/chat"
+        };
 
         String path = request.getRequestURI();
 
