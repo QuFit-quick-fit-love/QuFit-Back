@@ -1,16 +1,16 @@
 package com.cupid.qufit.domain.video.dto;
 
+import static com.cupid.qufit.domain.video.util.VideoRoomResponseUtils.toVideoRoomHobbiesList;
+import static com.cupid.qufit.domain.video.util.VideoRoomResponseUtils.toVideoRoomPersonalitiesList;
+
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.MemberHobby;
 import com.cupid.qufit.entity.MemberPersonality;
 import com.cupid.qufit.entity.video.VideoRoom;
-import com.cupid.qufit.entity.video.VideoRoomHobby;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
-import com.cupid.qufit.entity.video.VideoRoomPersonality;
 import com.cupid.qufit.entity.video.VideoRoomStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VideoRoomResponse {
 
-    @Schema(description = "채팅방ID")
+    @Schema(description = "미팅방 id")
     private Long videoRoomId; // 방 id
     @Schema(description = "방 제목")
     private String videoRoomName; // 방 제목
@@ -124,20 +124,4 @@ public class VideoRoomResponse {
                                 .build();
     }
 
-
-    public static List<String> toVideoRoomHobbiesList(List<VideoRoomHobby> hobbies) {
-        List<String> participantHobbies = new ArrayList<>();
-        for (VideoRoomHobby videoRoomHobby : hobbies) {
-            participantHobbies.add(videoRoomHobby.getTag().getTagName());
-        }
-        return participantHobbies;
-    }
-
-    public static List<String> toVideoRoomPersonalitiesList(List<VideoRoomPersonality> personalities) {
-        List<String> participantPersonalities = new ArrayList<>();
-        for (VideoRoomPersonality videoRoomPersonality : personalities) {
-            participantPersonalities.add(videoRoomPersonality.getTag().getTagName());
-        }
-        return participantPersonalities;
-    }
 }
