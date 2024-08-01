@@ -226,6 +226,64 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         return response;
     }
 
+    @Override
+    public Map<String, Object> getVideoRoomListWithFilter(int page, int size, List<Long> tagIds) {
+        // ! 1. page, size, tagIds 를 elastic search 에 보내기
+
+        // ! 2. elastic search 결과 받기. 예시 데이터 넣어둠
+        List<Long> videoRoomIds = new ArrayList<>();
+        videoRoomIds.add(21L);
+        videoRoomIds.add(22L);
+
+        // ! 3. id를 기반으로 미팅룸 리스트 형태 만들기
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
+        for (Long videoRoomId : videoRoomIds) {
+            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
+                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+            videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
+        }
+
+        // ! 4. 응답용 리스트 데이터 가공
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoRoomList", videoRoomResponses);
+//        response.put("page", Map.of(
+//                "totalElements", videoRoomPage.getTotalElements(),
+//                "totalPages", videoRoomPage.getTotalPages(),
+//                "currentPage", videoRoomPage.getNumber(),
+//                "pageSize", videoRoomPage.getSize()
+//        ));
+        return response;
+    }
+
+    @Override
+    public Map<String, Object> getRecommendedVideoRoomList(int page, int size, Long memberId) {
+        // ! 1. page, size, memberId 를 elastic search 에 보내기
+
+        // ! 2. elastic search 결과 받기.
+        List<Long> videoRoomIds = new ArrayList<>();
+        videoRoomIds.add(21L);
+        videoRoomIds.add(22L);
+
+        // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
+        for (Long videoRoomId : videoRoomIds) {
+            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
+                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+            videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
+        }
+
+        // ! 4. 응답용 리스트 데이터 가공
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoRoomList", videoRoomResponses);
+//        response.put("page", Map.of(
+//                "totalElements", videoRoomPage.getTotalElements(),
+//                "totalPages", videoRoomPage.getTotalPages(),
+//                "currentPage", videoRoomPage.getNumber(),
+//                "pageSize", videoRoomPage.getSize()
+//        ));
+        return response;
+    }
+
     /**
      * 미팅룸 취미 태그 찾아오기
      */

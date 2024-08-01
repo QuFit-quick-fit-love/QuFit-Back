@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -146,10 +147,48 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> getVideoRoomList(
-            @Parameter(description = "페이지 번호", required = true) @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 당 개수", required = true) @RequestParam(defaultValue = "6") int size) {
+            @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
     }
 
+    /**
+     * 방 리스트 조회 (필터 사용)
+     */
+    @GetMapping("/filter")
+    @Operation(summary = "필터된 비디오 방 목록 조회 ", description = "필터된 모든 비디오 방의 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "필터된 비디오 방 목록 조회 성공",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomDTO.BaseResponse.class)))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> getVideoRoomListWithFilter(
+            @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size,
+            @Parameter(description = "필터 종류", required = true) @RequestParam List<Long> tagIds) {
+        return new ResponseEntity<>(videoRoomService.getVideoRoomListWithFilter(page, size, tagIds), HttpStatus.OK);
+    }
+
+    /**
+     * 방 추천
+     */
+    @GetMapping("/recommendation")
+    @Operation(summary = "추천받은 방 목록 조회 ", description = "사용자 이상형 정보와 일치하는 모든 비디오 방의 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "추천 방 목록 조회 성공",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomDTO.BaseResponse.class)))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> getRecommendedVideoRoomList(
+            @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "5") int size,
+            @Parameter(description = "멤버 아이디", required = true) @RequestParam Long memberId) {
+        return new ResponseEntity<>(videoRoomService.getRecommendedVideoRoomList(page, size, memberId), HttpStatus.OK);
+    }
+
+    /*
+     * 미팅 시작하기
+     * 방 상태 READY -> ACTIVE
+     */
 }
