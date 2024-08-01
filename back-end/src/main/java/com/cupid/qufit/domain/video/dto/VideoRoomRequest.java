@@ -1,6 +1,7 @@
 package com.cupid.qufit.domain.video.dto;
 
 import com.cupid.qufit.entity.video.VideoRoom;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -16,12 +17,17 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VideoRoomRequest {
 
+    @Schema(description = "미팅방 제목")
     @NotEmpty
     private String videoRoomName; // 방 제목
+    @Schema(description = "미팅방 최대 인원수")
     @Size(min = 1, max = 4, message = "인원수는 1:1~4:4 입니다")
     private int maxParticipants; // 최대 인원수
+    @Schema(description = "미팅방 취미 태그")
     private List<Long> videoRoomHobbies; // 방 취미 태그
+    @Schema(description = "미팅방 성격 태그")
     private List<Long> videoRoomPersonalities; // 방 성격 태그
+    @Schema(description = "멤버 아이디")
     private Long memberId; // 멤버 아이디
 
     public static VideoRoom to(VideoRoomRequest videoRoomRequest) {
