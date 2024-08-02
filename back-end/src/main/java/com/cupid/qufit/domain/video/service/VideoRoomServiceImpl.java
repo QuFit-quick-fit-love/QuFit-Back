@@ -54,7 +54,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 생성
      */
     @Override
-    public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest) {
+    public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest, Long memberId) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
         VideoRoom videoRoom = VideoRoomDTO.Request.to(videoRoomRequest);
         videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
@@ -62,7 +62,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
-        String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest.getMemberId());
+        String token = joinVideoRoom(videoRoom.getVideoRoomId(), memberId);
         return VideoRoomDTO.BasicResponse.from(videoRoom, token);
     }
 
@@ -78,6 +78,13 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 2. 멤버 찾기
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // ! 2.1 멤버가 이미 참여중인 방일 경우
+        for (VideoRoomParticipant videoRoomParticipant : videoRoom.getParticipants()) {
+            if (videoRoomParticipant.getMember().getId().equals(memberId)) {
+                throw new VideoException(ErrorCode.PARTICIPANT_ALREADY_EXISTS);
+            }
+        }
 
         // ! 3. 참가자 생성
         VideoRoomParticipant newParticipant = VideoRoomParticipant.builder()
@@ -152,7 +159,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 떠나기
      */
     @Override
-    public void leaveVideoRoom(Long videoRoomId, Long memberId) {
+    public int leaveVideoRoom(Long videoRoomId, Long memberId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
@@ -160,7 +167,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 2. 방 인원 1명일 경우 방 삭제
         if (videoRoom.getCurMCount() + videoRoom.getCurWCount() == 1) {
             videoRoomRepository.delete(videoRoom);
-            return;
+            return 1;
         }
 
         // ! 3. 참가자 찾기
@@ -181,6 +188,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
             videoRoom.setCurWCount(videoRoom.getCurWCount() - 1);
         }
         videoRoomRepository.save(videoRoom);
+        return 0;
     }
 
     /**
@@ -216,6 +224,64 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                 "currentPage", videoRoomPage.getNumber(),
                 "pageSize", videoRoomPage.getSize()
         ));
+        return response;
+    }
+
+    @Override
+    public Map<String, Object> getVideoRoomListWithFilter(int page, int size, List<Long> tagIds) {
+        // ! 1. page, size, tagIds 를 elastic search 에 보내기
+
+        // ! 2. elastic search 결과 받기. 예시 데이터 넣어둠
+        List<Long> videoRoomIds = new ArrayList<>();
+        videoRoomIds.add(21L);
+        videoRoomIds.add(22L);
+
+        // ! 3. id를 기반으로 미팅룸 리스트 형태 만들기
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
+        for (Long videoRoomId : videoRoomIds) {
+            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
+                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+            videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
+        }
+
+        // ! 4. 응답용 리스트 데이터 가공
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoRoomList", videoRoomResponses);
+//        response.put("page", Map.of(
+//                "totalElements", videoRoomPage.getTotalElements(),
+//                "totalPages", videoRoomPage.getTotalPages(),
+//                "currentPage", videoRoomPage.getNumber(),
+//                "pageSize", videoRoomPage.getSize()
+//        ));
+        return response;
+    }
+
+    @Override
+    public Map<String, Object> getRecommendedVideoRoomList(int page, int size, Long memberId) {
+        // ! 1. page, size, memberId 를 elastic search 에 보내기
+
+        // ! 2. elastic search 결과 받기.
+        List<Long> videoRoomIds = new ArrayList<>();
+        videoRoomIds.add(21L);
+        videoRoomIds.add(22L);
+
+        // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
+        for (Long videoRoomId : videoRoomIds) {
+            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
+                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+            videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
+        }
+
+        // ! 4. 응답용 리스트 데이터 가공
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoRoomList", videoRoomResponses);
+//        response.put("page", Map.of(
+//                "totalElements", videoRoomPage.getTotalElements(),
+//                "totalPages", videoRoomPage.getTotalPages(),
+//                "currentPage", videoRoomPage.getNumber(),
+//                "pageSize", videoRoomPage.getSize()
+//        ));
         return response;
     }
 
