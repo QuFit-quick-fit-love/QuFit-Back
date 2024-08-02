@@ -1,7 +1,7 @@
 {
   "properties": {
     "participant_id": {
-      "type": "constant_keyword"
+      "type": "keyword"
     },
     "video_room_id": {
       "type": "keyword"
@@ -22,7 +22,7 @@
     "location": {
       "type": "keyword"
     },
-    "age": {
+    "birth_year": {
       "type": "integer"
     },
     "bio": {
