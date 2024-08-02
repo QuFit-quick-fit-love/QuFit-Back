@@ -1,6 +1,5 @@
 package com.cupid.qufit.global.utils.elasticsearch.dto;
 
-import co.elastic.clients.elasticsearch._types.FieldValue;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +18,7 @@ public class RecommendRoomDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Request {
+
         private String location;
         private Integer birthYear;
         private int typeAgeMax;
@@ -33,5 +33,6 @@ public class RecommendRoomDTO {
     @Setter
     @Builder
     public static class Response {
+
     }
 }

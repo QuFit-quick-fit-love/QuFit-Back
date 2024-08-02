@@ -97,7 +97,7 @@ public class ESVideoRoomService implements ESService<ESVideoRoom> {
                                   t -> t.field("hobbies").terms(TermsQueryField.of(fv -> fv.value(hobbies)))
                                         .boost(2.0f)))
                           .should(s -> s.match(
-                                  m -> m.field("bio").query(bioQueryString.toString()).boost(1.0f).operator(
+                                  m -> m.field("bio").query(bioQueryString).boost(1.0f).operator(
                                           Operator.Or)))
                           .minimumShouldMatch("1"))
                 ._toQuery();

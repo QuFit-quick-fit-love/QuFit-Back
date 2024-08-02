@@ -2,7 +2,6 @@ package com.cupid.qufit.global.utils.elasticsearch.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,11 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @Document(indexName = "participants")
 @Setting(settingPath = "/index/participant/participant-settings.json")
 @Mapping(mappingPath = "/index/participant/participant-mappings.json")
-@Getter @Setter @Builder @AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ESParticipant {
 
     @Id
