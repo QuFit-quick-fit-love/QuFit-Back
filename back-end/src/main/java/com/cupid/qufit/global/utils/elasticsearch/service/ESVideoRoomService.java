@@ -136,7 +136,6 @@ public class ESVideoRoomService implements ESService<ESVideoRoom> {
             }
         }
 
-
         return videoRoomKeys;
     }
 
