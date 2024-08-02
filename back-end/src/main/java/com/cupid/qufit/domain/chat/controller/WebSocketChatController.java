@@ -8,6 +8,7 @@ import com.cupid.qufit.entity.chat.ChatMessage;
 import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
 import com.cupid.qufit.global.common.request.MessagePaginationRequest;
+import com.cupid.qufit.global.common.response.CommonResultResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -91,11 +92,16 @@ public class WebSocketChatController {
      * ! 해당 채팅방의 메시지 구독 해제
      */
     @MessageMapping("/chat.leaveRoom/{chatRoomId}")
-    public void leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId,
-                              @Payload ChatMessageDTO lastMessage,
-                              SimpMessageHeaderAccessor headerAccessor) {
+    public CommonResultResponse leaveChatRoom(@DestinationVariable("chatRoomId") Long chatRoomId,
+                                              @Payload ChatMessageDTO lastMessage,
+                                              SimpMessageHeaderAccessor headerAccessor) {
         Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
         chatService.updateChatRoomMember(chatRoomId, memberId, lastMessage);
+
+        return CommonResultResponse.builder()
+                                   .isSuccess(true)
+                                   .message("채팅방 나가기에 성공했습니다")
+                                   .build();
     }
 
     /**
