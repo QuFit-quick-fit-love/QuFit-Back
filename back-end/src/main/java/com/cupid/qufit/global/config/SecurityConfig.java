@@ -4,6 +4,7 @@ import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.filter.JWTCheckExceptionFilter;
 import com.cupid.qufit.global.security.filter.JWTCheckFilter;
 import com.cupid.qufit.global.security.handler.CustomAccessDeniedHandler;
+import com.cupid.qufit.global.security.handler.CustomLoginFailureHandler;
 import com.cupid.qufit.global.security.handler.CustomLoginSuccessHandler;
 import com.cupid.qufit.global.security.handler.CustomLogoutSuccessHandler;
 import com.cupid.qufit.global.security.service.CustomLogoutService;
@@ -15,10 +16,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,10 +35,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // csrf 사용 x
-            .csrf(AbstractHttpConfigurer::disable)
-            // 세션 사용 x
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                // csrf 사용 x
+                .csrf(AbstractHttpConfigurer::disable)
+                // 세션 사용 x
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // jwt 토큰 확인 필터
         http.addFilterBefore(new JWTCheckFilter(jwtUtil, redisRefreshTokenService),
@@ -61,6 +62,7 @@ public class SecurityConfig {
                 .passwordParameter("password")
                 .loginProcessingUrl("/qufit/admin/login")
                 .successHandler(new CustomLoginSuccessHandler(jwtUtil, redisRefreshTokenService))
+                .failureHandler(new CustomLoginFailureHandler())
         );
 
         // 권한 설정

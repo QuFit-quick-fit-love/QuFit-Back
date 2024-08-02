@@ -49,7 +49,6 @@ public class MemberDetails implements UserDetails {
         Map<String, Object> map = new HashMap<>();
 
         map.put("id", id);
-        map.put("email", email);
         map.put("role", role);
 
         return map;
