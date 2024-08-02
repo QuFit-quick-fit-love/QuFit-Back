@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.video.controller;
 
+import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
 import com.cupid.qufit.domain.video.service.VideoRoomService;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,8 +50,10 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다."),
             @ApiResponse(responseCode = "500", description = "서버 오류가 발생했습니다.")})
     public ResponseEntity<?> createVideoRoom(
-            @Parameter(description = "생성할 비디오 방의 세부 정보", required = true) @RequestBody VideoRoomDTO.Request videoRoomRequest) {
-        return new ResponseEntity<>(videoRoomService.createVideoRoom(videoRoomRequest), HttpStatus.OK);
+            @Parameter(description = "생성할 비디오 방의 세부 정보", required = true) @RequestBody VideoRoomDTO.Request videoRoomRequest,
+            @AuthenticationPrincipal MemberDetails memberDetails) {
+        return new ResponseEntity<>(videoRoomService.createVideoRoom(videoRoomRequest, memberDetails.getId()),
+                HttpStatus.OK);
     }
 
     /**
@@ -64,8 +68,8 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류가 발생했습니다.")})
     public ResponseEntity<?> joinVideoRoom(
             @Parameter(description = "참여할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
-            @Parameter(description = "멤버의 ID", required = true) @RequestParam Long memberId) {
-        return new ResponseEntity<>(Map.of("token", videoRoomService.joinVideoRoom(videoRoomId, memberId)),
+            @AuthenticationPrincipal MemberDetails memberDetails) {
+        return new ResponseEntity<>(Map.of("token", videoRoomService.joinVideoRoom(videoRoomId, memberDetails.getId())),
                 HttpStatus.OK);
     }
 
@@ -114,9 +118,14 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류가 발생했습니다.")})
     public ResponseEntity<?> leaveVideoRoom(
             @Parameter(description = "퇴장할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
-            @Parameter(description = "비디오 방에서 퇴장할 멤버의 ID", required = true) @RequestParam Long memberId) {
-        videoRoomService.leaveVideoRoom(videoRoomId, memberId);
-        CommonResultResponse response = CommonResultResponse.builder().isSuccess(true).message("미팅룸에서 성공적으로 나왔습니다.")
+            @AuthenticationPrincipal MemberDetails memberDetails) {
+        int result = videoRoomService.leaveVideoRoom(videoRoomId, memberDetails.getId());
+
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message(result == 0
+                                                                     ? "미팅룸에서 성공적으로 나왔습니다."
+                                                                     : "미팅룸에서 성공적으로 나왔습니다. 마지막 참가자여서 미팅룸이 삭제되었습니다.")
                                                             .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -183,8 +192,9 @@ public class VideoRoomController {
     public ResponseEntity<?> getRecommendedVideoRoomList(
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "5") int size,
-            @Parameter(description = "멤버 아이디", required = true) @RequestParam Long memberId) {
-        return new ResponseEntity<>(videoRoomService.getRecommendedVideoRoomList(page, size, memberId), HttpStatus.OK);
+            @AuthenticationPrincipal MemberDetails memberDetails) {
+        return new ResponseEntity<>(videoRoomService.getRecommendedVideoRoomList(page, size, memberDetails.getId()),
+                HttpStatus.OK);
     }
 
     /*

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface VideoRoomService {
 
-    VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest);
+    VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest, Long memberId);
 
     String joinVideoRoom(Long videoRoomId, Long memberId);
 
@@ -15,7 +15,7 @@ public interface VideoRoomService {
 
     void deleteVideoRoom(Long videoRoomId);
 
-    void leaveVideoRoom(Long videoRoomId, Long memberId);
+    int leaveVideoRoom(Long videoRoomId, Long memberId);
 
     VideoRoomDTO.DetailResponse getVideoRoomDetail(Long videoRoomId);
 

@@ -54,7 +54,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 생성
      */
     @Override
-    public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest) {
+    public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest, Long memberId) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
         VideoRoom videoRoom = VideoRoomDTO.Request.to(videoRoomRequest);
         videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
@@ -62,7 +62,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
-        String token = joinVideoRoom(videoRoom.getVideoRoomId(), videoRoomRequest.getMemberId());
+        String token = joinVideoRoom(videoRoom.getVideoRoomId(), memberId);
         return VideoRoomDTO.BasicResponse.from(videoRoom, token);
     }
 
@@ -159,7 +159,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 떠나기
      */
     @Override
-    public void leaveVideoRoom(Long videoRoomId, Long memberId) {
+    public int leaveVideoRoom(Long videoRoomId, Long memberId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
@@ -167,7 +167,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 2. 방 인원 1명일 경우 방 삭제
         if (videoRoom.getCurMCount() + videoRoom.getCurWCount() == 1) {
             videoRoomRepository.delete(videoRoom);
-            return;
+            return 1;
         }
 
         // ! 3. 참가자 찾기
@@ -188,6 +188,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
             videoRoom.setCurWCount(videoRoom.getCurWCount() - 1);
         }
         videoRoomRepository.save(videoRoom);
+        return 0;
     }
 
     /**
