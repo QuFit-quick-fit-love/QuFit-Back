@@ -1,7 +1,6 @@
 package com.cupid.qufit.global.utils.elasticsearch.controller;
 
 import com.cupid.qufit.global.utils.elasticsearch.entity.ESParticipant;
-import com.cupid.qufit.global.utils.elasticsearch.entity.ESVideoRoom;
 import com.cupid.qufit.global.utils.elasticsearch.service.ESParticipantService;
 import jakarta.validation.Valid;
 import java.net.URI;
