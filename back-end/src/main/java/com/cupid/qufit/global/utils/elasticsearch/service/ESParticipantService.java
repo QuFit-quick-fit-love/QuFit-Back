@@ -1,40 +1,15 @@
 package com.cupid.qufit.global.utils.elasticsearch.service;
 
-import com.cupid.qufit.global.exception.ErrorCode;
-import com.cupid.qufit.global.exception.exceptionType.ESParticipantException;
 import com.cupid.qufit.global.utils.elasticsearch.entity.ESParticipant;
-import com.cupid.qufit.global.utils.elasticsearch.repository.ESParticipantRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
-public class ESParticipantService implements ESService<ESParticipant> {
+public interface ESParticipantService {
+    ESParticipant save(com.cupid.qufit.global.utils.elasticsearch.entity.ESParticipant entity);
 
-    private final ESParticipantRepository esParticipantRepository;
+    ESParticipant findById(Long id);
 
-    @Override
-    public ESParticipant save(ESParticipant entity) {
-        return esParticipantRepository.save(entity);
-    }
+    Iterable<ESParticipant> findAll();
 
-    @Override
-    public ESParticipant findById(Long id) {
-        return esParticipantRepository.findById(id).orElseThrow(()-> new ESParticipantException(ErrorCode.PARTICIPANT_NOT_FOUND));
-    }
+    void deleteById(Long id);
 
-    @Override
-    public Iterable<ESParticipant> findAll() {
-        return esParticipantRepository.findAll();
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        esParticipantRepository.deleteById(id);
-    }
-
-    @Override
-    public void deleteAll() {
-        esParticipantRepository.deleteAll();
-    }
+    void deleteAll();
 }
