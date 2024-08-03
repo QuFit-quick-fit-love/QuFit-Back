@@ -1,10 +1,13 @@
 package com.cupid.qufit.global.utils.elasticsearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -16,21 +19,27 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @Document(indexName = "participants")
 @Setting(settingPath = "/index/participant/participant-settings.json")
 @Mapping(mappingPath = "/index/participant/participant-mappings.json")
-@Getter @Setter @Builder
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ESParticipant {
 
     @Id
-    private Long id;
+    @Field(type = FieldType.Keyword)
+    private String id;
 
     @Field(type = FieldType.Keyword)
     @JsonProperty("participant_id")
-    private Long participantId;
+    private String participantId;
 
     @Field(type = FieldType.Keyword)
     @JsonProperty("video_room_id")
-    private Long videoRoomId;
+    private String videoRoomId;
 
     @Field(type = FieldType.Date)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     @JsonProperty("updated_at")
     private Date updatedAt;
 
@@ -48,7 +57,8 @@ public class ESParticipant {
     private String location;
 
     @Field(type = FieldType.Integer)
-    private Integer age;
+    @JsonProperty("birth_year")
+    private Integer birthYear;
 
     @Field(type = FieldType.Keyword)
     private String gender;

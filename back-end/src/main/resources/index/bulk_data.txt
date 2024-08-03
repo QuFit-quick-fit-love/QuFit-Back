@@ -1,0 +1,140 @@
+{ "index" : { "_index" : "video", "_id" : "1" } }
+{ "video_room_id": "1", "participants": ["1", "2", "3", "4", "5", "6"], "room_tags": ["음악", "예술", "창의성", "문화"] }
+{ "index" : { "_index" : "participants", "_id" : "1" } }
+{ "participant_id": "1", "video_room_id": "1", "updated_at": "2023-07-01 14:23:00", "mbti": "INTJ", "personalities": ["분석적", "전략적", "논리적", "창의적"], "hobbies": ["독서", "코딩", "기술 연구", "예술 감상"], "location": "서울", "birth_year": 1990, "bio": "AI와 예술에 관심이 많은 소프트웨어 엔지니어입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "2" } }
+{ "participant_id": "2", "video_room_id": "1", "updated_at": "2023-07-01 15:00:00", "mbti": "ENFP", "personalities": ["열정적", "창의적", "사교적", "적응력"], "hobbies": ["음악", "여행", "예술", "사진"], "location": "부산", "birth_year": 1985, "bio": "음악과 여행을 즐기는 창의적 예술가입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "3" } }
+{ "participant_id": "3", "video_room_id": "1", "updated_at": "2023-07-01 16:45:00", "mbti": "ISTJ", "personalities": ["책임감", "현실적", "분석적", "조용함"], "hobbies": ["운동", "요리", "독서", "영화 감상"], "location": "대구", "birth_year": 1988, "bio": "책임감 있고 현실적인 IT 전문가입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "4" } }
+{ "participant_id": "4", "video_room_id": "1", "updated_at": "2023-07-01 17:30:00", "mbti": "INFJ", "personalities": ["이해심", "사려 깊음", "창의적", "감성적"], "hobbies": ["글쓰기", "명상", "예술", "독서"], "location": "인천", "birth_year": 1992, "bio": "창의적 글쓰기를 좋아하는 콘텐츠 크리에이터입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "5" } }
+{ "participant_id": "5", "video_room_id": "1", "updated_at": "2023-07-01 18:15:00", "mbti": "ENFJ", "personalities": ["인간관계", "사교성", "열정적", "리더십"], "hobbies": ["영화감상", "피아노", "여행", "문화 체험"], "location": "대전", "birth_year": 1987, "bio": "사람과 소통하는 것을 즐기는 영화 감상가입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "6" } }
+{ "participant_id": "6", "video_room_id": "1", "updated_at": "2023-07-01 19:00:00", "mbti": "ENTP", "personalities": ["창의적", "논리적", "사교적", "유머러스함"], "hobbies": ["토론", "여행", "스타트업 아이디어", "콘서트"], "location": "광주", "birth_year": 1989, "bio": "창의적인 아이디어를 공유하는 스타트업 CEO입니다.", "gender": "M" }
+{ "index" : { "_index" : "video", "_id" : "2" } }
+{ "video_room_id": "2", "participants": ["7", "8", "9", "10", "11", "12"], "room_tags": ["건강", "웰니스", "요가", "식습관"] }
+{ "index" : { "_index" : "participants", "_id" : "7" } }
+{ "participant_id": "7", "video_room_id": "2", "updated_at": "2023-07-02 09:15:00", "mbti": "ESFJ", "personalities": ["사회적", "배려심", "친절함", "사교적"], "hobbies": ["요가", "요리", "웰빙", "독서"], "location": "광주", "birth_year": 1987, "bio": "건강한 생활 방식을 전파하는 웰니스 강사입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "8" } }
+{ "participant_id": "8", "video_room_id": "2", "updated_at": "2023-07-02 10:00:00", "mbti": "ENTP", "personalities": ["창의적", "사교적", "논리적", "유머러스함"], "hobbies": ["독서", "토론", "음식 탐방", "여행"], "location": "대전", "birth_year": 1991, "bio": "건강과 웰빙에 관심이 많은 건강 코치입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "9" } }
+{ "participant_id": "9", "video_room_id": "2", "updated_at": "2023-07-02 11:00:00", "mbti": "ISTP", "personalities": ["논리적", "적응력", "분석적", "실용적"], "hobbies": ["등산", "수영", "트레이닝", "여행"], "location": "대구", "birth_year": 1990, "bio": "활동적인 라이프스타일을 추구하는 트레이너입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "10" } }
+{ "participant_id": "10", "video_room_id": "2", "updated_at": "2023-07-02 11:45:00", "mbti": "ISFJ", "personalities": ["섬세함", "책임감", "친절함", "조용함"], "hobbies": ["요리", "독서", "웰빙", "음악 감상"], "location": "부산", "birth_year": 1988, "bio": "건강한 식습관을 연구하는 영양사입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "11" } }
+{ "participant_id": "11", "video_room_id": "2", "updated_at": "2023-07-02 12:30:00", "mbti": "INTP", "personalities": ["분석적", "독립적", "논리적", "창의적"], "hobbies": ["철학", "독서", "웰빙", "식습관 연구"], "location": "서울", "birth_year": 1985, "bio": "철학적 사유를 통해 웰빙에 접근하는 연구원입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "12" } }
+{ "participant_id": "12", "video_room_id": "2", "updated_at": "2023-07-02 13:15:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["그림 그리기", "음악 감상", "요가", "명상"], "location": "서울", "birth_year": 1992, "bio": "다양한 예술과 웰빙을 탐구하는 아티스트입니다.", "gender": "F" }
+{ "index" : { "_index" : "video", "_id" : "3" } }
+{ "video_room_id": "3", "participants": ["13", "14", "15", "16", "17", "18"], "room_tags": ["여행", "문화", "모험", "음식"] }
+{ "index" : { "_index" : "participants", "_id" : "13" } }
+{ "participant_id": "13", "video_room_id": "3", "updated_at": "2023-07-03 09:00:00", "mbti": "INFP", "personalities": ["이상적", "감성적", "창의적", "모험적"], "hobbies": ["사진 촬영", "글쓰기", "여행", "문화 체험"], "location": "서울", "birth_year": 1994, "bio": "여행 작가로, 다양한 문화를 기록하고 탐험합니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "14" } }
+{ "participant_id": "14", "video_room_id": "3", "updated_at": "2023-07-03 10:30:00", "mbti": "ESTP", "personalities": ["활동적", "모험적", "열정적", "사교적"], "hobbies": ["등산", "수영", "여행", "운동"], "location": "대구", "birth_year": 1989, "bio": "세계 각지를 여행하며 새로운 도전을 즐깁니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "15" } }
+{ "participant_id": "15", "video_room_id": "3", "updated_at": "2023-07-03 11:45:00", "mbti": "ISFJ", "personalities": ["섬세함", "책임감", "친절함", "현실적"], "hobbies": ["요리", "손뜨개", "독서", "음식 탐방"], "location": "대전", "birth_year": 1985, "bio": "전통 음식과 문화를 연구하는 셰프입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "16" } }
+{ "participant_id": "16", "video_room_id": "3", "updated_at": "2023-07-03 13:00:00", "mbti": "ENTJ", "personalities": ["리더십", "전략적", "결단력", "사교적"], "hobbies": ["비즈니스 컨설팅", "독서", "여행", "문화 체험"], "location": "부산", "birth_year": 1983, "bio": "국제 비즈니스 전문가로 다양한 문화와 협력합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "17" } }
+{ "participant_id": "17", "video_room_id": "3", "updated_at": "2023-07-03 14:15:00", "mbti": "INFJ", "personalities": ["이해심", "사려 깊음", "창의적", "공감"], "hobbies": ["명상", "자원봉사", "여행", "독서"], "location": "울산", "birth_year": 1992, "bio": "사회적 봉사에 열정을 가진 자원봉사자입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "18" } }
+{ "participant_id": "18", "video_room_id": "3", "updated_at": "2023-07-03 15:30:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "조용함", "친절함"], "hobbies": ["그림 그리기", "음악 감상", "여행", "문화 체험"], "location": "서울", "birth_year": 1990, "bio": "다양한 예술 분야와 문화를 탐구하는 아티스트입니다.", "gender": "M" }
+{ "index" : { "_index" : "video", "_id" : "4" } }
+{ "video_room_id": "4", "participants": ["19", "20", "21", "22", "23", "24"], "room_tags": ["비즈니스", "네트워킹", "혁신", "리더십"] }
+{ "index" : { "_index" : "participants", "_id" : "19" } }
+{ "participant_id": "19", "video_room_id": "4", "updated_at": "2023-07-04 09:00:00", "mbti": "ENTP", "personalities": ["창의적", "사교적", "논리적", "유머러스함"], "hobbies": ["비즈니스 아이디어 개발", "네트워킹", "토론", "스타트업"], "location": "서울", "birth_year": 1985, "bio": "혁신적인 비즈니스 아이디어를 개발하는 기업가입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "20" } }
+{ "participant_id": "20", "video_room_id": "4", "updated_at": "2023-07-04 10:15:00", "mbti": "ISTJ", "personalities": ["책임감", "현실적", "조용함", "분석적"], "hobbies": ["재무 관리", "독서", "비즈니스 전략", "조용한 활동"], "location": "부산", "birth_year": 1990, "bio": "비즈니스 재무 관리 전문가로서 일하고 있습니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "21" } }
+{ "participant_id": "21", "video_room_id": "4", "updated_at": "2023-07-04 11:30:00", "mbti": "ENFJ", "personalities": ["리더십", "사교적", "동기부여", "열정적"], "hobbies": ["공연 기획", "리더십 개발", "네트워킹", "토론"], "location": "대구", "birth_year": 1987, "bio": "문화 공연 기획자로서 여러 프로젝트를 이끌고 있습니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "22" } }
+{ "participant_id": "22", "video_room_id": "4", "updated_at": "2023-07-04 13:00:00", "mbti": "INFJ", "personalities": ["사려 깊음", "이해심", "창의적", "공감"], "hobbies": ["심리학 연구", "상담", "네트워킹", "독서"], "location": "광주", "birth_year": 1992, "bio": "심리학자이자 상담사로서 사람들의 삶을 돕고 있습니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "23" } }
+{ "participant_id": "23", "video_room_id": "4", "updated_at": "2023-07-04 14:30:00", "mbti": "ESFP", "personalities": ["활기찬", "외향적", "사교적", "열정적"], "hobbies": ["이벤트 기획", "여행", "네트워킹", "문화 체험"], "location": "대전", "birth_year": 1993, "bio": "이벤트 기획 전문가로서 다양한 행사를 주최합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "24" } }
+{ "participant_id": "24", "video_room_id": "4", "updated_at": "2023-07-04 15:45:00", "mbti": "INTP", "personalities": ["분석적", "논리적", "독립적", "창의적"], "hobbies": ["철학 연구", "독서", "비즈니스 전략", "토론"], "location": "서울", "birth_year": 1988, "bio": "철학적 탐구를 즐기며 비즈니스 전략을 연구하는 연구자입니다.", "gender": "M" }
+{ "index" : { "_index" : "video", "_id" : "5" } }
+{ "video_room_id": "5", "participants": ["25", "26", "27", "28", "29", "30"], "room_tags": ["기술", "혁신", "스타트업", "AI"] }
+{ "index" : { "_index" : "participants", "_id" : "25" } }
+{ "participant_id": "25", "video_room_id": "5", "updated_at": "2023-07-05 09:30:00", "mbti": "INTJ", "personalities": ["분석적", "전략적", "논리적", "독립적"], "hobbies": ["코딩", "기술 연구", "AI", "스타트업"], "location": "서울", "birth_year": 1986, "bio": "AI와 머신 러닝에 열정을 가진 소프트웨어 엔지니어입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "26" } }
+{ "participant_id": "26", "video_room_id": "5", "updated_at": "2023-07-05 10:45:00", "mbti": "ENTJ", "personalities": ["리더십", "결단력", "전략적", "사교적"], "hobbies": ["스타트업 개발", "네트워킹", "비즈니스 전략", "토론"], "location": "부산", "birth_year": 1990, "bio": "여러 스타트업을 이끄는 기업가입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "27" } }
+{ "participant_id": "27", "video_room_id": "5", "updated_at": "2023-07-05 12:00:00", "mbti": "INFJ", "personalities": ["창의적", "통찰력", "사려 깊음", "공감"], "hobbies": ["UX 디자인", "디지털 아트", "스타트업", "문화 체험"], "location": "대전", "birth_year": 1988, "bio": "디지털 제품 디자인에 깊은 이해를 가진 UX 디자이너입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "28" } }
+{ "participant_id": "28", "video_room_id": "5", "updated_at": "2023-07-05 13:15:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["그래픽 디자인", "음악 감상", "디지털 아트", "문화 체험"], "location": "광주", "birth_year": 1994, "bio": "창의적 시각 예술을 탐구하는 그래픽 디자이너입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "29" } }
+{ "participant_id": "29", "video_room_id": "5", "updated_at": "2023-07-05 14:30:00", "mbti": "ENFP", "personalities": ["열정적", "창의적", "사교적", "유머러스함"], "hobbies": ["창업 아이디어 개발", "대화", "스타트업", "비즈니스 전략"], "location": "인천", "birth_year": 1987, "bio": "열정적인 창업가이자 창의적인 아이디어 발굴자입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "30" } }
+{ "participant_id": "30", "video_room_id": "5", "updated_at": "2023-07-05 15:45:00", "mbti": "ISTP", "personalities": ["논리적", "실용적", "분석적", "조용함"], "hobbies": ["메카닉 디자인", "3D 프린팅", "스타트업", "기술 연구"], "location": "울산", "birth_year": 1991, "bio": "기계적 설계와 혁신적 기술에 능통한 엔지니어입니다.", "gender": "M" }
+{ "index" : { "_index" : "video", "_id" : "6" } }
+{ "video_room_id": "6", "participants": ["31", "32", "33", "34", "35", "36"], "room_tags": ["교육", "학습", "혁신", "심리학"] }
+{ "index" : { "_index" : "participants", "_id" : "31" } }
+{ "participant_id": "31", "video_room_id": "6", "updated_at": "2023-07-06 09:00:00", "mbti": "INTP", "personalities": ["분석적", "독립적", "논리적", "창의적"], "hobbies": ["독서", "철학", "심리학", "학습 혁신"], "location": "서울", "birth_year": 1985, "bio": "철학과 심리학을 탐구하는 교수입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "32" } }
+{ "participant_id": "32", "video_room_id": "6", "updated_at": "2023-07-06 10:15:00", "mbti": "ENFJ", "personalities": ["사교적", "동기부여", "리더십", "공감"], "hobbies": ["교육 활동", "리더십 개발", "심리학 연구", "네트워킹"], "location": "부산", "birth_year": 1990, "bio": "교육자로서 학생들에게 영감을 주고 있습니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "33" } }
+{ "participant_id": "33", "video_room_id": "6", "updated_at": "2023-07-06 11:30:00", "mbti": "ISFJ", "personalities": ["책임감", "섬세함", "친절함", "조용함"], "hobbies": ["글쓰기", "요리", "교육 자료 개발", "독서"], "location": "대구", "birth_year": 1988, "bio": "학생들을 위한 맞춤형 교육 자료를 개발하고 있습니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "34" } }
+{ "participant_id": "34", "video_room_id": "6", "updated_at": "2023-07-06 12:45:00", "mbti": "ENTP", "personalities": ["창의적", "사교적", "논리적", "유머러스함"], "hobbies": ["토론", "네트워킹", "학습 혁신", "심리학 연구"], "location": "광주", "birth_year": 1991, "bio": "학습 혁신과 새로운 교육 방법론을 연구하고 있습니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "35" } }
+{ "participant_id": "35", "video_room_id": "6", "updated_at": "2023-07-06 14:00:00", "mbti": "INFJ", "personalities": ["통찰력", "사려 깊음", "창의적", "공감"], "hobbies": ["명상", "자원봉사", "교육 활동", "심리학 연구"], "location": "대전", "birth_year": 1987, "bio": "자기계발과 마음의 평화를 추구하는 교육자입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "36" } }
+{ "participant_id": "36", "video_room_id": "6", "updated_at": "2023-07-06 15:15:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["음악 감상", "사진 촬영", "예술 교육", "학습 혁신"], "location": "인천", "birth_year": 1992, "bio": "음악과 예술을 통한 학습을 연구하는 예술 교육자입니다.", "gender": "M" }
+{ "index" : { "_index" : "video", "_id" : "7" } }
+{ "video_room_id": "7", "participants": ["37", "38", "39", "40", "41", "42"], "room_tags": ["요리", "여행", "독서", "영화", "음악"] }
+{ "index" : { "_index" : "participants", "_id" : "37" } }
+{ "participant_id": "37", "video_room_id": "7", "updated_at": "2023-07-07 09:00:00", "mbti": "ESFP", "personalities": ["외향적", "활발함", "사교적", "열정적"], "hobbies": ["여행", "요리", "음악 감상", "문화 체험"], "location": "서울", "birth_year": 1993, "bio": "사람들과의 만남을 즐기며 새로운 경험을 추구합니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "38" } }
+{ "participant_id": "38", "video_room_id": "7", "updated_at": "2023-07-07 10:30:00", "mbti": "ISFJ", "personalities": ["책임감", "배려심", "친절함", "조용함"], "hobbies": ["독서", "영화 감상", "요리", "음악 감상"], "location": "부산", "birth_year": 1987, "bio": "조용한 취미를 즐기며 깊이 있는 대화를 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "39" } }
+{ "participant_id": "39", "video_room_id": "7", "updated_at": "2023-07-07 12:00:00", "mbti": "ENTP", "personalities": ["창의적", "재치", "논리적", "유머러스함"], "hobbies": ["토론", "스타트업 아이디어", "여행", "문화 체험"], "location": "대전", "birth_year": 1991, "bio": "창의적인 대화를 통해 새로운 아이디어를 탐구합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "40" } }
+{ "participant_id": "40", "video_room_id": "7", "updated_at": "2023-07-07 13:30:00", "mbti": "INFJ", "personalities": ["이해심", "사려 깊음", "창의적", "공감"], "hobbies": ["명상", "자원봉사", "여행", "독서"], "location": "광주", "birth_year": 1989, "bio": "사람들의 이야기에 귀 기울이고 도움을 주는 것을 좋아합니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "41" } }
+{ "participant_id": "41", "video_room_id": "7", "updated_at": "2023-07-07 15:00:00", "mbti": "INTJ", "personalities": ["분석적", "독립적", "논리적", "조용함"], "hobbies": ["클래식 음악 감상", "피아노", "독서", "문화 탐구"], "location": "인천", "birth_year": 1985, "bio": "음악과 예술에 깊은 관심이 있는 아티스트입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "42" } }
+{ "participant_id": "42", "video_room_id": "7", "updated_at": "2023-07-07 16:15:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["사진 촬영", "예술", "음악 감상", "문화 체험"], "location": "울산", "birth_year": 1992, "bio": "사진과 예술을 통해 감정을 표현하는 것을 좋아합니다.", "gender": "F" }
+{ "index" : { "_index" : "video", "_id" : "8" } }
+{ "video_room_id": "8", "participants": ["43", "44", "45", "46", "47", "48"], "room_tags": ["스포츠", "피트니스", "여행", "음식", "모험"] }
+{ "index" : { "_index" : "participants", "_id" : "43" } }
+{ "participant_id": "43", "video_room_id": "8", "updated_at": "2023-07-08 09:00:00", "mbti": "ESTP", "personalities": ["모험적", "활동적", "사교적", "열정적"], "hobbies": ["등산", "서핑", "여행", "스포츠"], "location": "서울", "birth_year": 1990, "bio": "모험과 스포츠를 즐기는 활발한 성격의 사람입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "44" } }
+{ "participant_id": "44", "video_room_id": "8", "updated_at": "2023-07-08 10:30:00", "mbti": "ISFJ", "personalities": ["배려심", "친절함", "조용함", "책임감"], "hobbies": ["요가", "피트니스", "여행", "독서"], "location": "부산", "birth_year": 1992, "bio": "건강과 웰빙을 중시하며 요가와 피트니스를 즐깁니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "45" } }
+{ "participant_id": "45", "video_room_id": "8", "updated_at": "2023-07-08 12:00:00", "mbti": "ENFP", "personalities": ["열정적", "창의적", "사교적", "유머러스함"], "hobbies": ["여행", "음식 탐방", "스포츠", "문화 체험"], "location": "대구", "birth_year": 1987, "bio": "새로운 장소와 음식을 경험하는 것을 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "46" } }
+{ "participant_id": "46", "video_room_id": "8", "updated_at": "2023-07-08 13:30:00", "mbti": "INFJ", "personalities": ["이해심", "사려 깊음", "창의적", "공감"], "hobbies": ["독서", "문화 체험", "여행", "명상"], "location": "광주", "birth_year": 1989, "bio": "다양한 문화를 이해하고 배우는 것을 좋아합니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "47" } }
+{ "participant_id": "47", "video_room_id": "8", "updated_at": "2023-07-08 15:00:00", "mbti": "INTJ", "personalities": ["분석적", "독립적", "논리적", "조용함"], "hobbies": ["체스", "전략 게임", "독서", "문화 탐구"], "location": "대전", "birth_year": 1985, "bio": "전략적 사고와 게임을 즐기며, 논리적인 토론을 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "48" } }
+{ "participant_id": "48", "video_room_id": "8", "updated_at": "2023-07-08 16:15:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["사진 촬영", "요리", "여행", "음식 탐방"], "location": "울산", "birth_year": 1993, "bio": "자연과 예술을 통해 감정을 표현하는 것을 즐깁니다.", "gender": "F" }
+{ "index" : { "_index" : "video", "_id" : "9" } }
+{ "video_room_id": "9", "participants": ["49", "50", "51", "52", "53", "54"], "room_tags": ["음악", "콘서트", "영화", "미술", "여행"] }
+{ "index" : { "_index" : "participants", "_id" : "49" } }
+{ "participant_id": "49", "video_room_id": "9", "updated_at": "2023-07-09 09:00:00", "mbti": "ENTP", "personalities": ["창의적", "열정적", "사교적", "유머러스함"], "hobbies": ["콘서트 참여", "악기 연주", "여행", "문화 체험"], "location": "서울", "birth_year": 1991, "bio": "음악과 공연을 통해 감정을 표현하는 것을 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "50" } }
+{ "participant_id": "50", "video_room_id": "9", "updated_at": "2023-07-09 10:30:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["미술 감상", "그림 그리기", "여행", "음악 감상"], "location": "부산", "birth_year": 1988, "bio": "미술과 예술을 사랑하는 예술가입니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "51" } }
+{ "participant_id": "51", "video_room_id": "9", "updated_at": "2023-07-09 12:00:00", "mbti": "INTJ", "personalities": ["분석적", "전략적", "독립적", "논리적"], "hobbies": ["영화 감상", "시나리오 작성", "독서", "문화 탐구"], "location": "대전", "birth_year": 1985, "bio": "영화와 시나리오 작성을 통해 이야기를 만드는 것을 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "52" } }
+{ "participant_id": "52", "video_room_id": "9", "updated_at": "2023-07-09 13:30:00", "mbti": "ENFP", "personalities": ["열정적", "사교적", "창의적", "유머러스함"], "hobbies": ["여행", "사진 촬영", "문화 체험", "콘서트 참여"], "location": "대구", "birth_year": 1992, "bio": "새로운 장소를 탐험하고 사진으로 순간을 기록하는 것을 좋아합니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "53" } }
+{ "participant_id": "53", "video_room_id": "9", "updated_at": "2023-07-09 15:00:00", "mbti": "ISTJ", "personalities": ["책임감", "현실적", "조용함", "분석적"], "hobbies": ["음악 감상", "독서", "영화 감상", "미술 감상"], "location": "광주", "birth_year": 1989, "bio": "조용한 시간을 즐기며 음악과 독서를 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "54" } }
+{ "participant_id": "54", "video_room_id": "9", "updated_at": "2023-07-09 16:15:00", "mbti": "INFJ", "personalities": ["이해심", "사려 깊음", "창의적", "공감"], "hobbies": ["독서", "창작 활동", "여행", "음악 감상"], "location": "울산", "birth_year": 1990, "bio": "문학과 예술을 통해 자신의 생각을 표현하는 것을 즐깁니다.", "gender": "F" }
+{ "index" : { "_index" : "video", "_id" : "10" } }
+{ "video_room_id": "10", "participants": ["55", "56", "57", "58", "59", "60"], "room_tags": ["자연", "캠핑", "등산", "야외 활동", "스포츠"] }
+{ "index" : { "_index" : "participants", "_id" : "55" } }
+{ "participant_id": "55", "video_room_id": "10", "updated_at": "2023-07-10 09:00:00", "mbti": "ESTP", "personalities": ["모험적", "활동적", "사교적", "열정적"], "hobbies": ["캠핑", "서핑", "등산", "야외 활동"], "location": "서울", "birth_year": 1987, "bio": "야외 활동과 모험을 좋아하는 액티브한 사람입니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "56" } }
+{ "participant_id": "56", "video_room_id": "10", "updated_at": "2023-07-10 10:30:00", "mbti": "ISFJ", "personalities": ["배려심", "친절함", "조용함", "책임감"], "hobbies": ["등산", "자연 탐험", "캠핑", "독서"], "location": "부산", "birth_year": 1991, "bio": "자연 속에서의 활동을 통해 힐링을 추구합니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "57" } }
+{ "participant_id": "57", "video_room_id": "10", "updated_at": "2023-07-10 12:00:00", "mbti": "ENFP", "personalities": ["열정적", "창의적", "사교적", "유머러스함"], "hobbies": ["여행", "자연 촬영", "캠핑", "야외 활동"], "location": "대구", "birth_year": 1988, "bio": "새로운 장소와 자연을 사진으로 기록하는 것을 좋아합니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "58" } }
+{ "participant_id": "58", "video_room_id": "10", "updated_at": "2023-07-10 13:30:00", "mbti": "INTJ", "personalities": ["분석적", "독립적", "논리적", "조용함"], "hobbies": ["전략 게임", "러닝", "등산", "캠핑"], "location": "광주", "birth_year": 1985, "bio": "전략적인 사고와 야외 활동을 즐깁니다.", "gender": "M" }
+{ "index" : { "_index" : "participants", "_id" : "59" } }
+{ "participant_id": "59", "video_room_id": "10", "updated_at": "2023-07-10 15:00:00", "mbti": "INFJ", "personalities": ["이해심", "사려 깊음", "창의적", "공감"], "hobbies": ["독서", "야외 활동", "명상", "여행"], "location": "대전", "birth_year": 1992, "bio": "자연 속에서의 활동과 독서를 통해 마음의 평화를 찾습니다.", "gender": "F" }
+{ "index" : { "_index" : "participants", "_id" : "60" } }
+{ "participant_id": "60", "video_room_id": "10", "updated_at": "2023-07-10 16:15:00", "mbti": "ISFP", "personalities": ["예술적", "감성적", "친절함", "조용함"], "hobbies": ["자전거 타기", "자연 그림 그리기", "캠핑", "등산"], "location": "인천", "birth_year": 1994, "bio": "자연과 예술을 통해 자신의 감정을 표현하는 것을 즐깁니다.", "gender": "M" }

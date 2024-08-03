@@ -20,7 +20,7 @@ public class ESVideoRoom {
 
     @Id
     @JsonProperty("video_room_id")
-    private Long id;
+    private String id;
 
     @Field(type = FieldType.Keyword)
     private List<String> participants;
