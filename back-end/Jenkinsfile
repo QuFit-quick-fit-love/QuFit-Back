@@ -16,18 +16,23 @@ pipeline {
                         echo "Directory contents:"
                         ls -la
                         echo "Credential file path: $ENV_FILE"
-                        echo "Credential file contents:"
-                        cat "$ENV_FILE" || echo "Failed to read credential file"
                         echo "Creating .env file..."
-                        touch .env
-                        echo "Copying contents from credential file..."
-                        cat "$ENV_FILE" > .env || echo "Failed to copy credential file"
+                        cp "$ENV_FILE" .env
                         echo "Adding DOCKER_TAG..."
                         echo "DOCKER_TAG=${DOCKER_TAG}" >> .env
                         echo "Contents of .env file:"
-                        cat .env || echo "Failed to read .env file"
+                        cat .env
                     '''
                 }
+            }
+        }
+
+        stage('Debug Info') {
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'docker info'
+                sh 'id'
             }
         }
 
@@ -43,7 +48,11 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    docker.withServer('unix:///var/run/docker.sock') {
+                        dir('back-end') {
+                            docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                        }
+                    }
                 }
             }
         }
