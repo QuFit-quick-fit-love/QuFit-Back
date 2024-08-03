@@ -38,10 +38,13 @@ pipeline {
 
         stage('Checkout') {
             steps {
+
+                deleteDir()
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/feat/BE-Docker수정']],
                     userRemoteConfigs: [[url: 'https://lab.ssafy.com/s11-webmobile1-sub2/S11P12A209.git',
                                          credentialsId: 'jenkins-gitlab']]])
+                sh 'ls -la'
             }
         }
 
