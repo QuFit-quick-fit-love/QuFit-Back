@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: whgustn730/qufit:latest  # DockerHub에 푸시할 이미지
+    image: whgustn730/qufit:${DOCKER_TAG:-latest}  # DockerHub에 푸시할 이미지
     container_name: qufit-backend
     ports:
       - "8080:8080"
