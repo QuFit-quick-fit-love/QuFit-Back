@@ -1,13 +1,10 @@
 package com.cupid.qufit.global.utils.elasticsearch.controller;
 
-import com.cupid.qufit.global.utils.elasticsearch.dto.RecommendRoomDTO;
 import com.cupid.qufit.global.utils.elasticsearch.entity.ESVideoRoom;
 import com.cupid.qufit.global.utils.elasticsearch.service.ESVideoRoomServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
