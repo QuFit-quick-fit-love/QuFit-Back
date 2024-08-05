@@ -13,7 +13,7 @@ public enum ErrorCode {
 
     // 회원 관련
     MEMBER_DEFAULT_ERROR("회원 관련 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-	SIGNUP_FAILURE("회원가입 도중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    SIGNUP_FAILURE("회원가입 도중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     USERNAME_ALREADY_EXISTS("이미 사용 중인 계정입니다.", HttpStatus.CONFLICT),
     ACCEPT_PENDING_USER("가입 승인 대기 중인 계정입니다.", HttpStatus.UNAUTHORIZED),
     ACCEPT_REJECTED_USER("가입 승인 거절된 계정입니다.", HttpStatus.FORBIDDEN),
@@ -25,8 +25,8 @@ public enum ErrorCode {
     NOT_ADMIN_MEMBER("관리자가 아닙니다.", HttpStatus.FORBIDDEN),
 
     // 태그 관련
-    TAG_NOT_FOUND("태그를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
-    LOCATION_NOT_FOUND("지역을 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
+    TAG_NOT_FOUND("태그를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    LOCATION_NOT_FOUND("지역을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // 채팅 관련
     CHAT_ROOM_NOT_FOUND("채팅방을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -46,11 +46,12 @@ public enum ErrorCode {
     UNSUPPORTED_ENCODING("지원되지 않는 인코딩입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ALREADY_LOGOUT_TOKEN("이미 로그아웃 처리된 토큰입니다.", HttpStatus.BAD_REQUEST),
 
-    // Elasticsearch Index관련
+    // Elasticsearch Index 관련
     INDEX_ALREADY_EXISTS("이미 존재하는 이름의 인덱스입니다.", HttpStatus.CONFLICT),
     INDEX_NOT_FOUND("해당 인덱스 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ES_IO_ERROR("입출력 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // ES VideoRoom 관련
 
     // 미팅룸 관련
     VIDEO_ROOM_NOT_FOUND("미팅룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
