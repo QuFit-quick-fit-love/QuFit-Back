@@ -23,5 +23,5 @@ public interface VideoRoomService {
 
     Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds);
 
-    Map<String, Object> getRecommendedVideoRoomList(int page, int size, Long memberId);
+    Map<String, Object> getRecommendedVideoRoomList(int page, Long memberId);
 }

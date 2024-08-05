@@ -195,9 +195,8 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> getRecommendedVideoRoomList(
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "5") int size,
             @AuthenticationPrincipal MemberDetails memberDetails) {
-        return new ResponseEntity<>(videoRoomService.getRecommendedVideoRoomList(page, size, memberDetails.getId()),
+        return new ResponseEntity<>(videoRoomService.getRecommendedVideoRoomList(page, memberDetails.getId()),
                 HttpStatus.OK);
     }
 
