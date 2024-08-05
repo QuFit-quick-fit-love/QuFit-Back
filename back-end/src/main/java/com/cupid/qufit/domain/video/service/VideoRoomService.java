@@ -1,6 +1,7 @@
 package com.cupid.qufit.domain.video.service;
 
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Pageable;
@@ -23,5 +24,5 @@ public interface VideoRoomService {
 
     Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds);
 
-    Map<String, Object> getRecommendedVideoRoomList(int page, int size, Long memberId);
+    Map<String, Object> getRecommendedVideoRoomList(int page, Long memberId) throws IOException;
 }

@@ -15,7 +15,9 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @Document(indexName = "video")
 @Setting(settingPath = "/index/video/video-settings.json")
 @Mapping(mappingPath = "/index/video/video-mappings.json")
-@Getter @Setter @Builder
+@Getter
+@Setter
+@Builder
 public class ESVideoRoom {
 
     @Id

@@ -97,6 +97,8 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
+
+
     // 연관관계 메소드
     public void addMemberHobbies(MemberHobby memberHobby) {
         this.memberHobbies.add(memberHobby);

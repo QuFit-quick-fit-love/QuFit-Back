@@ -1,9 +1,11 @@
 package com.cupid.qufit.global.utils.elasticsearch.entity;
 
+import com.cupid.qufit.entity.Member;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +43,7 @@ public class ESParticipant {
     @Field(type = FieldType.Date)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     @JsonProperty("updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Field(type = FieldType.Keyword)
     @JsonProperty("mbti")
@@ -66,5 +68,22 @@ public class ESParticipant {
     @Field(type = FieldType.Text)
     private String bio;
 
-
+    public static ESParticipant createParticipant(String videoRoomId, Member member) {
+        return ESParticipant.builder()
+                            .participantId(member.getId().toString())
+                            .videoRoomId(videoRoomId)
+                            .updatedAt(member.getUpdatedAt())
+                            .MBTI(member.getMBTI().getTagName())
+                            .personalities(member.getMemberPersonalities().stream()
+                                                 .map(pTag -> pTag.getTag().getTagName())
+                                                 .collect(Collectors.toList()))
+                            .hobbies(member.getMemberHobbies().stream()
+                                           .map(hTag -> hTag.getTag().getTagName())
+                                           .collect(Collectors.toList()))
+                            .location(member.getLocation().toString())
+                            .birthYear(member.getBirthDate().getYear())
+                            .gender(member.getGender().toString())
+                            .bio(member.getBio())
+                            .build();
+    }
 }
