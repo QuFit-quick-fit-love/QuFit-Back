@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,7 +40,7 @@ public class FriendController {
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> addFriend(
             @AuthenticationPrincipal MemberDetails memberDetails,
-            @Parameter(description = "친구 아이디") Long friendId) {
+            @Parameter(description = "친구 아이디") @RequestParam Long friendId) {
         friendService.addFriend(memberDetails.getId(), friendId);
         CommonResultResponse response = CommonResultResponse.builder()
                                                             .isSuccess(true)
