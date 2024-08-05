@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 public class ESVideoRoomServiceImpl {
 
     private final ESVideoRoomRepository esVideoRoomRepository;
-    private final ElasticsearchClient elasticsearchClient;
-
 
     public ESVideoRoom save(ESVideoRoom esVideoRoom) {
         return esVideoRoomRepository.save(esVideoRoom);
