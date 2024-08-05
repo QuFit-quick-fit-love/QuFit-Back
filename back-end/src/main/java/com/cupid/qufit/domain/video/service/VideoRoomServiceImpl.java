@@ -1,12 +1,14 @@
 package com.cupid.qufit.domain.video.service;
 
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
+import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO.BaseResponse;
 import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
+import com.cupid.qufit.entity.TypeProfiles;
 import com.cupid.qufit.entity.video.VideoRoom;
 import com.cupid.qufit.entity.video.VideoRoomHobby;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
@@ -16,9 +18,13 @@ import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.exception.exceptionType.VideoException;
+import com.cupid.qufit.global.utils.elasticsearch.dto.RecommendRoomDTO.Request;
+import com.cupid.qufit.global.utils.elasticsearch.entity.ESParticipant;
+import com.cupid.qufit.global.utils.elasticsearch.service.ESParticipantServiceImpl;
 import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +50,8 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     private final MemberRepository memberRepository;
     private final VideoRoomParticipantRepository videoRoomParticipantRepository;
     private final TagRepository tagRepository;
+    private final ESParticipantServiceImpl esParticipantService;
+    private final TypeProfilesRepository typeProfilesRepository;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -94,9 +102,14 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                                   .member(member)
                                                                   .build();
 
-        // ! 4. 방에 참가자 추가
+        /* ! 4. 방에 참가자 추가 */
+        // 4-1. DB에 참가자 저장
         videoRoomParticipantRepository.save(newParticipant);
         videoRoom.getParticipants().add(newParticipant);
+
+        // 4-2. ES에 참가자 저장
+        ESParticipant newESParticipant = ESParticipant.createParticipant(videoRoomId.toString(), member);
+        esParticipantService.save(newESParticipant);
 
         // ! 5. 방 정보 업데이트
         if (newParticipant.getMember().getGender() == 'm') {
@@ -124,7 +137,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
-        // ! 2. 방 정보 업데이트 (방 제목, 최대 인원 수, 취미, 성격 태그)
+        /* ! 2. 방 정보 업데이트 (방 제목, 최대 인원 수, 취미, 성격 태그) */
 
         // ! 2-1. 방 제목, 최대 인원 수 업데이트
         videoRoom.setVideoRoomName(videoRoomRequest.getVideoRoomName());
@@ -152,7 +165,11 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
-        // ! 2. 방 제거
+
+        // !. 2. ES에서 해당 방 참가자 삭제
+        esParticipantService.deleteAllByRoomId(videoRoomId.toString());
+
+        // ! 3. 방 제거
         videoRoomRepository.delete(videoRoom);
     }
 
@@ -179,8 +196,12 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                             () -> new VideoException(ErrorCode.PARTICIPANT_NOT_FOUND));
 
         // ! 4. 방에서 참가자 제거
+        // 4-1. DB에서 해당 참가자 삭제
         videoRoomParticipantRepository.delete(participant);
         videoRoom.getParticipants().remove(participant);
+
+        // 4-2. ES에서 해당 참가자 삭제
+        esParticipantService.deleteById(participant.getId());
 
         // ! 5. 방 현재 인원 수 업데이트
         if (participant.getMember().getGender() == 'm') {
@@ -287,17 +308,20 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     }
 
     @Override
-    public Map<String, Object> getRecommendedVideoRoomList(int page, int size, Long memberId) {
-        // ! 1. page, size, memberId 를 elastic search 에 보내기
+    public Map<String, Object> getRecommendedVideoRoomList(int page, Long memberId) throws IOException {
+        // ! 1. 멤버 찾기
+        Member member = memberRepository.findById(memberId)
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        TypeProfiles typeProfiles = typeProfilesRepository.findByMemberId(memberId).orElseThrow(
+                () -> new MemberException(ErrorCode.TYPE_PROFILES_NOT_FOUND));
 
-        // ! 2. elastic search 결과 받기.
-        List<Long> videoRoomIds = new ArrayList<>();
-        videoRoomIds.add(21L);
-        videoRoomIds.add(22L);
+        // ! 2. page, size, memberId 를 elastic search 에 보내기
+        List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
+                                                                                                          typeProfiles));
 
         // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
-        for (Long videoRoomId : videoRoomIds) {
+        for (Long videoRoomId : recommendRoomIds) {
             VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
                     () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
             videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
@@ -306,12 +330,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 4. 응답용 리스트 데이터 가공
         Map<String, Object> response = new HashMap<>();
         response.put("videoRoomList", videoRoomResponses);
-//        response.put("page", Map.of(
-//                "totalElements", videoRoomPage.getTotalElements(),
-//                "totalPages", videoRoomPage.getTotalPages(),
-//                "currentPage", videoRoomPage.getNumber(),
-//                "pageSize", videoRoomPage.getSize()
-//        ));
+
         return response;
     }
 

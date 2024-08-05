@@ -60,7 +60,7 @@ public class ESParticipantServiceImpl {
         esParticipantRepository.deleteAll();
     }
 
-    public List<Long> recommendRoom(Request request) throws IOException {
+    public List<Long> recommendRoom(int page, Request request) throws IOException {
         List<FieldValue> mbtis = toFieldValueList(request.getMBTIs());
         List<FieldValue> personalities = toFieldValueList(request.getPersonalities());
         List<FieldValue> hobbies = toFieldValueList(request.getHobbies());

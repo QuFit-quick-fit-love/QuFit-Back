@@ -1,6 +1,5 @@
 package com.cupid.qufit.global.utils.elasticsearch.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.ESVideoRoomException;
 import com.cupid.qufit.global.utils.elasticsearch.entity.ESVideoRoom;

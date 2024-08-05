@@ -71,7 +71,7 @@ public class ESParticipantController {
                                                                         .hobbies(List.of("그림 그리기", "명상"))
                                                                         .gender("F")
                                                                         .build();
-        esParticipantServiceImpl.recommendRoom(dummyRequest);
+        esParticipantServiceImpl.recommendRoom(0, dummyRequest);
     }
 
 }
