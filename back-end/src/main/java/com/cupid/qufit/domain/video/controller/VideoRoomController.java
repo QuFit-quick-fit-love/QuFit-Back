@@ -205,4 +205,10 @@ public class VideoRoomController {
      * 미팅 시작하기
      * 방 상태 READY -> ACTIVE
      */
+
+    /*
+     * 친구 추가하기
+     *
+     */
+
 }
