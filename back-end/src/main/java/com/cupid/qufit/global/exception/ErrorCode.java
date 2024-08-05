@@ -58,6 +58,9 @@ public enum ErrorCode {
     PARTICIPANT_NOT_FOUND("참가자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PARTICIPANT_ALREADY_EXISTS("이미 해당 참가자가 참여중인 방입니다.", HttpStatus.CONFLICT),
 
+    // 친구 관련
+    FRIEND_ALREADY_EXISTS("이미 해당 멤버와 친구 관계입니다.", HttpStatus.CONFLICT),
+
     // S3 관련
     EMPTY_FILE("파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
     EMPTY_FILE_EXTENSION("파일 확장자명이 비어있습니다.", HttpStatus.BAD_REQUEST),
