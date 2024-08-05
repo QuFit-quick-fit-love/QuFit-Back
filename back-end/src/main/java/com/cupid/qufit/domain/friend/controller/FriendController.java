@@ -31,7 +31,7 @@ public class FriendController {
     /*
      * 친구 추가하기
      */
-    @PostMapping("/add")
+    @PostMapping
     @Operation(summary = "친구 추가", description = "일대일 미팅 중 친구 추가를 진행합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "친구 추가 성공",
