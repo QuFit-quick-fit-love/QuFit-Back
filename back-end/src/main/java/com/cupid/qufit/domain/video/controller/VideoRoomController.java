@@ -175,8 +175,12 @@ public class VideoRoomController {
     public ResponseEntity<?> getVideoRoomListWithFilter(
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size,
-            @Parameter(description = "필터 종류", required = true) @RequestParam List<Long> tagIds) {
-        return new ResponseEntity<>(videoRoomService.getVideoRoomListWithFilter(page, size, tagIds), HttpStatus.OK);
+            @Parameter(description = "필터 종류") @RequestParam(defaultValue = "") List<Long> tagIds) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        if (tagIds.isEmpty()) {
+            return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(videoRoomService.getVideoRoomListWithFilter(pageable, tagIds), HttpStatus.OK);
     }
 
     /**
