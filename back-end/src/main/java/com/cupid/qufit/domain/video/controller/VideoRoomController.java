@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -191,7 +192,7 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> getRecommendedVideoRoomList(
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
-            @AuthenticationPrincipal MemberDetails memberDetails) {
+            @AuthenticationPrincipal MemberDetails memberDetails) throws IOException {
         return new ResponseEntity<>(videoRoomService.getRecommendedVideoRoomList(page, memberDetails.getId()),
                 HttpStatus.OK);
     }
