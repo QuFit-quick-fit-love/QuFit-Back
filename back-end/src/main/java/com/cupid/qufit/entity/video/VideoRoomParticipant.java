@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,7 @@ public class VideoRoomParticipant {
     @CreatedDate
     private LocalDateTime joinedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 }
