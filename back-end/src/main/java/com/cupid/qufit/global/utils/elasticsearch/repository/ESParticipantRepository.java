@@ -5,4 +5,5 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
 public interface ESParticipantRepository extends ElasticsearchRepository<ESParticipant, Long> {
 
+    void deleteAllByVideoRoomId(String roomId);
 }

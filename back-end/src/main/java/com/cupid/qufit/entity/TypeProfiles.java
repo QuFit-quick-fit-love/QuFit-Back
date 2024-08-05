@@ -40,6 +40,7 @@ public class TypeProfiles {
 
     @Nullable
     private Integer typeAgeMax;
+
     @Nullable
     private Integer typeAgeMin;
 
