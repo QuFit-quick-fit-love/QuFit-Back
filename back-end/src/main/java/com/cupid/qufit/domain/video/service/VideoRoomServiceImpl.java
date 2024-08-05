@@ -30,12 +30,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -251,59 +251,56 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
     @Override
     public Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds) {
-        // ! 1. 대기방 리스트 최신순 조회
-        Page<VideoRoom> videoRoomPage = videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
+        // ! 1. 대기방 리스트 조회
+        List<VideoRoom> videoRooms = videoRoomRepository.findByStatus(VideoRoomStatus.READY);
 
-        // ! 2. 필터를 포함하는 리스트 찾기 + 태그 일치 횟수 카운트
+        // 2. 필터를 포함하는 리스트 찾기 + 태그 일치 횟수 카운트
         Map<VideoRoomDTO.BaseResponse, Integer> mapVideoRoomResponses = new HashMap<>();
-        for (VideoRoom videoRoom : videoRoomPage) {
+        for (VideoRoom videoRoom : videoRooms) {
             int count = 0;
             for (VideoRoomHobby videoRoomHobby : videoRoom.getVideoRoomHobby()) {
-                for (Long id : tagIds) {
-                    if (videoRoomHobby.getTag().getId().equals(id)) {
-                        count++;
-                    }
+                if (tagIds.contains(videoRoomHobby.getTag().getId())) {
+                    count++;
                 }
             }
             for (VideoRoomPersonality videoRoomPersonality : videoRoom.getVideoRoomPersonality()) {
-                for (Long id : tagIds) {
-                    if (videoRoomPersonality.getTag().getId().equals(id)) {
-                        count++;
-                    }
+                if (tagIds.contains(videoRoomPersonality.getTag().getId())) {
+                    count++;
                 }
             }
             if (count > 0) {
                 mapVideoRoomResponses.put(VideoRoomDTO.BaseResponse.from(videoRoom), count);
             }
         }
-        // ! 3. 매칭 수 기준으로 내림차순 정렬
-        Map<VideoRoomDTO.BaseResponse, Integer> sortedVideoRoomResponses = mapVideoRoomResponses.entrySet()
-                                                                                                .stream()
-                                                                                                .sorted(Map.Entry.<VideoRoomDTO.BaseResponse, Integer>comparingByValue()
-                                                                                                                 .reversed())
-                                                                                                .collect(
-                                                                                                        Collectors.toMap(
-                                                                                                                Map.Entry::getKey,
-                                                                                                                Map.Entry::getValue,
-                                                                                                                (e1, e2) -> e1,
-                                                                                                                LinkedHashMap::new
-                                                                                                        ));
-        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>(sortedVideoRoomResponses.keySet());
 
-        // ! 4. 응답용 리스트 데이터 가공
-        int totalElements = videoRoomResponses.size();
-        int pageSize = pageable.getPageSize();
-        int currentPage = totalElements % pageSize == 0 ? pageSize : totalElements % pageSize;
-        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+        // 3. 매칭 수 기준으로 내림차순 정렬
+        List<Map.Entry<VideoRoomDTO.BaseResponse, Integer>> sortedEntries = mapVideoRoomResponses.entrySet()
+                                                                                                 .stream()
+                                                                                                 .sorted(Map.Entry.<VideoRoomDTO.BaseResponse, Integer>comparingByValue()
+                                                                                                                  .reversed())
+                                                                                                 .toList();
+
+        // 4. 페이지화
+        int totalElements = sortedEntries.size();
+        int start = Math.min((int) pageable.getOffset(), totalElements);
+        int end = Math.min(start + pageable.getPageSize(), totalElements);
+
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = sortedEntries.subList(start, end)
+                                                                          .stream()
+                                                                          .map(Map.Entry::getKey)
+                                                                          .collect(Collectors.toList());
+        // 5. 응답 데이터 구성
+        Page<VideoRoomDTO.BaseResponse> page = new PageImpl<>(videoRoomResponses, pageable, totalElements);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("videoRoomList", videoRoomResponses);
-//        response.put("page", Map.of(
-//                "totalElements", totalElements,
-//                "totalPages", totalPages,
-//                "currentPage", currentPage,
-//                "pageSize", pageSize
-//        ));
+        response.put("videoRoomList", page.getContent());
+        response.put("page", Map.of(
+                "totalElements", page.getTotalElements(),
+                "totalPages", page.getTotalPages(),
+                "currentPage", page.getNumber(),
+                "pageSize", page.getSize()
+        ));
+
         return response;
     }
 
@@ -317,7 +314,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2. page, size, memberId 를 elastic search 에 보내기
         List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
-                                                                                                          typeProfiles));
+                typeProfiles));
 
         // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
