@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -228,30 +229,59 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     }
 
     @Override
-    public Map<String, Object> getVideoRoomListWithFilter(int page, int size, List<Long> tagIds) {
-        // ! 1. page, size, tagIds 를 elastic search 에 보내기
+    public Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds) {
+        // ! 1. 대기방 리스트 최신순 조회
+        Page<VideoRoom> videoRoomPage = videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
 
-        // ! 2. elastic search 결과 받기. 예시 데이터 넣어둠
-        List<Long> videoRoomIds = new ArrayList<>();
-        videoRoomIds.add(21L);
-        videoRoomIds.add(22L);
-
-        // ! 3. id를 기반으로 미팅룸 리스트 형태 만들기
-        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
-        for (Long videoRoomId : videoRoomIds) {
-            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
-                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
-            videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
+        // ! 2. 필터를 포함하는 리스트 찾기 + 태그 일치 횟수 카운트
+        Map<VideoRoomDTO.BaseResponse, Integer> mapVideoRoomResponses = new HashMap<>();
+        for (VideoRoom videoRoom : videoRoomPage) {
+            int count = 0;
+            for (VideoRoomHobby videoRoomHobby : videoRoom.getVideoRoomHobby()) {
+                for (Long id : tagIds) {
+                    if (videoRoomHobby.getTag().getId().equals(id)) {
+                        count++;
+                    }
+                }
+            }
+            for (VideoRoomPersonality videoRoomPersonality : videoRoom.getVideoRoomPersonality()) {
+                for (Long id : tagIds) {
+                    if (videoRoomPersonality.getTag().getId().equals(id)) {
+                        count++;
+                    }
+                }
+            }
+            if (count > 0) {
+                mapVideoRoomResponses.put(VideoRoomDTO.BaseResponse.from(videoRoom), count);
+            }
         }
+        // ! 3. 매칭 수 기준으로 내림차순 정렬
+        Map<VideoRoomDTO.BaseResponse, Integer> sortedVideoRoomResponses = mapVideoRoomResponses.entrySet()
+                                                                                                .stream()
+                                                                                                .sorted(Map.Entry.<VideoRoomDTO.BaseResponse, Integer>comparingByValue()
+                                                                                                                 .reversed())
+                                                                                                .collect(
+                                                                                                        Collectors.toMap(
+                                                                                                                Map.Entry::getKey,
+                                                                                                                Map.Entry::getValue,
+                                                                                                                (e1, e2) -> e1,
+                                                                                                                LinkedHashMap::new
+                                                                                                        ));
+        List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>(sortedVideoRoomResponses.keySet());
 
         // ! 4. 응답용 리스트 데이터 가공
+        int totalElements = videoRoomResponses.size();
+        int pageSize = pageable.getPageSize();
+        int currentPage = totalElements % pageSize == 0 ? pageSize : totalElements % pageSize;
+        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+
         Map<String, Object> response = new HashMap<>();
         response.put("videoRoomList", videoRoomResponses);
 //        response.put("page", Map.of(
-//                "totalElements", videoRoomPage.getTotalElements(),
-//                "totalPages", videoRoomPage.getTotalPages(),
-//                "currentPage", videoRoomPage.getNumber(),
-//                "pageSize", videoRoomPage.getSize()
+//                "totalElements", totalElements,
+//                "totalPages", totalPages,
+//                "currentPage", currentPage,
+//                "pageSize", pageSize
 //        ));
         return response;
     }
