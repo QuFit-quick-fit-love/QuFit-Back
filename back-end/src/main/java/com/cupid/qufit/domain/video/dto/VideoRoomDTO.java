@@ -180,4 +180,13 @@ public class VideoRoomDTO {
                                  .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class joinResponse {
+        @Schema(description = "방 참가 토큰")
+        private String token; // 방 참가 토큰
+        @Schema(description = "방장 id")
+        private Long hostId;
+    }
 }
