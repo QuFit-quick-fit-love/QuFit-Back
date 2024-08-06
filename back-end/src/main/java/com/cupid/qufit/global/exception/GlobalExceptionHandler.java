@@ -91,22 +91,20 @@ public class GlobalExceptionHandler {
      * * RequestParam dto에 대한 validation 적용 후 예외 처리
      * */
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<?> handlResponseStatusException(
+    public ResponseEntity<?> handleResponseStatusException(
             HandlerMethodValidationException e) {
         List<ParameterValidationResult> fieldErrors = e.getValueResults();
         log.error("parameter validation error  : " + e.getValueResults());
 
         List<FieldValidationExceptionResponse> errorResponse
                 = fieldErrors.stream()
-                             .map(error -> {
-                                 return FieldValidationExceptionResponse.builder()
-                                                                        .field(error.getMethodParameter()
-                                                                                    .getParameterName())
-                                                                        .rejectedValue(error.getArgument())
-                                                                        .errorMessage(error.getResolvableErrors().get(0)
-                                                                                           .getDefaultMessage())
-                                                                        .build();
-                             })
+                             .map(error -> FieldValidationExceptionResponse.builder()
+                                                                       .field(error.getMethodParameter()
+                                                                                .getParameterName())
+                                                                       .rejectedValue(error.getArgument())
+                                                                       .errorMessage(error.getResolvableErrors().get(0)
+                                                                                       .getDefaultMessage())
+                                                                       .build())
                              .toList();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
