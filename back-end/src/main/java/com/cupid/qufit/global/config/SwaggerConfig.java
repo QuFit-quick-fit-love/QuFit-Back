@@ -112,4 +112,12 @@ public class SwaggerConfig {
                              .pathsToMatch("/qufit/video/**")
                              .build();
     }
+
+    @Bean
+    public GroupedOpenApi friendApi() {
+        return GroupedOpenApi.builder()
+                             .group("friend")
+                             .pathsToMatch("/qufit/friend/**")
+                             .build();
+    }
 }
