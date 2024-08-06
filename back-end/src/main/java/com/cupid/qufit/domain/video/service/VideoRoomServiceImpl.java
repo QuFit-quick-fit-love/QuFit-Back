@@ -5,6 +5,7 @@ import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO;
 import com.cupid.qufit.domain.video.dto.VideoRoomDTO.BaseResponse;
+import com.cupid.qufit.domain.video.dto.VideoRoomDTO.joinResponse;
 import com.cupid.qufit.domain.video.repository.VideoRoomParticipantRepository;
 import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
@@ -27,6 +28,7 @@ import io.livekit.server.RoomName;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,12 +68,16 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest, Long memberId) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
         VideoRoom videoRoom = VideoRoomDTO.Request.to(videoRoomRequest);
+        // ! 1.1 방장 설정
+        Member member = memberRepository.findById(memberId)
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        videoRoom.setHost(member);
         videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
         videoRoom.getVideoRoomPersonality().addAll(toPersonalityList(videoRoomRequest, videoRoom));
         videoRoomRepository.save(videoRoom);
 
         // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
-        String token = joinVideoRoom(videoRoom.getVideoRoomId(), memberId);
+        String token = joinVideoRoom(videoRoom.getVideoRoomId(), memberId).getToken();
         return VideoRoomDTO.BasicResponse.from(videoRoom, token);
     }
 
@@ -79,7 +85,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 참가
      */
     @Override
-    public String joinVideoRoom(Long videoRoomId, Long memberId) {
+    public joinResponse joinVideoRoom(Long videoRoomId, Long memberId) {
         // ! 1. 방 찾기
         VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
                                                  .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
@@ -125,7 +131,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         token.setIdentity(memberId.toString());
         token.addGrants(new RoomJoin(true), new RoomName(videoRoomId.toString()));
 
-        return token.toJwt();
+        return VideoRoomDTO.joinResponse.from(videoRoom, token.toJwt());
     }
 
     /**
@@ -209,6 +215,18 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         } else if (participant.getMember().getGender() == 'f') {
             videoRoom.setCurWCount(videoRoom.getCurWCount() - 1);
         }
+
+        // ! 6. 방장 일 경우 방장 교체 (가장 빨리 입장한 사람으로)
+        if (videoRoom.getHost().getId().equals(memberId)) {
+            // 참가자 중 가장 빠른 참여시간인 사람을 찾기
+            VideoRoomParticipant earliestParticipant = videoRoom.getParticipants().stream()
+                                                                .min(Comparator.comparing(
+                                                                        VideoRoomParticipant::getJoinedAt))
+                                                                .orElseThrow(() -> new VideoException(
+                                                                        ErrorCode.PARTICIPANT_NOT_FOUND));
+            // videoRoom host 를 해당 참가자로 수정
+            videoRoom.setHost(earliestParticipant.getMember());
+        }
         videoRoomRepository.save(videoRoom);
         return 0;
     }
@@ -249,6 +267,9 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         return response;
     }
 
+    /**
+     * 방 태그 필터를 통한 방 리스트 조회 (태그 일치가 많은 순)
+     */
     @Override
     public Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds) {
         // ! 1. 대기방 리스트 조회
@@ -329,6 +350,19 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         response.put("videoRoomList", videoRoomResponses);
 
         return response;
+    }
+
+    @Override
+    public Long getRecentVideoRoom(Long hostId) {
+        // ! 1. 호스트 찾기
+        Member host = memberRepository.findById(hostId)
+                                      .orElseThrow(() -> new VideoException(ErrorCode.HOST_NOT_FOUND));
+
+        // 2. 최근 생성된 비디오 룸 조회
+        VideoRoom videoRoom = videoRoomRepository.findTopByHostOrderByCreatedAtDesc(host).orElseThrow(
+                () -> new VideoException((ErrorCode.VIDEO_ROOM_NOT_FOUND)));
+
+        return videoRoom.getVideoRoomId();
     }
 
     /**

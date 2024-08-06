@@ -2,6 +2,7 @@ package com.cupid.qufit.entity;
 
 import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.entity.chat.ChatRoomMember;
+import com.cupid.qufit.entity.video.VideoRoom;
 import com.cupid.qufit.entity.video.VideoRoomParticipant;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
@@ -99,13 +100,19 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
-    // ! 미팅룸 참가자 관련 관계 설정
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private VideoRoomParticipant videoRoomParticipant;
+    // ! 미팅룸 관련 관계 설정
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VideoRoom> hostedVideoRooms = new ArrayList<>();  // 방장이 되는 비디오 룸 리스트
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VideoRoomParticipant> videoRoomParticipant= new ArrayList<>();
 
     // ! 친구 관계 설정
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FriendRelationship> friends;
+    @OneToMany(mappedBy = "friend", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<FriendRelationship> friends = new ArrayList<>();
 
     // 연관관계 메소드
     public void addMemberHobbies(MemberHobby memberHobby) {

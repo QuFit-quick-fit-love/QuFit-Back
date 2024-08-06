@@ -63,14 +63,15 @@ public class VideoRoomController {
     @PostMapping("{videoRoomId}/join")
     @Operation(summary = "비디오 방 참여", description = "제공된 요청 데이터로 지정된 비디오 방에 참여합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비디오 방에 성공적으로 참여했습니다."),
+            @ApiResponse(responseCode = "200", description = "비디오 방에 성공적으로 참여했습니다.",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomDTO.joinResponse.class)))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다."),
             @ApiResponse(responseCode = "404", description = "비디오 방을 찾을 수 없습니다."),
             @ApiResponse(responseCode = "500", description = "서버 오류가 발생했습니다.")})
     public ResponseEntity<?> joinVideoRoom(
             @Parameter(description = "참여할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
             @AuthenticationPrincipal MemberDetails memberDetails) {
-        return new ResponseEntity<>(Map.of("token", videoRoomService.joinVideoRoom(videoRoomId, memberDetails.getId())),
+        return new ResponseEntity<>(videoRoomService.joinVideoRoom(videoRoomId, memberDetails.getId()),
                 HttpStatus.OK);
     }
 
@@ -201,9 +202,18 @@ public class VideoRoomController {
                 HttpStatus.OK);
     }
 
-    /*
-     * 미팅 시작하기
-     * 방 상태 READY -> ACTIVE
+    /**
+     * 최근 방 가져오기
      */
-
+    @GetMapping("/recent")
+    @Operation(summary = "최근 생성된 방 아이디 조회", description = "입력 받은 아이디의 방장이 만든 최근 비디오 방 아이디를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "최근 생성된 방 아이디 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> getRecentVideoRoom(@Parameter(description = "방장 id") @RequestParam Long hostId) {
+        return new ResponseEntity<>(
+                Map.of("videoRoomId: ", videoRoomService.getRecentVideoRoom(hostId)),
+                HttpStatus.OK);
+    }
 }

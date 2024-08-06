@@ -63,6 +63,8 @@ public class VideoRoomDTO {
         private int curMCount; // 현재 남자 수
         @Schema(description = "현재 여자 수")
         private int curWCount; // 현재 여자 수
+        @Schema(description = "방장 id")
+        private Long hostId;
         @Schema(description = "방 취미 태그")
         private List<String> videoRoomHobby; // 방 취미 태그
         @Schema(description = "방 성격 태그")
@@ -76,6 +78,7 @@ public class VideoRoomDTO {
                                .maxParticipants(videoRoom.getMaxParticipants())
                                .curMCount(videoRoom.getCurMCount())
                                .curWCount(videoRoom.getCurWCount())
+                               .hostId(videoRoom.getHost().getId())
                                .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                .videoRoomPersonality(
                                        toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
@@ -98,6 +101,7 @@ public class VideoRoomDTO {
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
+                                .hostId(videoRoom.getHost().getId())
                                 .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                 .videoRoomPersonality(
                                         toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
@@ -117,16 +121,6 @@ public class VideoRoomDTO {
         private List<String> participantPersonalities;
         @Schema(description = "참가자들의 정보")
         private List<MemberInfo> members;
-
-        // MemberInfo 클래스 정의
-        @Getter
-        @Builder
-        @AllArgsConstructor
-        public static class MemberInfo {
-            private Long id;
-            private Character gender;
-            private String nickname;
-        }
 
         public static DetailResponse withDetails(VideoRoom videoRoom) {
             // ! 1. 방 참가자 태그들 가져오기
@@ -171,6 +165,7 @@ public class VideoRoomDTO {
                                  .maxParticipants(videoRoom.getMaxParticipants())
                                  .curMCount(videoRoom.getCurMCount())
                                  .curWCount(videoRoom.getCurWCount())
+                                 .hostId(videoRoom.getHost().getId())
                                  .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                  .videoRoomPersonality(
                                          toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
@@ -178,6 +173,37 @@ public class VideoRoomDTO {
                                  .participantPersonalities(personalities)
                                  .members(members)
                                  .build();
+        }
+
+        // MemberInfo 클래스 정의
+        @Getter
+        @Builder
+        @AllArgsConstructor
+        public static class MemberInfo {
+
+            private Long id;
+            private Character gender;
+            private String nickname;
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class joinResponse {
+
+        @Schema(description = "방 id")
+        private Long videoRoomId;
+        @Schema(description = "방 참가 토큰")
+        private String token; // 방 참가 토큰
+        @Schema(description = "방장 id")
+        private Long hostId;
+
+        public static joinResponse from(VideoRoom videoRoom, String token) {
+            return joinResponse.builder()
+                               .videoRoomId(videoRoom.getVideoRoomId())
+                               .token(token)
+                               .hostId(videoRoom.getHost().getId())
+                               .build();
         }
     }
 }
