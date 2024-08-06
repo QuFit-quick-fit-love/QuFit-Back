@@ -87,9 +87,7 @@ public class BalanceGameServiceImpl implements BalanceGameService {
 
     @Override
     public void deleteAllChoice(Long videoRoomId) {
-        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
-                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
-        balanceGameChoiceRepository.deleteByVideoRoom(videoRoom);
+        balanceGameChoiceRepository.deleteByVideoRoom(videoRoomId);
     }
 
     @Override

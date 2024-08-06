@@ -1,7 +1,6 @@
 package com.cupid.qufit.domain.balancegame.repository;
 
 import com.cupid.qufit.entity.balancegame.BalanceGameChoice;
-import com.cupid.qufit.entity.video.VideoRoom;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +12,8 @@ public interface BalanceGameChoiceRepository extends JpaRepository<BalanceGameCh
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM balance_game_choice b WHERE b.videoRoom = :videoRoom")
-    void deleteByVideoRoom(@Param("videoRoom") VideoRoom videoRoom);
+    @Query("DELETE FROM balance_game_choice b WHERE b.videoRoom.videoRoomId = :videoRoomId")
+    void deleteByVideoRoom(@Param("videoRoomId") Long videoRoomId);
 
     @Query("SELECT b FROM balance_game_choice b WHERE b.videoRoom.videoRoomId = :videoRoomId")
     List<BalanceGameChoice> findAllByVideoRoomIdOrderByMember(@Param("videoRoomId") Long videoRoomId);
