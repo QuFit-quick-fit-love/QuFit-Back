@@ -1,0 +1,113 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "whgustn730/qufit"
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Prepare Environment') {
+            steps {
+                withCredentials([file(credentialsId: 'qufit-env-file', variable: 'ENV_FILE')]) {
+                    sh '''
+                        echo "Current working directory:"
+                        pwd
+                        echo "Directory contents:"
+                        ls -la
+                        echo "Credential file path: $ENV_FILE"
+                        echo "Creating .env file..."
+                        cp "$ENV_FILE" .env
+                        echo "Adding DOCKER_TAG..."
+                        echo "DOCKER_TAG=${DOCKER_TAG}" >> .env
+                        echo "Contents of .env file:"
+                        cat .env
+                    '''
+                }
+            }
+        }
+
+        stage('Debug Info') {
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'docker info'
+                sh 'id'
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+
+                deleteDir()
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/feat/BE-Docker수정']],
+                    userRemoteConfigs: [[url: 'https://lab.ssafy.com/s11-webmobile1-sub2/S11P12A209.git',
+                                         credentialsId: 'jenkins-gitlab']]])
+                sh 'ls -la'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+              dir('back-end') {
+                  script {
+                      docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                  }
+              }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push("latest")
+                    }
+                }
+            }
+        }
+
+        stage('Transfer docker-compose.yml') {
+            steps {
+                sshagent(['jenkins-ssh-key']) {
+                    script {
+                        def remoteExists = sh(script: "ssh ubuntu@i11a209.p.ssafy.io '[ -f ~/qufit/docker-compose.yml ] && echo 1 || echo 0'", returnStdout: true).trim()
+                        def localMD5 = sh(script: "md5sum docker-compose.yml | awk '{print \$1}'", returnStdout: true).trim()
+                        def remoteMD5 = sh(script: "ssh ubuntu@i11a209.p.ssafy.io 'md5sum ~/qufit/docker-compose.yml 2>/dev/null | awk \"{print \\\$1}\" || echo \"\"'", returnStdout: true).trim()
+
+                        if (remoteExists == '0' || localMD5 != remoteMD5) {
+                            sh 'scp docker-compose.yml ubuntu@i11a209.p.ssafy.io:~/qufit/'
+                            echo 'docker-compose.yml transferred'
+                        } else {
+                            echo 'docker-compose.yml is up to date'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EC2') {
+            steps {
+                sshagent(['jenkins-ssh-key']) {
+                    sh '''
+                        scp .env ubuntu@i11a209.p.ssafy.io:~/qufit/.env
+                        ssh -o StrictHostKeyChecking=no ubuntu@i11a209.p.ssafy.io '
+                        cd qufit
+                        docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker-compose down
+                        docker-compose up -d --build
+                        '
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

@@ -438,4 +438,30 @@ public class ChatService {
         chatRoomMemberRepository.save(chatRoomMember);
         chatRoomRepository.save(chatRoom);
     }
+
+    /**
+     * * 특정 회원의 특정 채팅방 삭제 (소프트 삭제)
+     *
+     * @return
+     */
+    public List<ChatRoomDTO> removeChatRoom(Long chatRoomId, Long memberId) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+        ChatRoomMember chatRoomMember = findChatRoomMember(chatRoom, member);
+
+        chatRoomMember.setStatus(ChatRoomMemberStatus.INACTIVE);
+        chatRoomMemberRepository.save(chatRoomMember);
+
+        boolean allMembersInactive = chatRoomMemberRepository.areAllMembersInStatus(chatRoom, ChatRoomMemberStatus.INACTIVE);
+
+        if (allMembersInactive) {
+            chatRoom.setStatus(ChatRoomStatus.INACTIVE);
+            chatRoomRepository.save(chatRoom);
+        }
+        List<ChatRoomMember> activeChatRoomMembers = chatRoomMemberRepository.findByMemberAndStatus(member,
+                                                                                                    ChatRoomMemberStatus.ACTIVE);
+
+        return activeChatRoomMembers.stream().map(crm -> createChatRoomDTO(crm, member))
+                                    .collect(Collectors.toList());
+    }
 }
