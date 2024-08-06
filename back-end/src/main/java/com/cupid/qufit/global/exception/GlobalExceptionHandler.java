@@ -112,25 +112,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BalanceGameException.class)
     public ResponseEntity<ErrorResponse> handleBalanceGameException(BalanceGameException e) {
-        log.debug("[BalanceGameException] : {} is occurred", e.getErrorCode());
+        log.debug("[BalanceGameException] {} : {}", e.getErrorCode(), e.getMessage());
+        log.debug("{}", e.getMessage());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
     @ExceptionHandler(ESIndexException.class)
     public ResponseEntity<ErrorResponse> handleESIndexException(ESIndexException e) {
-        log.debug("[ESIndexException] : {} is occurred", e.getErrorCode());
+        log.debug("[ESIndexException] {} : {}", e.getErrorCode(), e.getMessage());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
     @ExceptionHandler(ESParticipantException.class)
     public ResponseEntity<ErrorResponse> handleESParticipantException(ESParticipantException e) {
-        log.debug("[ESParticipantException] : {} is occurred", e.getErrorCode());
+        log.debug("[ESParticipantException] {} : {}", e.getErrorCode(), e.getMessage());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
     @ExceptionHandler(ESVideoRoomException.class)
     public ResponseEntity<ErrorResponse> handleESVideoRoomException(ESVideoRoomException e) {
-        log.debug("[ESVideoRoomException] : {} is occurred", e.getErrorCode());
+        log.debug("[ESVideoRoomException] {} : {}", e.getErrorCode(), e.getMessage());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 }

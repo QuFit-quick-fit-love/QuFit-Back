@@ -5,12 +5,15 @@ import com.cupid.qufit.domain.balancegame.dto.SaveChoice.Request;
 import com.cupid.qufit.domain.balancegame.repository.BalanceGameChoiceRepository;
 import com.cupid.qufit.domain.balancegame.repository.BalanceGameRepository;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
+import com.cupid.qufit.domain.video.repository.VideoRoomRepository;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.balancegame.BalanceGame;
 import com.cupid.qufit.entity.balancegame.BalanceGameChoice;
+import com.cupid.qufit.entity.video.VideoRoom;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.BalanceGameException;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ public class BalanceGameServiceImpl implements BalanceGameService {
 
     private final BalanceGameRepository balanceGameRepository;
     private final BalanceGameChoiceRepository balanceGameChoiceRepository;
+    private final VideoRoomRepository videoRoomRepository;
     private final MemberRepository memberRepository;
 
     @Override
@@ -35,20 +39,25 @@ public class BalanceGameServiceImpl implements BalanceGameService {
 
     @Override
     public SaveChoice.Response saveChoice(Long memberId, Request saveChoiceRequest) {
-        // memberId로 Member를 찾아오는데 없으면 MemberException 발생
+        // memberId로 Member를 찾아오기. 없으면 MemberException 발생
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // saveChoiceRequest로 balanceGameId로 BalanceGame을 찾아오는데 없으면 BalanceGameException 발생
+        // saveChoiceRequest로 balanceGameId로 BalanceGame을 찾아오기. 없으면 BalanceGameException 발생
         BalanceGame balanceGame = balanceGameRepository.findById(saveChoiceRequest.getBalanceGameId())
                                                        .orElseThrow(() -> new BalanceGameException(
                                                                ErrorCode.BALANCE_GAME_NOT_FOUND));
+
+        // saveChoiceRequest로 videoRoomId로 VideoRoom을 찾아오기. 없으면 VideoException 발생
+        VideoRoom videoRoom = videoRoomRepository.findById(saveChoiceRequest.getVideoRoomId())
+                                                 .orElseThrow(() -> new VideoException (
+                                                         ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
         // 새로운 BalanceGameChoice 객체 생성
         BalanceGameChoice newBalanceGameChoice =
                 BalanceGameChoice.builder()
                                  .member(member)
-                                 .videoRoomId(saveChoiceRequest.getVideoRoomId())
+                                 .videoRoom(videoRoom)
                                  .balanceGame(balanceGame)
                                  .choiceNum(saveChoiceRequest.getChoiceNum())
                                  .build();
@@ -61,14 +70,16 @@ public class BalanceGameServiceImpl implements BalanceGameService {
                                   .balanceGameChoiceId(saveChoice.getBalanceGameChoiceId())
                                   .balanceGameId(saveChoice.getBalanceGameChoiceId())
                                   .memberId(saveChoice.getMember().getId())
-                                  .videoRoomId(saveChoice.getVideoRoomId())
+                                  .videoRoomId(saveChoice.getVideoRoom().getVideoRoomId())
                                   .choiceNum(saveChoice.getChoiceNum())
                                   .build();
     }
 
     @Override
     public void deleteAllChoice(Long videoRoomId) {
-        balanceGameChoiceRepository.deleteAllByVideoRoomId(videoRoomId);
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+        balanceGameChoiceRepository.deleteByVideoRoom(videoRoom);
     }
 
 }
