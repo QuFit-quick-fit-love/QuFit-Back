@@ -42,6 +42,19 @@ public class FriendServiceImpl implements FriendService {
         addFriendRelation(friend, member);
     }
 
+    @Override
+    public void deleteFriend(Long memberId, Long friendId) {
+        // ! 1. 현재 멤버와 친구의 정보를 가져옴
+        Member member = memberRepository.findById(memberId)
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Member friend = memberRepository.findById(friendId)
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // ! 2. 친구 관계 삭제
+        deleteFriendRelation(member, friend);
+    }
+
     private void addFriendRelation(Member member, Member friend) {
         // 기존에 친구 관계가 없는지 확인
         if (friendRepository.existsByMemberAndFriend(member, friend)) {
@@ -57,5 +70,14 @@ public class FriendServiceImpl implements FriendService {
                                                                   .build();
 
         friendRepository.save(friendRelationship);
+    }
+
+    private void deleteFriendRelation(Member member, Member friend) {
+        // 친구 관계 삭제
+        FriendRelationship friendRelationship = friendRepository.findByMemberAndFriend(member, friend)
+                                                                .orElseThrow(() -> new FriendException(
+                                                                        ErrorCode.FRIEND_NOT_FOUND));
+
+        friendRepository.delete(friendRelationship);
     }
 }
