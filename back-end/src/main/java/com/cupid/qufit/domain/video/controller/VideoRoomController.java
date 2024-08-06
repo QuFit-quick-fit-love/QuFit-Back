@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +69,7 @@ public class VideoRoomController {
     public ResponseEntity<?> joinVideoRoom(
             @Parameter(description = "참여할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
             @AuthenticationPrincipal MemberDetails memberDetails) {
-        return new ResponseEntity<>(Map.of("token", videoRoomService.joinVideoRoom(videoRoomId, memberDetails.getId())),
+        return new ResponseEntity<>(videoRoomService.joinVideoRoom(videoRoomId, memberDetails.getId()),
                 HttpStatus.OK);
     }
 
