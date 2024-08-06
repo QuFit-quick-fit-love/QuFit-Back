@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.balancegame.service;
 
+import com.cupid.qufit.domain.balancegame.dto.BalanceGameResult;
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice.Request;
 import com.cupid.qufit.entity.balancegame.BalanceGame;
@@ -14,4 +15,6 @@ public interface BalanceGameService {
     SaveChoice.Response saveChoice(Long memberId, Request saveChoiceRequest);
 
     void deleteAllChoice(Long videoRoomId);
+
+    List<BalanceGameResult> getBalanceGameResultByVideoRoomId(Long videoRoomId);
 }

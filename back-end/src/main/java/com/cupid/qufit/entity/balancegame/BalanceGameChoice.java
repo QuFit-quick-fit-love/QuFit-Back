@@ -47,4 +47,6 @@ public class BalanceGameChoice {
     @Max(value = 2, message = "선택 입력값은 0, 1, 또는 2만 입력할 수 있습니다.")
     private Integer choiceNum;
 
+    private String choiceContent;
+
 }

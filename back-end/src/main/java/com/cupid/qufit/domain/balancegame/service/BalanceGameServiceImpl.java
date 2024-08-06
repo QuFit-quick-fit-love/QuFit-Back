@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.balancegame.service;
 
+import com.cupid.qufit.domain.balancegame.dto.BalanceGameResult;
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice.Request;
 import com.cupid.qufit.domain.balancegame.repository.BalanceGameChoiceRepository;
@@ -50,17 +51,25 @@ public class BalanceGameServiceImpl implements BalanceGameService {
 
         // saveChoiceRequest로 videoRoomId로 VideoRoom을 찾아오기. 없으면 VideoException 발생
         VideoRoom videoRoom = videoRoomRepository.findById(saveChoiceRequest.getVideoRoomId())
-                                                 .orElseThrow(() -> new VideoException (
+                                                 .orElseThrow(() -> new VideoException(
                                                          ErrorCode.VIDEO_ROOM_NOT_FOUND));
 
+        String choiceContent = "";
+
+        if (saveChoiceRequest.getChoiceNum() == 1) {
+            choiceContent = balanceGame.getScenario1();
+        } else if (saveChoiceRequest.getChoiceNum() == 2) {
+            choiceContent = balanceGame.getScenario2();
+        }
+
         // 새로운 BalanceGameChoice 객체 생성
-        BalanceGameChoice newBalanceGameChoice =
-                BalanceGameChoice.builder()
-                                 .member(member)
-                                 .videoRoom(videoRoom)
-                                 .balanceGame(balanceGame)
-                                 .choiceNum(saveChoiceRequest.getChoiceNum())
-                                 .build();
+        BalanceGameChoice newBalanceGameChoice = BalanceGameChoice.builder()
+                                                                  .member(member)
+                                                                  .videoRoom(videoRoom)
+                                                                  .balanceGame(balanceGame)
+                                                                  .choiceNum(saveChoiceRequest.getChoiceNum())
+                                                                  .choiceContent(choiceContent)
+                                                                  .build();
 
         // 생성한 BalanceGameChoice를 저장
         BalanceGameChoice saveChoice = balanceGameChoiceRepository.save(newBalanceGameChoice);
@@ -72,14 +81,27 @@ public class BalanceGameServiceImpl implements BalanceGameService {
                                   .memberId(saveChoice.getMember().getId())
                                   .videoRoomId(saveChoice.getVideoRoom().getVideoRoomId())
                                   .choiceNum(saveChoice.getChoiceNum())
+                                  .choiceContent(saveChoice.getChoiceContent())
                                   .build();
     }
 
     @Override
     public void deleteAllChoice(Long videoRoomId) {
-        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
-                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
-        balanceGameChoiceRepository.deleteByVideoRoom(videoRoom);
+        balanceGameChoiceRepository.deleteByVideoRoom(videoRoomId);
+    }
+
+    @Override
+    public List<BalanceGameResult> getBalanceGameResultByVideoRoomId(Long videoRoomId) {
+        List<BalanceGameChoice> allByVideoRoom = balanceGameChoiceRepository.findAllByVideoRoomIdOrderByMember(
+                videoRoomId);
+
+        if (allByVideoRoom.isEmpty()) {
+            throw new BalanceGameException(ErrorCode.RESULT_NOT_FOUND);
+        }
+
+        return allByVideoRoom.stream()
+                             .map(BalanceGameResult::toBalanceGameResult)
+                             .toList();
     }
 
 }

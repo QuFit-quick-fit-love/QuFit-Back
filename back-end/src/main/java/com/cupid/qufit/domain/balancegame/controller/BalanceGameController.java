@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.balancegame.controller;
 
+import com.cupid.qufit.domain.balancegame.dto.BalanceGameResult;
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
 import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
 import com.cupid.qufit.domain.member.dto.MemberDetails;
@@ -66,6 +67,15 @@ public class BalanceGameController {
     public ResponseEntity<?> deleteAllBalanceGame(@PathVariable("video_room_id") Long videoRoomId) {
         balanceGameService.deleteAllChoice(videoRoomId);
         return ResponseEntity.ok().body(CommonResponse.builder().isSuccess(true).message("삭제 성공").build());
+    }
+
+    @GetMapping("/{video_room_id}")
+    public ResponseEntity<List<BalanceGameResult>> getBalanceGameResultByVideoRoomId(
+            @PathVariable("video_room_id") Long videoRoomId) {
+        List<BalanceGameResult> balanceGameResultByVideoRoomId = balanceGameService.getBalanceGameResultByVideoRoomId(
+                videoRoomId);
+
+        return ResponseEntity.ok().body(balanceGameResultByVideoRoomId);
     }
 
 
