@@ -15,6 +15,7 @@ public class SaveChoice {
     @NoArgsConstructor
     @Builder
     public static class Request {
+
         @NotNull(message = "balanceGameId는 필수값입니다.")
         private Long balanceGameId;
 
@@ -30,11 +31,13 @@ public class SaveChoice {
     @NoArgsConstructor
     @Builder
     public static class Response {
+
         private Long balanceGameChoiceId;
         private Long videoRoomId;
         private Long memberId;
         private Long balanceGameId;
         private Integer choiceNum;
+        private String choiceContent;
     }
 
 
