@@ -66,6 +66,6 @@ public class VideoRoom {
     private List<VideoRoomPersonality> videoRoomPersonality = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member host;  // 방장 필드 추가
+    @JoinColumn(name = "host_id", nullable = false)
+    private Member host;
 }
