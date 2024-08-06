@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.friend.controller;
 
+import com.cupid.qufit.domain.friend.dto.FriendDTO;
 import com.cupid.qufit.domain.friend.service.FriendService;
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
@@ -12,10 +13,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,4 +77,20 @@ public class FriendController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 친구 리스트 조회
+     */
+    @GetMapping
+    @Operation(summary = "친구 리스트 조회", description = "친구 리스트를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "친구 조회 성공",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = FriendDTO.Response.class)))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> getFriends(@AuthenticationPrincipal MemberDetails memberDetails,
+                                        @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
+                                        @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "friend.nickname"));
+        return new ResponseEntity<>(friendService.getFriends(memberDetails.getId(), pageable), HttpStatus.OK);
+    }
 }
