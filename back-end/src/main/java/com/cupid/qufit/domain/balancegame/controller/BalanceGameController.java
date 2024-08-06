@@ -29,9 +29,8 @@ public class BalanceGameController {
 
     @GetMapping("/")
     @Operation(summary = "밸런스 게임 리스트 조회", description = "테스트용으로 만든 API")
-    public void getAllBalanceGameList() {
-        balanceGameService.getAllBalanceGameList();
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<List<BalanceGame>> getAllBalanceGameList() {
+        return ResponseEntity.ok(balanceGameService.getAllBalanceGameList());
     }
 
 }
