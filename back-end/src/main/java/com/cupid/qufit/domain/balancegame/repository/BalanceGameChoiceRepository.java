@@ -15,7 +15,7 @@ public interface BalanceGameChoiceRepository extends JpaRepository<BalanceGameCh
     @Query("DELETE FROM balance_game_choice b WHERE b.videoRoom.videoRoomId = :videoRoomId")
     void deleteByVideoRoom(@Param("videoRoomId") Long videoRoomId);
 
-    @Query("SELECT b FROM balance_game_choice b WHERE b.videoRoom.videoRoomId = :videoRoomId")
+    @Query("SELECT b FROM balance_game_choice b WHERE b.videoRoom.videoRoomId = :videoRoomId order by b.member.id")
     List<BalanceGameChoice> findAllByVideoRoomIdOrderByMember(@Param("videoRoomId") Long videoRoomId);
 }
 
