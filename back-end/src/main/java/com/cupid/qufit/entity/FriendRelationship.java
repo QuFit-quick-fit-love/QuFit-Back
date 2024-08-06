@@ -1,14 +1,14 @@
-package com.cupid.qufit.entity.video;
+package com.cupid.qufit.entity;
 
-import com.cupid.qufit.entity.Member;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,20 +23,24 @@ import org.springframework.data.annotation.CreatedDate;
 @AllArgsConstructor
 @Builder
 @Entity
-public class VideoRoomParticipant {
+public class FriendRelationship {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long relationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "video_room_id", nullable = false)
-    private VideoRoom videoRoom;
-
-    @CreatedDate
-    private LocalDateTime joinedAt;
-
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    @Enumerated(EnumType.STRING)
+    private FriendRelationshipStatus status;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "friend_id", nullable = false)
+    private Member friend;
 }

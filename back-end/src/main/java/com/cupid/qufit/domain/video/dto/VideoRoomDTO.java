@@ -12,9 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -113,14 +115,32 @@ public class VideoRoomDTO {
         private List<String> participantHobbies;
         @Schema(description = "참가자들의 성격")
         private List<String> participantPersonalities;
+        @Schema(description = "참가자들의 정보")
+        private List<MemberInfo> members;
+
+        // MemberInfo 클래스 정의
+        @Getter
+        @Builder
+        @AllArgsConstructor
+        public static class MemberInfo {
+            private Long id;
+            private Character gender;
+            private String nickname;
+        }
 
         public static DetailResponse withDetails(VideoRoom videoRoom) {
             // ! 1. 방 참가자 태그들 가져오기
             Map<String, Integer> hobbyCountMap = new HashMap<>();
             Map<String, Integer> personalityCountMap = new HashMap<>();
+            List<MemberInfo> members = new ArrayList<>();
 
             for (VideoRoomParticipant participant : videoRoom.getParticipants()) {
                 Member member = participant.getMember();
+                members.add(MemberInfo.builder()
+                                      .id(member.getId())
+                                      .gender(member.getGender())
+                                      .nickname(member.getNickname())
+                                      .build());
                 for (MemberHobby hobby : member.getMemberHobbies()) {
                     String hobbyName = hobby.getTag().getTagName();
                     hobbyCountMap.put(hobbyName, hobbyCountMap.getOrDefault(hobbyName, 0) + 1);
@@ -156,6 +176,7 @@ public class VideoRoomDTO {
                                          toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
                                  .participantHobbies(hobbies)
                                  .participantPersonalities(personalities)
+                                 .members(members)
                                  .build();
         }
     }

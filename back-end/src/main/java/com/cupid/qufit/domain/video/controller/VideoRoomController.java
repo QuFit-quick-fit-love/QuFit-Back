@@ -206,9 +206,4 @@ public class VideoRoomController {
      * 방 상태 READY -> ACTIVE
      */
 
-    /*
-     * 친구 추가하기
-     *
-     */
-
 }
