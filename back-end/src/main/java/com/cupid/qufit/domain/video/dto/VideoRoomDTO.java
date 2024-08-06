@@ -101,6 +101,7 @@ public class VideoRoomDTO {
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
+                                .hostId(videoRoom.getHost().getId())
                                 .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                 .videoRoomPersonality(
                                         toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))
@@ -164,6 +165,7 @@ public class VideoRoomDTO {
                                  .maxParticipants(videoRoom.getMaxParticipants())
                                  .curMCount(videoRoom.getCurMCount())
                                  .curWCount(videoRoom.getCurWCount())
+                                 .hostId(videoRoom.getHost().getId())
                                  .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                  .videoRoomPersonality(
                                          toVideoRoomPersonalitiesList(videoRoom.getVideoRoomPersonality()))

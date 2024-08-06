@@ -62,7 +62,8 @@ public class VideoRoomController {
     @PostMapping("{videoRoomId}/join")
     @Operation(summary = "비디오 방 참여", description = "제공된 요청 데이터로 지정된 비디오 방에 참여합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비디오 방에 성공적으로 참여했습니다."),
+            @ApiResponse(responseCode = "200", description = "비디오 방에 성공적으로 참여했습니다.",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = VideoRoomDTO.joinResponse.class)))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다."),
             @ApiResponse(responseCode = "404", description = "비디오 방을 찾을 수 없습니다."),
             @ApiResponse(responseCode = "500", description = "서버 오류가 발생했습니다.")})
