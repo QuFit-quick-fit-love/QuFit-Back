@@ -70,7 +70,7 @@ public enum ErrorCode {
     FILE_UPLOAD_FAILURE("파일 업로드 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_FILE_URL("잘못된 파일주소입니다.", HttpStatus.BAD_REQUEST),
     FILE_DELETE_FAILURE("파일 삭제 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    ;
+    BALANCE_GAME_NOT_FOUND("밸런스 게임을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus httpStatus;
