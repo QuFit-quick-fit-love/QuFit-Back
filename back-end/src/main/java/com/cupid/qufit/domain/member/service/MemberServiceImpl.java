@@ -25,6 +25,8 @@ import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,11 +90,11 @@ public class MemberServiceImpl implements MemberService {
         this.saveTypeMBTI(typeProfiles, typeMBTINames);
 
         // hobby 저장
-        List<String> typeHobbyNames = requestDTO.getMemberHobbyTags();
+        List<String> typeHobbyNames = requestDTO.getTypeHobbyTags();
         this.saveTypeHobbies(typeProfiles, typeHobbyNames);
 
         // Personality 저장
-        List<String> typePersonalityNames = requestDTO.getMemberHobbyTags();
+        List<String> typePersonalityNames = requestDTO.getTypePersonalityTags();
         this.saveTypePersonalities(typeProfiles, typePersonalityNames);
 
     }
@@ -193,6 +195,7 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.save(member);
     }
 
+    // ! 아래는 회원 부가정보 (지역, mbti, 취미, 성격) 저장
     private void saveMemberLocation(Member member, Long locationId) {
         Location location = locationRepository.findById(locationId)
                                               .orElseThrow(() -> new TagException(ErrorCode.LOCATION_NOT_FOUND));
@@ -200,11 +203,12 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private void saveMemberMBTI(Member member, String tagName) {
-        if (tagName != null) {
-            Tag mbti = tagRepository.findByTagName(tagName)
-                                    .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND));
-            member.updateMBTI(mbti);
+        if (tagName == null) {
+            tagName = "none";
         }
+
+        Tag mbti = findByTagName(tagName);
+        member.updateMBTI(mbti);
     }
 
     private void saveMemberHobbies(Member member, List<String> memberHobbyTagNames) {
@@ -215,9 +219,7 @@ public class MemberServiceImpl implements MemberService {
         if (!memberHobbyTagNames.isEmpty()) {
             memberHobbyTagNames.forEach(name -> {
                 MemberHobby memberHobby = MemberHobby.builder()
-                                                     .tag(tagRepository.findByTagName(name)
-                                                                       .orElseThrow(() -> new TagException(
-                                                                               ErrorCode.TAG_NOT_FOUND)))
+                                                     .tag(findByTagName(name))
                                                      .build();
                 member.addMemberHobbies(memberHobby);
             });
@@ -232,30 +234,28 @@ public class MemberServiceImpl implements MemberService {
         if (!memberPersonalityTagNames.isEmpty()) {
             memberPersonalityTagNames.forEach(name -> {
                 MemberPersonality memberPersonality = MemberPersonality.builder()
-                                                                       .tag(tagRepository.findByTagName(name)
-                                                                                         .orElseThrow(
-                                                                                                 () -> new TagException(
-                                                                                                         ErrorCode.TAG_NOT_FOUND)))
+                                                                       .tag(findByTagName(name))
                                                                        .build();
                 member.addMemberPersonalities(memberPersonality);
             });
         }
     }
 
+    // ! 아래는 이상형 부가정보 (mbti, 취미, 성격) 저장
     private void saveTypeMBTI(TypeProfiles typeProfiles, List<String> typeMBTINames) {
         if (!typeProfiles.getTypeMBTIs().isEmpty()) {
             typeProfiles.getTypeMBTIs().clear();
         }
 
-        if (typeMBTINames != null && !typeMBTINames.isEmpty()) {
-            typeMBTINames.forEach(name -> {
-                TypeMBTI typeMBTI = TypeMBTI.builder()
-                                            .tag(tagRepository.findByTagName(name).orElseThrow(
-                                                    () -> new TagException(ErrorCode.TAG_NOT_FOUND)))
-                                            .build();
-                typeProfiles.addtypeMBTIs(typeMBTI);
-            });
+        if (typeMBTINames == null || typeMBTINames.isEmpty()) {
+            typeMBTINames = new ArrayList<>(Collections.singleton("none"));
         }
+        typeMBTINames.forEach(name -> {
+            TypeMBTI typeMBTI = TypeMBTI.builder()
+                                        .tag(findByTagName(name))
+                                        .build();
+            typeProfiles.addtypeMBTIs(typeMBTI);
+        });
     }
 
     private void saveTypeHobbies(TypeProfiles typeProfiles, List<String> typeHobbyNames) {
@@ -266,8 +266,7 @@ public class MemberServiceImpl implements MemberService {
         if (!typeHobbyNames.isEmpty()) {
             typeHobbyNames.forEach(name -> {
                 TypeHobby typeHobby = TypeHobby.builder()
-                                               .tag(tagRepository.findByTagName(name).orElseThrow(
-                                                       () -> new TagException(ErrorCode.TAG_NOT_FOUND)))
+                                               .tag(findByTagName(name))
                                                .build();
                 typeProfiles.addTypeHobbies(typeHobby);
             });
@@ -282,12 +281,18 @@ public class MemberServiceImpl implements MemberService {
         if (!typePersonalityNames.isEmpty()) {
             typePersonalityNames.forEach(name -> {
                 TypePersonality typePersonality = TypePersonality.builder()
-                                                                 .tag(tagRepository.findByTagName(name).orElseThrow(
-                                                                         () -> new TagException(
-                                                                                 ErrorCode.TAG_NOT_FOUND)))
+                                                                 .tag(findByTagName(name))
                                                                  .build();
                 typeProfiles.addTypePersonalities(typePersonality);
             });
         }
+    }
+
+    /*
+     * * 태그이름으로 태그를 찾는 메소드
+     * */
+    private Tag findByTagName(String tagName) {
+        return tagRepository.findByTagName(tagName)
+                            .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND));
     }
 }
