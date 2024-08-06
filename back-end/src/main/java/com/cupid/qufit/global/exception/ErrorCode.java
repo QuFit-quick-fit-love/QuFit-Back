@@ -57,9 +57,11 @@ public enum ErrorCode {
     VIDEO_ROOM_NOT_FOUND("미팅룸을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PARTICIPANT_NOT_FOUND("참가자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PARTICIPANT_ALREADY_EXISTS("이미 해당 참가자가 참여중인 방입니다.", HttpStatus.CONFLICT),
+    HOST_NOT_FOUND("방장을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // 친구 관련
     FRIEND_ALREADY_EXISTS("이미 해당 멤버와 친구 관계입니다.", HttpStatus.CONFLICT),
+    FRIEND_NOT_FOUND("친구를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // S3 관련
     EMPTY_FILE("파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
