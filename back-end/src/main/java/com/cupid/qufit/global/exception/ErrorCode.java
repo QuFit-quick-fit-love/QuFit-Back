@@ -62,6 +62,7 @@ public enum ErrorCode {
     // 친구 관련
     FRIEND_ALREADY_EXISTS("이미 해당 멤버와 친구 관계입니다.", HttpStatus.CONFLICT),
     FRIEND_NOT_FOUND("친구를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    FRIEND_ALREADY_INACTIVE("이미 비활성화된 친구 입니다.", HttpStatus.BAD_REQUEST),
 
     // S3 관련
     EMPTY_FILE("파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
