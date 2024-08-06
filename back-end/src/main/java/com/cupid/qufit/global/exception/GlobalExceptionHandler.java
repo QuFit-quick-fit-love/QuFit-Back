@@ -11,26 +11,16 @@ import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.S3Exception;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.exception.exceptionType.VideoException;
-import jakarta.validation.ConstraintViolationException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
-import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
-import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 @RestControllerAdvice
@@ -72,8 +62,8 @@ public class GlobalExceptionHandler {
     }
 
     /*
-    * * RequestBody dto에 대한 validation 적용 후 예외 처리
-    * */
+     * * RequestBody dto에 대한 validation 적용 후 예외 처리
+     * */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<FieldValidationExceptionResponse>> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e) {
@@ -104,17 +94,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handlResponseStatusException(
             HandlerMethodValidationException e) {
         List<ParameterValidationResult> fieldErrors = e.getValueResults();
-        log.error("parameter validation error  : "+ e.getValueResults());
+        log.error("parameter validation error  : " + e.getValueResults());
 
         List<FieldValidationExceptionResponse> errorResponse
                 = fieldErrors.stream()
                              .map(error -> {
                                  return FieldValidationExceptionResponse.builder()
-                                                                 .field(error.getMethodParameter()
-                                                                             .getParameterName())
-                                                                 .rejectedValue((String) error.getArgument())
-                                                                 .errorMessage(error.getResolvableErrors().get(0).getDefaultMessage())
-                                                                 .build();
+                                                                        .field(error.getMethodParameter()
+                                                                                    .getParameterName())
+                                                                        .rejectedValue(error.getArgument())
+                                                                        .errorMessage(error.getResolvableErrors().get(0)
+                                                                                           .getDefaultMessage())
+                                                                        .build();
                              })
                              .toList();
 

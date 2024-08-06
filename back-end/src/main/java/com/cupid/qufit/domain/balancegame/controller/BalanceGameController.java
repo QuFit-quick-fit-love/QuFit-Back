@@ -1,7 +1,6 @@
 package com.cupid.qufit.domain.balancegame.controller;
 
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
-import com.cupid.qufit.domain.balancegame.dto.SaveChoice.Response;
 import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.entity.balancegame.BalanceGame;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BalanceGameController {
 
     private final BalanceGameService balanceGameService;
+
     /**
      * 밸런스 게임 뿌리기
      */
@@ -38,6 +38,7 @@ public class BalanceGameController {
 
     /**
      * 모든 밸런스 게임 리스트 조회
+     *
      * @return AllBalanceGameList
      */
     @GetMapping("/")
@@ -47,8 +48,7 @@ public class BalanceGameController {
     }
 
     /**
-     * 밸런스 게임 선택.
-     * 게임 중 유저가 밸런스게임 선택지를 제출했을때 DB에 저장하는 API
+     * 밸런스 게임 선택. 게임 중 유저가 밸런스게임 선택지를 제출했을때 DB에 저장하는 API
      *
      * @param saveChoiceRequest 유저가 선택한 밸런스 게임 선택지
      * @return 게임 선택지 저장 결과
@@ -56,7 +56,7 @@ public class BalanceGameController {
     @PostMapping("/")
     @Operation(summary = "밸런스 게임 선택", description = "밸런스 게임에 대한 사용자의 선택을 저장하는 API")
     public ResponseEntity<SaveChoice.Response> selectBalanceGame(@AuthenticationPrincipal MemberDetails memberDetails,
-                                               @RequestBody SaveChoice.Request saveChoiceRequest) {
+                                                                 @RequestBody SaveChoice.Request saveChoiceRequest) {
         return ResponseEntity.ok().body(balanceGameService.saveChoice(memberDetails.getId(), saveChoiceRequest));
     }
 
@@ -73,7 +73,6 @@ public class BalanceGameController {
                                                                        .message("밸런스 게임 삭제 실패").build());
         }
     }
-
 
 
 }
