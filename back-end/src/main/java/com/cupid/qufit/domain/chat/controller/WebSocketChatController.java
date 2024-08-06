@@ -1,6 +1,7 @@
 package com.cupid.qufit.domain.chat.controller;
 
 import com.cupid.qufit.domain.chat.dto.ChatMessageDTO;
+import com.cupid.qufit.domain.chat.dto.ChatRoomDTO;
 import com.cupid.qufit.domain.chat.dto.ChatRoomMessageResponse;
 import com.cupid.qufit.domain.chat.repository.ChatRoomMemberRepository;
 import com.cupid.qufit.domain.chat.service.ChatService;
@@ -138,5 +139,24 @@ public class WebSocketChatController {
         Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
         ChatRoomMessageResponse response = chatService.loadNextMessages(chatRoomId, memberId, messagePaginationRequest);
         messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/chat.messages." + chatRoomId, response);
+    }
+
+    /**
+     * * 채팅방 삭제 ( 특정 채팅방 삭제 )
+     * <p>
+     * ! 프론트로부터 삭제하고 싶은 chatRoomId 받아서 채팅방 삭제
+     */
+    @MessageMapping("/chat.removeRoom/{chatRoomId}")
+    public void removeChatRoom(@DestinationVariable Long chatRoomId,
+                               SimpMessageHeaderAccessor headerAccessor) {
+        Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
+        List<ChatRoomDTO> updatedChatRooms = chatService.removeChatRoom(chatRoomId, memberId);
+
+        // 웹소켓을 통해 업데이트된 채팅방 목록 전송
+        messagingTemplate.convertAndSendToUser(
+                memberId.toString(),
+                "/sub/chat.rooms",
+                updatedChatRooms
+        );
     }
 }
