@@ -352,6 +352,19 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         return response;
     }
 
+    @Override
+    public Long getRecentVideoRoom(Long hostId) {
+        // ! 1. 호스트 찾기
+        Member host = memberRepository.findById(hostId)
+                                      .orElseThrow(() -> new VideoException(ErrorCode.HOST_NOT_FOUND));
+
+        // 2. 최근 생성된 비디오 룸 조회
+        VideoRoom videoRoom = videoRoomRepository.findTopByHostOrderByCreatedAtDesc(host).orElseThrow(
+                () -> new VideoException((ErrorCode.VIDEO_ROOM_NOT_FOUND)));
+
+        return videoRoom.getVideoRoomId();
+    }
+
     /**
      * 미팅룸 취미 태그 찾아오기
      */

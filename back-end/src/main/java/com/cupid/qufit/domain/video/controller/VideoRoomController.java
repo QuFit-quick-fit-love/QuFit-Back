@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -201,9 +202,18 @@ public class VideoRoomController {
                 HttpStatus.OK);
     }
 
-    /*
-     * 미팅 시작하기
-     * 방 상태 READY -> ACTIVE
+    /**
+     * 최근 방 가져오기
      */
-
+    @GetMapping("/recent")
+    @Operation(summary = "최근 생성된 방 아이디 조회", description = "입력 받은 아이디의 방장이 만든 최근 비디오 방 아이디를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "최근 생성된 방 아이디 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> getRecentVideoRoom(@Parameter(description = "방장 id") @RequestParam Long hostId) {
+        return new ResponseEntity<>(
+                Map.of("videoRoomId: ", videoRoomService.getRecentVideoRoom(hostId)),
+                HttpStatus.OK);
+    }
 }
