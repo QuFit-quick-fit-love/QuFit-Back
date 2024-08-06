@@ -2,7 +2,11 @@ package com.cupid.qufit.global.exception;
 
 
 import com.cupid.qufit.global.common.response.FieldValidationExceptionResponse;
+import com.cupid.qufit.global.exception.exceptionType.BalanceGameException;
 import com.cupid.qufit.global.exception.exceptionType.ChatException;
+import com.cupid.qufit.global.exception.exceptionType.ESIndexException;
+import com.cupid.qufit.global.exception.exceptionType.ESParticipantException;
+import com.cupid.qufit.global.exception.exceptionType.ESVideoRoomException;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.S3Exception;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
@@ -115,5 +119,29 @@ public class GlobalExceptionHandler {
                              .toList();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BalanceGameException.class)
+    public ResponseEntity<ErrorResponse> handleBalanceGameException(BalanceGameException e) {
+        log.debug("[BalanceGameException] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
+    }
+
+    @ExceptionHandler(ESIndexException.class)
+    public ResponseEntity<ErrorResponse> handleESIndexException(ESIndexException e) {
+        log.debug("[ESIndexException] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
+    }
+
+    @ExceptionHandler(ESParticipantException.class)
+    public ResponseEntity<ErrorResponse> handleESParticipantException(ESParticipantException e) {
+        log.debug("[ESParticipantException] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
+    }
+
+    @ExceptionHandler(ESVideoRoomException.class)
+    public ResponseEntity<ErrorResponse> handleESVideoRoomException(ESVideoRoomException e) {
+        log.debug("[ESVideoRoomException] : {} is occurred", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 }
