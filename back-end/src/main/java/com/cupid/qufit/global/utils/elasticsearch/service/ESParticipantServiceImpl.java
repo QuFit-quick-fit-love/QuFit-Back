@@ -61,6 +61,24 @@ public class ESParticipantServiceImpl {
     }
 
     public List<Long> recommendRoom(int page, Request request) throws IOException {
+//        System.out.println("location : " + request.getLocation());
+//        System.out.println("gender : " + request.getGender());
+//        System.out.println("birthYear : " + request.getBirthYear());
+//        System.out.println("typeAgeMax : " + request.getTypeAgeMax());
+//        System.out.println("typeAgeMin : " + request.getTypeAgeMin());
+//
+//        System.out.println("-------------------mbti--------------------------");
+//        for (String mbti : request.getMBTIs()) {
+//            System.out.println(mbti);
+//        }
+//        System.out.println("-------------------personality--------------------------");
+//        for (String personality : request.getPersonalities()) {
+//            System.out.println(personality);
+//        }
+//        System.out.println("-------------------hobby--------------------------");
+//        for (String hobby : request.getHobbies()) {
+//            System.out.println(hobby);
+//        }
         List<FieldValue> mbtis = toFieldValueList(request.getMBTIs());
         List<FieldValue> personalities = toFieldValueList(request.getPersonalities());
         List<FieldValue> hobbies = toFieldValueList(request.getHobbies());
@@ -69,13 +87,13 @@ public class ESParticipantServiceImpl {
         List<String> bioQuerys = new ArrayList<>(); // 리스트 형태
         bioQuerys.addAll(request.getHobbies());
         bioQuerys.addAll(request.getPersonalities());
-        String bioQueryString = String.join(" ", bioQuerys);    // String 형태
+        String bioQueryString = String.join(" ", bioQuerys);
 
         // BoolQuery
         Query query = BoolQuery
                 .of(b -> b.mustNot(m -> m.term(t -> t.field("gender").value(request.getGender())))
                           .filter(f -> f.term(t -> t.field("location").value(request.getLocation())))
-                          .filter(f -> f.range(r -> r.field("birth_year")
+                          .filter(f -> f.range(r -> r.field("birthYear")
                                                      .gte(JsonData.of(request.getBirthYear() - request.getTypeAgeMax()))
                                                      .lte(JsonData.of(
                                                              request.getBirthYear() + request.getTypeAgeMin()))))
@@ -110,8 +128,10 @@ public class ESParticipantServiceImpl {
         SearchRequest searchRequest = SearchRequest.of(sr -> sr
                 .index("participants")
                 .query(functionScoreQuery)
-                .aggregations("video_rooms", a -> a.terms(t -> t.field("video_room_id").order(List.of(
-                                                           NamedValue.of("total_score", SortOrder.Desc))).size(5))
+                .aggregations("video_rooms", a -> a.terms(t -> t.field("videoRoomId.keyword")
+                                                                .order(List.of(
+                                                                        NamedValue.of("total_score", SortOrder.Desc)))
+                                                                .size(5))
                                                    .aggregations("total_score", a2 -> a2.sum(s -> s.field("_score"))))
         );
 
