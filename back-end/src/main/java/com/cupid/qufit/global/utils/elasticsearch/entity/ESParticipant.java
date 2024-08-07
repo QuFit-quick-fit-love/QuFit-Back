@@ -1,9 +1,7 @@
 package com.cupid.qufit.global.utils.elasticsearch.entity;
 
 import com.cupid.qufit.entity.Member;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -26,6 +24,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ESParticipant {
 
     @Id
@@ -33,20 +32,12 @@ public class ESParticipant {
     private String id;
 
     @Field(type = FieldType.Keyword)
-    @JsonProperty("participant_id")
     private String participantId;
 
     @Field(type = FieldType.Keyword)
-    @JsonProperty("video_room_id")
     private String videoRoomId;
 
-    @Field(type = FieldType.Date)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    @JsonProperty("updated_at")
-    private LocalDateTime updatedAt;
-
     @Field(type = FieldType.Keyword)
-    @JsonProperty("mbti")
     private String MBTI;
 
     @Field(type = FieldType.Keyword)
@@ -59,7 +50,6 @@ public class ESParticipant {
     private String location;
 
     @Field(type = FieldType.Integer)
-    @JsonProperty("birth_year")
     private Integer birthYear;
 
     @Field(type = FieldType.Keyword)
@@ -72,7 +62,6 @@ public class ESParticipant {
         return ESParticipant.builder()
                             .participantId(member.getId().toString())
                             .videoRoomId(videoRoomId)
-                            .updatedAt(member.getUpdatedAt())
                             .MBTI(member.getMBTI().getTagName())
                             .personalities(member.getMemberPersonalities().stream()
                                                  .map(pTag -> pTag.getTag().getTagName())

@@ -6,10 +6,6 @@
     "video_room_id": {
       "type": "keyword"
     },
-    "updated_at": {
-      "type": "date",
-      "format": "yyyy-MM-dd HH:mm:ss"
-    },
     "mbti": {
       "type": "keyword"
     },
