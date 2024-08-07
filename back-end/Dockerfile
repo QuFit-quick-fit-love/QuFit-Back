@@ -17,6 +17,9 @@ COPY src ./src
 # 애플리케이션 빌드
 RUN gradle clean build --no-daemon
 
+# 빌드된 JAR 파일 이름 변경
+RUN mv /app/build/libs/qufit-*-SNAPSHOT.jar /app/app.jar
+
 # 실행 스테이지
 FROM openjdk:17-jdk-slim
 
@@ -24,8 +27,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # 빌드 스테이지에서 생성된 jar 파일 복사
-COPY --from=build /app/build/libs/*.jar app.jar
-
+COPY --from=build /app/app.jar ./app.jar
 
 EXPOSE 8080
 
