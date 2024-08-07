@@ -104,7 +104,9 @@ public class VideoRoomController {
     public ResponseEntity<?> deleteVideoRoom(
             @Parameter(description = "삭제할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId) {
         videoRoomService.deleteVideoRoom(videoRoomId);
-        CommonResultResponse response = CommonResultResponse.builder().isSuccess(true).message("미팅룸이 성공적으로 삭제되었습니다.")
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message("미팅룸이 성공적으로 삭제되었습니다.")
                                                             .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -215,5 +217,26 @@ public class VideoRoomController {
         return new ResponseEntity<>(
                 Map.of("videoRoomId: ", videoRoomService.getRecentVideoRoom(hostId)),
                 HttpStatus.OK);
+    }
+
+    /**
+     * 방 시작하기
+     */
+    @PutMapping("/{videoRoomId}/start")
+    @Operation(summary = "비디오 방 시작", description = "비디오 방을 시작합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "비디오 방 시작 성공하였습니다.",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommonResultResponse.class)))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> startVideoRoom(
+            @Parameter(description = "퇴장할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
+            @AuthenticationPrincipal MemberDetails memberDetails) {
+        videoRoomService.startVideoRoom(videoRoomId, memberDetails.getId());
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message("미팅룸이 성공적으로 시작되었습니다.")
+                                                            .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

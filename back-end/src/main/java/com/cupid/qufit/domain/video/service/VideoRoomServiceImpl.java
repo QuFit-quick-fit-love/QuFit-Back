@@ -324,6 +324,9 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         return response;
     }
 
+    /**
+     * 추천 방 리스트 조회 (본인 이상형 정보와 방 참가자 정보를 통해)
+     */
     @Override
     public Map<String, Object> getRecommendedVideoRoomList(int page, Long memberId) throws IOException {
         // ! 1. 멤버 찾기
@@ -351,6 +354,9 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         return response;
     }
 
+    /**
+     * 해당 멤버가 만든 가장 최근 방 id 찾기
+     */
     @Override
     public Long getRecentVideoRoom(Long hostId) {
         // ! 1. 호스트 찾기
@@ -362,6 +368,30 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                 () -> new VideoException((ErrorCode.VIDEO_ROOM_NOT_FOUND)));
 
         return videoRoom.getVideoRoomId();
+    }
+
+    /**
+     * 방 시작하기
+     */
+    @Override
+    public void startVideoRoom(Long videoRoomId, Long memberId) {
+        // ! 1. 방 찾기
+        VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId)
+                                                 .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        // ! 2. 방장이 아닐 경우
+        if (!videoRoom.getHost().getId().equals(memberId)) {
+            throw new VideoException((ErrorCode.NOT_ROOM_HOST));
+        }
+
+        // ! 3. 방 시작 할 조건이 아닐 경우 (남자 인원 != 여자 인원)
+        if (videoRoom.getCurWCount() != videoRoom.getCurMCount()) {
+            throw new VideoException((ErrorCode.PARTICIPANT_COUNT_MISMATCH));
+        }
+
+        // ! 4. 방 상태 ACTIVE 로 전환
+        videoRoom.setStatus(VideoRoomStatus.ACTIVE);
+        videoRoomRepository.save(videoRoom);
     }
 
     /**

@@ -28,4 +28,6 @@ public interface VideoRoomService {
     Map<String, Object> getRecommendedVideoRoomList(int page, Long memberId) throws IOException;
 
     Long getRecentVideoRoom(Long hostId);
+
+    void startVideoRoom(Long videoRoomId, Long memberId);
 }
