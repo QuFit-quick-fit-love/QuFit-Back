@@ -80,7 +80,7 @@ public class ESParticipant {
                             .hobbies(member.getMemberHobbies().stream()
                                            .map(hTag -> hTag.getTag().getTagName())
                                            .collect(Collectors.toList()))
-                            .location(member.getLocation().toString())
+                            .location(member.getLocation().getSi())
                             .birthYear(member.getBirthDate().getYear())
                             .gender(member.getGender().toString())
                             .bio(member.getBio())
