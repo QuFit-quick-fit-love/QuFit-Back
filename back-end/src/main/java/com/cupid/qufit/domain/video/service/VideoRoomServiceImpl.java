@@ -340,21 +340,54 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2. page, size, memberId 를 elastic search 에 보내기
         List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
+
                                                                                                           typeProfiles));
+        // ! videoRoom상태 체크
+        List<VideoRoom> videoRooms = checkVideoRoomStatus(recommendRoomIds, page);
 
         // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
-        for (Long videoRoomId : recommendRoomIds) {
-            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
-                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        for (VideoRoom videoRoom : videoRooms) {
             videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
         }
 
         // ! 4. 응답용 리스트 데이터 가공
         Map<String, Object> response = new HashMap<>();
         response.put("videoRoomList", videoRoomResponses);
+        response.put("page", Map.of(
+                "totalElements", recommendRoomIds.size(),
+                "totalPages", recommendRoomIds.size() / 5,
+                "currentPage", page,
+                "pageSize", 5
+        ));
 
         return response;
+    }
+
+    // ! 비디오룸의 상태가 READY인 방만 filtering하여 추천 리스트를 만들어주는 메소드
+    private List<VideoRoom> checkVideoRoomStatus(List<Long> recommendRoomIds, int page) {
+        int recommendListSize = recommendRoomIds.size();
+        List<VideoRoom> videoRooms = new ArrayList<>();
+        int startIndex = page * 5;
+
+        // 요청한 페이지 보다 List의 양이 적을 경우
+        if (startIndex >= recommendListSize) {
+            throw new VideoException(ErrorCode.INVALID_PAGE_REQUEST);
+        } else {
+            for (int i = page * 5; i < recommendListSize; i++) {
+                VideoRoom videoRoom = videoRoomRepository.findById(recommendRoomIds.get(i)).orElseThrow(
+                        () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+                if (videoRoom.getStatus() == VideoRoomStatus.READY) {
+                    videoRooms.add(videoRoom);
+                    if (videoRooms.size() == 5) {
+                        break;
+                    }
+                }
+            }
+        }
+        return videoRooms;
     }
 
     @Override
