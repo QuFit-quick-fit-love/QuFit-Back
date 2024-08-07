@@ -161,9 +161,10 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> getVideoRoomList(
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size) {
+            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size,
+            @Parameter(description = "비디오 방 타입(1:대기, 2:활성화, 3:일대일)") @RequestParam(defaultValue = "1") int statusType) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
+        return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable, statusType), HttpStatus.OK);
     }
 
     /**
@@ -182,7 +183,7 @@ public class VideoRoomController {
             @Parameter(description = "필터 종류") @RequestParam(defaultValue = "") List<Long> tagIds) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         if (tagIds.isEmpty()) {
-            return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
+            return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable, 1), HttpStatus.OK);
         }
         return new ResponseEntity<>(videoRoomService.getVideoRoomListWithFilter(pageable, tagIds), HttpStatus.OK);
     }

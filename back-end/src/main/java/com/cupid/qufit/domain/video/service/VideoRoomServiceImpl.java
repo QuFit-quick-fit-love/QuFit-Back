@@ -68,15 +68,19 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     public VideoRoomDTO.BasicResponse createVideoRoom(VideoRoomDTO.Request videoRoomRequest, Long memberId) {
         // ! 1. 입력받은 방 제목, 방 인원 수, 태그를 통해 방 생성 및 DB 저장
         VideoRoom videoRoom = VideoRoomDTO.Request.to(videoRoomRequest);
-        // ! 1.1 방장 설정
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         videoRoom.setHost(member);
-        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
-        videoRoom.getVideoRoomPersonality().addAll(toPersonalityList(videoRoomRequest, videoRoom));
+        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest.getVideoRoomHobbies(), videoRoom));
+        videoRoom.getVideoRoomPersonality()
+                 .addAll(toPersonalityList(videoRoomRequest.getVideoRoomPersonalities(), videoRoom));
+        // ! 2. 일대일 방 일 경우
+        if (videoRoomRequest.getStatusType() == 3) {
+            videoRoom.setStatus(VideoRoomStatus.PERSONAL);
+        }
         videoRoomRepository.save(videoRoom);
 
-        // ! 2. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
+        // ! 3. 본인 참가를 위한 joinVideoRoom 을 통해 토큰 생성
         String token = joinVideoRoom(videoRoom.getVideoRoomId(), memberId).getToken();
         return VideoRoomDTO.BasicResponse.from(videoRoom, token);
     }
@@ -151,11 +155,12 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2-2. 방 취미 태그 업데이트
         videoRoom.getVideoRoomHobby().clear();
-        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest, videoRoom));
+        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest.getVideoRoomHobbies(), videoRoom));
 
         // ! 2-3. 방 성격 태그 업데이트
         videoRoom.getVideoRoomPersonality().clear();
-        videoRoom.getVideoRoomPersonality().addAll(toPersonalityList(videoRoomRequest, videoRoom));
+        videoRoom.getVideoRoomPersonality()
+                 .addAll(toPersonalityList(videoRoomRequest.getVideoRoomPersonalities(), videoRoom));
 
         // ! 3. 방 정보 저장
         videoRoomRepository.save(videoRoom);
@@ -247,9 +252,14 @@ public class VideoRoomServiceImpl implements VideoRoomService {
      * 방 리스트 조회(최신순)
      */
     @Override
-    public Map<String, Object> getVideoRoomList(Pageable pageable) {
-        // ! 1. 대기방 리스트 최신순 조회
-        Page<VideoRoom> videoRoomPage = videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
+    public Map<String, Object> getVideoRoomList(Pageable pageable, int statusType) {
+        // ! 1. 대기방 리스트 최신순 조회 (case 1: 대기방, 2: 활성화방, 3: 일대일방)
+        Page<VideoRoom> videoRoomPage = switch (statusType) {
+            case 1 -> videoRoomRepository.findByStatus(VideoRoomStatus.READY, pageable);
+            case 2 -> videoRoomRepository.findByStatus(VideoRoomStatus.ACTIVE, pageable);
+            case 3 -> videoRoomRepository.findByStatus(VideoRoomStatus.PERSONAL, pageable);
+            default -> throw new VideoException(ErrorCode.INVALID_STATUS_TYPE);
+        };
 
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = videoRoomPage.stream()
                                                                           .map(BaseResponse::from)
@@ -397,10 +407,10 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     /**
      * 미팅룸 취미 태그 찾아오기
      */
-    public List<VideoRoomHobby> toHobbyList(VideoRoomDTO.Request videoRoomRequest, VideoRoom videoRoom) {
+    public List<VideoRoomHobby> toHobbyList(List<Long> videoRoomHobbyIds, VideoRoom videoRoom) {
         List<VideoRoomHobby> videoRoomHobbies = new ArrayList<>();
-        if (videoRoomRequest.getVideoRoomHobbies() != null) {
-            for (Long tagId : videoRoomRequest.getVideoRoomHobbies()) {
+        if (videoRoomHobbyIds != null) {
+            for (Long tagId : videoRoomHobbyIds) {
                 videoRoomHobbies.add(VideoRoomHobby.builder()
                                                    .tag(tagRepository.findById(tagId)
                                                                      .orElseThrow(() -> new TagException(
@@ -415,10 +425,10 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     /**
      * 미팅룸 성격 태그 찾아오기
      */
-    public List<VideoRoomPersonality> toPersonalityList(VideoRoomDTO.Request videoRoomRequest, VideoRoom videoRoom) {
+    public List<VideoRoomPersonality> toPersonalityList(List<Long> videoRoomPersonalityIds, VideoRoom videoRoom) {
         List<VideoRoomPersonality> videoRoomPersonalities = new ArrayList<>();
-        if (videoRoomRequest.getVideoRoomPersonalities() != null) {
-            for (Long tagId : videoRoomRequest.getVideoRoomPersonalities()) {
+        if (videoRoomPersonalityIds != null) {
+            for (Long tagId : videoRoomPersonalityIds) {
                 videoRoomPersonalities.add(VideoRoomPersonality.builder()
                                                                .tag(tagRepository.findById(tagId)
                                                                                  .orElseThrow(() -> new TagException(

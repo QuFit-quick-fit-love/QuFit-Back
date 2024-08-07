@@ -21,7 +21,7 @@ public interface VideoRoomService {
 
     VideoRoomDTO.DetailResponse getVideoRoomDetail(Long videoRoomId);
 
-    Map<String, Object> getVideoRoomList(Pageable pageable);
+    Map<String, Object> getVideoRoomList(Pageable pageable, int statusType);
 
     Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds);
 
