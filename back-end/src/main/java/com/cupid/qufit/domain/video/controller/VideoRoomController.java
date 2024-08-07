@@ -104,7 +104,9 @@ public class VideoRoomController {
     public ResponseEntity<?> deleteVideoRoom(
             @Parameter(description = "삭제할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId) {
         videoRoomService.deleteVideoRoom(videoRoomId);
-        CommonResultResponse response = CommonResultResponse.builder().isSuccess(true).message("미팅룸이 성공적으로 삭제되었습니다.")
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message("미팅룸이 성공적으로 삭제되었습니다.")
                                                             .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -159,9 +161,10 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> getVideoRoomList(
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size) {
+            @Parameter(description = "페이지 당 개수") @RequestParam(defaultValue = "6") int size,
+            @Parameter(description = "비디오 방 타입(1:대기, 2:활성화, 3:일대일)") @RequestParam(defaultValue = "1") int statusType) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
+        return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable, statusType), HttpStatus.OK);
     }
 
     /**
@@ -180,7 +183,7 @@ public class VideoRoomController {
             @Parameter(description = "필터 종류") @RequestParam(defaultValue = "") List<Long> tagIds) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         if (tagIds.isEmpty()) {
-            return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable), HttpStatus.OK);
+            return new ResponseEntity<>(videoRoomService.getVideoRoomList(pageable, 1), HttpStatus.OK);
         }
         return new ResponseEntity<>(videoRoomService.getVideoRoomListWithFilter(pageable, tagIds), HttpStatus.OK);
     }
@@ -215,5 +218,26 @@ public class VideoRoomController {
         return new ResponseEntity<>(
                 Map.of("videoRoomId: ", videoRoomService.getRecentVideoRoom(hostId)),
                 HttpStatus.OK);
+    }
+
+    /**
+     * 방 시작하기
+     */
+    @PutMapping("/{videoRoomId}/start")
+    @Operation(summary = "비디오 방 시작", description = "비디오 방을 시작합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "비디오 방 시작 성공하였습니다.",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommonResultResponse.class)))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")})
+    public ResponseEntity<?> startVideoRoom(
+            @Parameter(description = "퇴장할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
+            @AuthenticationPrincipal MemberDetails memberDetails) {
+        videoRoomService.startVideoRoom(videoRoomId, memberDetails.getId());
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message("미팅룸이 성공적으로 시작되었습니다.")
+                                                            .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

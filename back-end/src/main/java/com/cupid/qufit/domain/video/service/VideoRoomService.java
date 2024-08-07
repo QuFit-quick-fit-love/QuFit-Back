@@ -21,11 +21,13 @@ public interface VideoRoomService {
 
     VideoRoomDTO.DetailResponse getVideoRoomDetail(Long videoRoomId);
 
-    Map<String, Object> getVideoRoomList(Pageable pageable);
+    Map<String, Object> getVideoRoomList(Pageable pageable, int statusType);
 
     Map<String, Object> getVideoRoomListWithFilter(Pageable pageable, List<Long> tagIds);
 
     Map<String, Object> getRecommendedVideoRoomList(int page, Long memberId) throws IOException;
 
     Long getRecentVideoRoom(Long hostId);
+
+    void startVideoRoom(Long videoRoomId, Long memberId);
 }

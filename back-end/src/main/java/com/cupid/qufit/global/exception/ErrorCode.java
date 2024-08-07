@@ -59,6 +59,9 @@ public enum ErrorCode {
     PARTICIPANT_ALREADY_EXISTS("이미 해당 참가자가 참여중인 방입니다.", HttpStatus.CONFLICT),
     HOST_NOT_FOUND("방장을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     INVALID_PAGE_REQUEST("잘못된 페이지 요청입니다.", HttpStatus.BAD_REQUEST),
+    NOT_ROOM_HOST("방장이 아닙니다.", HttpStatus.FORBIDDEN),
+    PARTICIPANT_COUNT_MISMATCH("현재 남자, 여자 인원이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_STATUS_TYPE("유효하지 않은 방 상태입니다.", HttpStatus.BAD_REQUEST),
 
     // 친구 관련
     FRIEND_ALREADY_EXISTS("이미 해당 멤버와 친구 관계입니다.", HttpStatus.CONFLICT),
