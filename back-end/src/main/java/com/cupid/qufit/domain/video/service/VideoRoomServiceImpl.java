@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.video.service;
 
+import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
@@ -54,6 +55,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     private final TagRepository tagRepository;
     private final ESParticipantServiceImpl esParticipantService;
     private final TypeProfilesRepository typeProfilesRepository;
+    private final BalanceGameService balanceGameService;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -180,7 +182,10 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // !. 2. ES에서 해당 방 참가자 삭제
         esParticipantService.deleteAllByRoomId(videoRoomId.toString());
 
-        // ! 3. 방 제거
+        // ! 3. DB에 저장되어있는 밸런스 게임 선택 전부 삭제
+        balanceGameService.deleteAllChoice(videoRoomId);
+
+        // ! 4. 방 제거
         videoRoomRepository.delete(videoRoom);
     }
 
@@ -347,21 +352,54 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2. page, size, memberId 를 elastic search 에 보내기
         List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
-                typeProfiles));
+
+                                                                                                          typeProfiles));
+        // ! videoRoom상태 체크
+        List<VideoRoom> videoRooms = checkVideoRoomStatus(recommendRoomIds, page);
 
         // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
-        for (Long videoRoomId : recommendRoomIds) {
-            VideoRoom videoRoom = videoRoomRepository.findById(videoRoomId).orElseThrow(
-                    () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+        for (VideoRoom videoRoom : videoRooms) {
             videoRoomResponses.add(VideoRoomDTO.DetailResponse.from(videoRoom));
         }
 
         // ! 4. 응답용 리스트 데이터 가공
         Map<String, Object> response = new HashMap<>();
         response.put("videoRoomList", videoRoomResponses);
+        response.put("page", Map.of(
+                "totalElements", recommendRoomIds.size(),
+                "totalPages", recommendRoomIds.size() / 5,
+                "currentPage", page,
+                "pageSize", 5
+        ));
 
         return response;
+    }
+
+    // ! 비디오룸의 상태가 READY인 방만 filtering하여 추천 리스트를 만들어주는 메소드
+    private List<VideoRoom> checkVideoRoomStatus(List<Long> recommendRoomIds, int page) {
+        int recommendListSize = recommendRoomIds.size();
+        List<VideoRoom> videoRooms = new ArrayList<>();
+        int startIndex = page * 5;
+
+        // 요청한 페이지 보다 List의 양이 적을 경우
+        if (startIndex >= recommendListSize) {
+            throw new VideoException(ErrorCode.INVALID_PAGE_REQUEST);
+        } else {
+            for (int i = page * 5; i < recommendListSize; i++) {
+                VideoRoom videoRoom = videoRoomRepository.findById(recommendRoomIds.get(i)).orElseThrow(
+                        () -> new VideoException(ErrorCode.VIDEO_ROOM_NOT_FOUND));
+
+                if (videoRoom.getStatus() == VideoRoomStatus.READY) {
+                    videoRooms.add(videoRoom);
+                    if (videoRooms.size() == 5) {
+                        break;
+                    }
+                }
+            }
+        }
+        return videoRooms;
     }
 
     /**

@@ -109,8 +109,6 @@ public class ESParticipantServiceImpl {
         // SearchRequest
         SearchRequest searchRequest = SearchRequest.of(sr -> sr
                 .index("participants")
-                .from(page)
-                .size(5)
                 .query(functionScoreQuery)
                 .aggregations("video_rooms", a -> a.terms(t -> t.field("video_room_id").order(List.of(
                                                            NamedValue.of("total_score", SortOrder.Desc))).size(5))
@@ -125,7 +123,6 @@ public class ESParticipantServiceImpl {
             List<StringTermsBucket> buckets = videoRoomsAgg.sterms().buckets().array();
             for (StringTermsBucket bucket : buckets) {
                 videoRoomKeys.add(Long.valueOf(bucket.key()._get().toString()));
-                System.out.println(Long.valueOf(bucket.key()._get().toString()));
             }
         }
 

@@ -2,17 +2,14 @@ version: '3'
 
 services:
   qufit:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: whgustn730/qufit:${DOCKER_TAG:-latest}  # DockerHub에 푸시할 이미지
+    image: ${DOCKER_IMAGE:-whgustn730/qufit}:${DOCKER_TAG:-latest}
     container_name: qufit-backend
     ports:
       - "8080:8080"
     env_file:
       - .env
     volumes:
-      - ./logs:/app/logs  # 로그 파일을 호스트와 공유
+      - ./logs:/app/logs
     restart: unless-stopped
     depends_on:
       - redis
