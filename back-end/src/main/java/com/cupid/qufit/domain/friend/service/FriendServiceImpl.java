@@ -97,7 +97,7 @@ public class FriendServiceImpl implements FriendService {
                                                                       .createdAt(LocalDateTime.now())
                                                                       .updatedAt(LocalDateTime.now())
                                                                       .build();
-
+            member.getFriends().add(friendRelationship);
             friendRepository.save(friendRelationship);
         } else { // ! 3. 친구가 관계였을 경우
             if (existingRelation.getStatus().equals(FriendRelationshipStatus.ACTIVE)) { // ! 3.1 이미 활성화 상태
