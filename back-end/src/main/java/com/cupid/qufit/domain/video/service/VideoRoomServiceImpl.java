@@ -1,5 +1,6 @@
 package com.cupid.qufit.domain.video.service;
 
+import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.TagRepository;
@@ -54,6 +55,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     private final TagRepository tagRepository;
     private final ESParticipantServiceImpl esParticipantService;
     private final TypeProfilesRepository typeProfilesRepository;
+    private final BalanceGameService balanceGameService;
 
     @Value("${livekit.api.key}")
     private String LIVEKIT_API_KEY;
@@ -175,7 +177,10 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // !. 2. ES에서 해당 방 참가자 삭제
         esParticipantService.deleteAllByRoomId(videoRoomId.toString());
 
-        // ! 3. 방 제거
+        // ! 3. DB에 저장되어있는 밸런스 게임 선택 전부 삭제
+        balanceGameService.deleteAllChoice(videoRoomId);
+
+        // ! 4. 방 제거
         videoRoomRepository.delete(videoRoom);
     }
 
@@ -335,7 +340,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2. page, size, memberId 를 elastic search 에 보내기
         List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
-                typeProfiles));
+                                                                                                          typeProfiles));
 
         // ! 3. 미팅룸 id를 기반으로 미팅룸 리스트 형태 만들기
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = new ArrayList<>();
