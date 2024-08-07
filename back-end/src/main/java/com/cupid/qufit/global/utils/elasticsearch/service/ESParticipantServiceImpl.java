@@ -80,7 +80,7 @@ public class ESParticipantServiceImpl {
                                                      .lte(JsonData.of(
                                                              request.getBirthYear() + request.getTypeAgeMin()))))
                           .should(s -> s.terms(
-                                  t -> t.field("mbtis").terms(TermsQueryField.of(fv -> fv.value(mbtis))).boost(4.0f)))
+                                  t -> t.field("MBTI").terms(TermsQueryField.of(fv -> fv.value(mbtis))).boost(4.0f)))
                           .should(s -> s.terms(
                                   t -> t.field("personalities").terms(TermsQueryField.of(fv -> fv.value(personalities)))
                                         .boost(3.0f)))
@@ -156,6 +156,5 @@ public class ESParticipantServiceImpl {
     private List<FieldValue> toFieldValueList(List<String> terms) {
         return terms.stream().map(FieldValue::of).toList();
     }
-
 
 }
