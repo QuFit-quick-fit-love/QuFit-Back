@@ -17,7 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotNull;
@@ -49,7 +48,7 @@ public class Member {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", unique = false)
+    @JoinColumn(name = "location_id")
     private Location location;
 
     @Enumerated(EnumType.STRING)
@@ -78,8 +77,11 @@ public class Member {
     @Nullable
     private String profileImage;
 
+    @Nullable
+    private String matchingAnimal;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mbti_tag_id", unique = false)
+    @JoinColumn(name = "mbti_tag_id")
     private Tag MBTI;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
