@@ -71,7 +71,12 @@ public class FriendServiceImpl implements FriendService {
         Page<FriendRelationship> friendPage = friendRepository.findByMemberIdAndStatus(memberId,
                 FriendRelationshipStatus.ACTIVE, pageable);
 
-        // ! 2. 친구 리스트 가공
+        // ! 2. 요청한 페이지가 최대 페이지 수보다 클 경우 에러처리
+        if (pageable.getPageNumber() >= friendPage.getTotalPages()) {
+            throw new FriendException(ErrorCode.INVALID_PAGE_REQUEST);
+        }
+
+        // ! 3. 친구 리스트 가공
         List<FriendDTO.Response> friendResponses = friendPage.stream()
                                                              .map(friendRelationship -> {
                                                                  Member friend = friendRelationship.getFriend();
