@@ -1,0 +1,122 @@
+package com.cupid.qufit.domain.balancegame.controller;
+
+import com.cupid.qufit.domain.balancegame.dto.BalanceGameDTO;
+import com.cupid.qufit.domain.balancegame.dto.BalanceGameResult;
+import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
+import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
+import com.cupid.qufit.entity.balancegame.BalanceGame;
+import com.cupid.qufit.global.common.response.CommonResultResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+
+@Controller
+@RequiredArgsConstructor
+@Slf4j
+@Tag(name = "GameWebSocket", description = "밸런스 게임 관련 웹소켓 통신 API")
+public class WebSocketGameController {
+
+    private final BalanceGameService balanceGameService;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    /**
+     * * 모든 게임 관련 웹소켓 메시지를 받는 중앙 허브
+     * ! /pub/game/{videoRoomId} 엔드포인트로 들어오는 모든 메시지 처리
+     *
+     * @param videoRoomId
+     * @param request
+     * @param headerAccessor
+     */
+    @MessageMapping("/game/{videoRoomId}")
+    public void handleGameMessage(@DestinationVariable Long videoRoomId,
+                                  @Payload BalanceGameDTO.Request request,
+                                  SimpMessageHeaderAccessor headerAccessor) {
+        Long memberId = Long.parseLong(headerAccessor.getSessionAttributes().get("AUTHENTICATED_MEMBER_ID").toString());
+
+        if (request.getIsRoomStart() != null && request.getIsRoomStart()) {
+            handleRoomStart(videoRoomId);
+        } else if (request.getIsGameStart() != null && request.getIsGameStart()) {
+            handleGameStart(videoRoomId);
+        } else if (request.getIsChoiceStart() != null && request.getIsChoiceStart()) {
+            handleChoiceStart(videoRoomId);
+        } else if (request.getAnswer() != null) {
+            handleChoice(videoRoomId, request, memberId);
+        } else if (request.getGetResult() != null && request.getGetResult()) {
+            handleGetResult(videoRoomId);
+        } else {
+            log.warn("인식되지 않은 요청 : videoRoomId: {}, request: {}", videoRoomId, request);
+        }
+    }
+
+    /**
+     * * 방 시작 요청 처리
+     * @param videoRoomId
+     */
+    private void handleRoomStart(Long videoRoomId) {
+        log.info("방 시작 요청 처리 videoRoomId: {}", videoRoomId);
+        CommonResultResponse response = CommonResultResponse.builder()
+                                                            .isSuccess(true)
+                                                            .message("미팅룸 시작을 성공했습니다.")
+                                                            .build();
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
+        log.info("미팅룸 시작 메시지 전송 완료 videoRoomId: {}", videoRoomId);
+    }
+
+    /**
+     * * 게임 시작 요청 처리
+     * @param videoRoomId
+     */
+    private void handleGameStart(Long videoRoomId) {
+        log.info("게임 시작 요청 처리 videoRoomId: {}", videoRoomId);
+        List<BalanceGame> games = balanceGameService.getRandomBalanceGameList();
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, games);
+        log.info("게임 시작 메시지 전송 완료 videoRoomId: {}, 게임 수: {}", videoRoomId, games.size());
+    }
+
+    /**
+     * * 선택 시작 요청 처리
+     * @param videoRoomId
+     */
+    private void handleChoiceStart(Long videoRoomId) {
+        log.info("선택 시작 요청 처리 videoRoomId: {}", videoRoomId);
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId,
+                                         Map.of("isChoiceStart", true));
+        log.info("선택 시작 메시지 전송 완료 videoRoomId: {}", videoRoomId);
+    }
+
+    /**
+     * * 사용자의 선택 처리
+     * @param videoRoomId
+     * @param request
+     * @param memberId
+     */
+    private void handleChoice(Long videoRoomId, BalanceGameDTO.Request request, Long memberId) {
+        log.info("사용자 선택 처리 videoRoomId: {}, memberId: {}, balanceGameId: {}, answer: {}",
+                 videoRoomId, memberId, request.getBalanceGameId(), request.getAnswer());
+        SaveChoice.Request saveChoiceRequest = new SaveChoice.Request(
+                request.getBalanceGameId(), videoRoomId, request.getAnswer());
+        SaveChoice.Response response = balanceGameService.saveChoice(memberId, saveChoiceRequest);
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
+        log.info("사용자 선택 저장 및 응답 전송 완료 videoRoomId: {}, memberId: {}", videoRoomId, memberId);
+    }
+
+    /**
+     * * 게임 결과 조회 요청 처리
+     * @param videoRoomId
+     */
+    private void handleGetResult(Long videoRoomId) {
+        log.info("게임 결과 조회 요청 처리 videoRoomId: {}", videoRoomId);
+        List<BalanceGameResult> results = balanceGameService.getBalanceGameResultByVideoRoomId(videoRoomId);
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, results);
+        log.info("게임 결과 전송 완료 videoRoomId: {}, 결과 수: {}", videoRoomId, results.size());
+    }
+}
+
