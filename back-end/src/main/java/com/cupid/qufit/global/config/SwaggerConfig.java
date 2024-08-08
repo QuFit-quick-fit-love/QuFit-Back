@@ -120,4 +120,12 @@ public class SwaggerConfig {
                              .pathsToMatch("/qufit/friend/**")
                              .build();
     }
+
+    @Bean
+    public GroupedOpenApi balanceGameApi() {
+        return GroupedOpenApi.builder()
+                             .group("balance-game")
+                             .pathsToMatch("/qufit/balance-game/**")
+                             .build();
+    }
 }
