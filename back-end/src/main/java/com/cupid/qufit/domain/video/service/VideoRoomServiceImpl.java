@@ -282,10 +282,15 @@ public class VideoRoomServiceImpl implements VideoRoomService {
             default -> throw new VideoException(ErrorCode.INVALID_STATUS_TYPE);
         };
 
+        // ! 2. 요청한 페이지가 최대 페이지 수보다 클 경우 에러처리
+        if (pageable.getPageNumber() >= videoRoomPage.getTotalPages()) {
+            throw new VideoException(ErrorCode.INVALID_PAGE_REQUEST);
+        }
+
         List<VideoRoomDTO.BaseResponse> videoRoomResponses = videoRoomPage.stream()
                                                                           .map(BaseResponse::from)
                                                                           .collect(Collectors.toList());
-        // ! 2. 응답용 리스트 데이터 가공
+        // ! 3. 응답용 리스트 데이터 가공
         Map<String, Object> response = new HashMap<>();
         response.put("videoRoomList", videoRoomResponses);
         response.put("page", Map.of(
@@ -305,7 +310,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 1. 대기방 리스트 조회
         List<VideoRoom> videoRooms = videoRoomRepository.findByStatus(VideoRoomStatus.READY);
 
-        // 2. 필터를 포함하는 리스트 찾기 + 태그 일치 횟수 카운트
+        // ! 2. 필터를 포함하는 리스트 찾기 + 태그 일치 횟수 카운트
         Map<VideoRoomDTO.BaseResponse, Integer> mapVideoRoomResponses = new HashMap<>();
         for (VideoRoom videoRoom : videoRooms) {
             int count = 0;
@@ -324,15 +329,23 @@ public class VideoRoomServiceImpl implements VideoRoomService {
             }
         }
 
-        // 3. 매칭 수 기준으로 내림차순 정렬
+        // ! 3. 매칭 수 기준으로 내림차순 정렬
         List<Map.Entry<VideoRoomDTO.BaseResponse, Integer>> sortedEntries = mapVideoRoomResponses.entrySet()
                                                                                                  .stream()
                                                                                                  .sorted(Map.Entry.<VideoRoomDTO.BaseResponse, Integer>comparingByValue()
                                                                                                                   .reversed())
                                                                                                  .toList();
 
-        // 4. 페이지화
+        // ! 4. 전체 페이지 수 계산
         int totalElements = sortedEntries.size();
+        int totalPages = (int) Math.ceil((double) totalElements / (double) pageable.getPageSize());
+
+        // ! 5. 요청한 페이지가 최대 페이지 수보다 클 경우 에러처리
+        if (pageable.getPageNumber() >= totalPages) {
+            throw new VideoException(ErrorCode.INVALID_PAGE_REQUEST);
+        }
+
+        // ! 6. 페이지화
         int start = Math.min((int) pageable.getOffset(), totalElements);
         int end = Math.min(start + pageable.getPageSize(), totalElements);
 
@@ -340,7 +353,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                                           .stream()
                                                                           .map(Map.Entry::getKey)
                                                                           .collect(Collectors.toList());
-        // 5. 응답 데이터 구성
+        // ! 7. 응답 데이터 구성
         Page<VideoRoomDTO.BaseResponse> page = new PageImpl<>(videoRoomResponses, pageable, totalElements);
 
         Map<String, Object> response = new HashMap<>();
