@@ -95,6 +95,7 @@ public class MemberInfoDTO {
                          .gender(request.getGender().charAt(0))
                          .bio(request.getBio())
                          .profileImage("")
+                         .matchingAnimal("")
                          .MBTI(null)
                          .build();
         }
@@ -126,6 +127,8 @@ public class MemberInfoDTO {
         private String bio;
         @Schema(description = "회원 프로필 사진 url (없을 때 : ''로 반환)")
         private String profileImage;
+        @Schema(description = "회원 매칭 동물")
+        private String matchingAnimal;
         @Schema(description = "회원 mbti tag 이름")
         private String memberMBTITag;
         @Schema(description = "회원 취미 tag 이름 list")
@@ -153,7 +156,8 @@ public class MemberInfoDTO {
                                          .gender(member.getGender())
                                          .bio(member.getBio())
                                          .profileImage(member.getProfileImage())
-                                         .memberMBTITag(member.getMBTI() != null ? member.getMBTI().getTagName() : null)
+                                         .matchingAnimal(member.getMatchingAnimal())
+                                         .memberMBTITag(member.getMBTI().getTagName())
                                          .memberHobbyTags(member.getMemberHobbies().stream()
                                                                 .map(memberHobby -> memberHobby.getTag().getTagName())
                                                                 .collect(Collectors.toList()))
@@ -163,13 +167,9 @@ public class MemberInfoDTO {
                                                                       .collect(Collectors.toList()))
                                          .typeAgeMax(typeProfiles.getTypeAgeMax())
                                          .typeAgeMin(typeProfiles.getTypeAgeMin())
-                                         .typeMBTI(!typeProfiles.getTypeMBTIs().isEmpty() ? typeProfiles.getTypeMBTIs()
-                                                                                                        .stream()
-                                                                                                        .map(typeMBTI -> typeMBTI.getTag()
-                                                                                                                                 .getTagName())
-                                                                                                        .collect(
-                                                                                                                Collectors.toList())
-                                                                                          : null)
+                                         .typeMBTI(typeProfiles.getTypeMBTIs().stream()
+                                                               .map(typeMBTI -> typeMBTI.getTag().getTagName())
+                                                               .collect(Collectors.toList()))
                                          .typeHobbyTags(typeProfiles.getTypeHobbies().stream()
                                                                     .map(typeHobby -> typeHobby.getTag().getTagName())
                                                                     .collect(Collectors.toList()))
