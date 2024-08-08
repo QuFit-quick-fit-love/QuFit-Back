@@ -231,7 +231,7 @@ public class VideoRoomController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류")})
     public ResponseEntity<?> startVideoRoom(
-            @Parameter(description = "퇴장할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
+            @Parameter(description = "시작할 비디오 방의 ID", required = true) @PathVariable Long videoRoomId,
             @AuthenticationPrincipal MemberDetails memberDetails) {
         videoRoomService.startVideoRoom(videoRoomId, memberDetails.getId());
         CommonResultResponse response = CommonResultResponse.builder()

@@ -62,11 +62,12 @@ public enum ErrorCode {
     NOT_ROOM_HOST("방장이 아닙니다.", HttpStatus.FORBIDDEN),
     PARTICIPANT_COUNT_MISMATCH("현재 남자, 여자 인원이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STATUS_TYPE("유효하지 않은 방 상태입니다.", HttpStatus.BAD_REQUEST),
+    MAX_PARTICIPANTS_REACHED("이미 최대 인원입니다.", HttpStatus.CONFLICT),
 
     // 친구 관련
     FRIEND_ALREADY_EXISTS("이미 해당 멤버와 친구 관계입니다.", HttpStatus.CONFLICT),
-    FRIEND_NOT_FOUND("친구를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    FRIEND_ALREADY_INACTIVE("이미 비활성화된 친구 입니다.", HttpStatus.BAD_REQUEST),
+    FRIEND_NOT_FOUND("해당 멤버와 친구 관계가 아닙니다.", HttpStatus.NOT_FOUND),
+    FRIEND_ALREADY_INACTIVE("이미 비활성화된 친구 입니다.", HttpStatus.CONFLICT),
 
     // S3 관련
     EMPTY_FILE("파일이 비어있습니다.", HttpStatus.BAD_REQUEST),

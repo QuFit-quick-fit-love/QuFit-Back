@@ -30,6 +30,9 @@ public class FriendServiceImpl implements FriendService {
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
 
+    /**
+     * 친구 추가
+     */
     @Override
     public void addFriend(Long memberId, Long friendId) {
         // ! 1. 현재 멤버와 친구의 정보를 가져옴
@@ -43,6 +46,9 @@ public class FriendServiceImpl implements FriendService {
         addFriendRelation(member, friend);
     }
 
+    /**
+     * 친구 삭제
+     */
     @Override
     public void deleteFriend(Long memberId, Long friendId) {
         // ! 1. 현재 멤버와 친구의 정보를 가져옴
@@ -56,6 +62,9 @@ public class FriendServiceImpl implements FriendService {
         deleteFriendRelation(member, friend);
     }
 
+    /**
+     * 친구 리스트 조회 (닉네임 기준 오름차순)
+     */
     @Override
     public Map<String, Object> getFriends(Long memberId, Pageable pageable) {
         // ! 1. 친구 관계에서 memberId의 친구 리스트를 ACTIVE 상태로 페이지네이션을 적용하여 조회
@@ -84,6 +93,9 @@ public class FriendServiceImpl implements FriendService {
         return response;
     }
 
+    /**
+     * 친구 추가 | 활성화
+     */
     private void addFriendRelation(Member member, Member friend) {
         // ! 1. 기존에 친구 관계가 없는지 확인
         FriendRelationship existingRelation = friendRepository.findByMemberAndFriend(member, friend).orElse(null);
@@ -99,7 +111,7 @@ public class FriendServiceImpl implements FriendService {
                                                                       .build();
             member.getFriends().add(friendRelationship);
             friendRepository.save(friendRelationship);
-        } else { // ! 3. 친구가 관계였을 경우
+        } else { // ! 3. 이미 친구가 관계였을 경우
             if (existingRelation.getStatus().equals(FriendRelationshipStatus.ACTIVE)) { // ! 3.1 이미 활성화 상태
                 throw new FriendException(ErrorCode.FRIEND_ALREADY_EXISTS);
             } else { // ! 3.2 비활성화 상태라면 활성화
@@ -111,6 +123,9 @@ public class FriendServiceImpl implements FriendService {
 
     }
 
+    /**
+     * 친구 비활성화
+     */
     private void deleteFriendRelation(Member member, Member friend) {
         // ! 1. 친구 관계가 존재하는지 검사
         FriendRelationship friendRelationship = friendRepository.findByMemberAndFriend(member, friend)
@@ -122,7 +137,7 @@ public class FriendServiceImpl implements FriendService {
             friendRelationship.setStatus(FriendRelationshipStatus.INACTIVE);
             friendRelationship.setUpdatedAt(LocalDateTime.now());
             friendRepository.save(friendRelationship);
-        } else {
+        } else { // ! 2. 이미 비활성화 상태일 경우
             throw new FriendException(ErrorCode.FRIEND_ALREADY_INACTIVE);
         }
     }

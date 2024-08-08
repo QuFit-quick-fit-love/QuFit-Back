@@ -73,9 +73,12 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         videoRoom.setHost(member);
-        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest.getVideoRoomHobbies(), videoRoom));
+        videoRoom.getVideoRoomHobby()
+                 .addAll(toHobbyList(videoRoomRequest.getVideoRoomHobbies(), videoRoom));
         videoRoom.getVideoRoomPersonality()
-                 .addAll(toPersonalityList(videoRoomRequest.getVideoRoomPersonalities(), videoRoom));
+                 .addAll(toPersonalityList(videoRoomRequest.getVideoRoomPersonalities(),
+                         videoRoom));
+
         // ! 2. 일대일 방 일 경우
         if (videoRoomRequest.getStatusType() == 3) {
             videoRoom.setStatus(VideoRoomStatus.PERSONAL);
@@ -107,6 +110,16 @@ public class VideoRoomServiceImpl implements VideoRoomService {
             }
         }
 
+        if (member.getGender() == 'm') {
+            if (videoRoom.getCurMCount() == videoRoom.getMaxParticipants()) {
+                throw new VideoException(ErrorCode.MAX_PARTICIPANTS_REACHED);
+            }
+        } else if (member.getGender() == 'f') {
+            if (videoRoom.getCurWCount() == videoRoom.getMaxParticipants()) {
+                throw new VideoException(ErrorCode.MAX_PARTICIPANTS_REACHED);
+            }
+        }
+
         // ! 3. 참가자 생성
         VideoRoomParticipant newParticipant = VideoRoomParticipant.builder()
                                                                   .videoRoom(videoRoom)
@@ -114,22 +127,22 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                                   .member(member)
                                                                   .build();
 
-        /* ! 4. 방에 참가자 추가 */
-        // 4-1. DB에 참가자 저장
-        videoRoomParticipantRepository.save(newParticipant);
-        videoRoom.getParticipants().add(newParticipant);
-
-        // 4-2. ES에 참가자 저장
-        ESParticipant newESParticipant = ESParticipant.createParticipant(videoRoomId.toString(), member);
-        esParticipantService.save(newESParticipant);
-
-        // ! 5. 방 정보 업데이트
-        if (newParticipant.getMember().getGender() == 'm') {
+        // ! 4. 방 정보 업데이트
+        if (member.getGender() == 'm') {
             videoRoom.setCurMCount(videoRoom.getCurMCount() + 1);
-        } else if (newParticipant.getMember().getGender() == 'f') {
+        } else if (member.getGender() == 'f') {
             videoRoom.setCurWCount(videoRoom.getCurWCount() + 1);
         }
+
+        /* ! 5. 방에 참가자 추가 */
+        // 5-1. DB에 참가자 저장
+        videoRoomParticipantRepository.save(newParticipant);
+        videoRoom.getParticipants().add(newParticipant);
         videoRoomRepository.save(videoRoom);
+
+        // 5-2. ES에 참가자 저장
+        ESParticipant newESParticipant = ESParticipant.createParticipant(videoRoomId.toString(), member);
+        esParticipantService.save(newESParticipant);
 
         // ! 6. 토큰 생성
         AccessToken token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
@@ -157,18 +170,21 @@ public class VideoRoomServiceImpl implements VideoRoomService {
 
         // ! 2-2. 방 취미 태그 업데이트
         videoRoom.getVideoRoomHobby().clear();
-        videoRoom.getVideoRoomHobby().addAll(toHobbyList(videoRoomRequest.getVideoRoomHobbies(), videoRoom));
+        videoRoom.getVideoRoomHobby()
+                 .addAll(toHobbyList(videoRoomRequest.getVideoRoomHobbies(), videoRoom));
 
         // ! 2-3. 방 성격 태그 업데이트
         videoRoom.getVideoRoomPersonality().clear();
         videoRoom.getVideoRoomPersonality()
-                 .addAll(toPersonalityList(videoRoomRequest.getVideoRoomPersonalities(), videoRoom));
+                 .addAll(toPersonalityList(videoRoomRequest.getVideoRoomPersonalities(),
+                         videoRoom));
 
         // ! 3. 방 정보 저장
         videoRoomRepository.save(videoRoom);
 
         return VideoRoomDTO.BasicResponse.from(videoRoom);
     }
+
 
     /**
      * 방 삭제
@@ -353,7 +369,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         // ! 2. page, size, memberId 를 elastic search 에 보내기
         List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
 
-                                                                                                          typeProfiles));
+                typeProfiles));
         // ! videoRoom상태 체크
         List<VideoRoom> videoRooms = checkVideoRoomStatus(recommendRoomIds, page);
 

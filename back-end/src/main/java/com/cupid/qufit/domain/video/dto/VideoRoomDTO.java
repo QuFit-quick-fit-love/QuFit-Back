@@ -37,7 +37,7 @@ public class VideoRoomDTO {
         private List<Long> videoRoomHobbies; // 방 취미 태그
         @Schema(description = "미팅방 성격 태그")
         private List<Long> videoRoomPersonalities; // 방 성격 태그
-        @Schema(description = "미팅방 생성 타입(1:대다대방(대기방), 3:일대일방)")
+        @Schema(description = "미팅방 생성 타입(1:다대다방(대기방), 3:일대일방)")
         private int statusType;
 
         public static VideoRoom to(Request videoRoomRequest) {
