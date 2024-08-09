@@ -6,6 +6,7 @@ import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
 import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
 import com.cupid.qufit.entity.balancegame.BalanceGame;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
+import com.cupid.qufit.global.common.response.GameResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +63,12 @@ public class WebSocketGameController {
      */
     private void handleRoomStart(Long videoRoomId) {
         log.info("방 시작 요청 처리 videoRoomId: {}", videoRoomId);
-        CommonResultResponse response = CommonResultResponse.builder()
-                                                            .isSuccess(true)
-                                                            .message("미팅룸 시작을 성공했습니다.")
-                                                            .build();
+        GameResponse<CommonResultResponse> response = GameResponse.<CommonResultResponse>builder()
+                                                                  .result(CommonResultResponse.builder()
+                                                                                              .isSuccess(true)
+                                                                                              .build())
+                                                                  .message("미팅룸 시작을 성공했습니다.")
+                                                                  .build();
         messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("미팅룸 시작 메시지 전송 완료 videoRoomId: {}", videoRoomId);
     }
@@ -77,7 +80,11 @@ public class WebSocketGameController {
     private void handleGameStart(Long videoRoomId) {
         log.info("게임 시작 요청 처리 videoRoomId: {}", videoRoomId);
         List<BalanceGame> games = balanceGameService.getRandomBalanceGameList();
-        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, games);
+        GameResponse<List<BalanceGame>> response = GameResponse.<List<BalanceGame>>builder()
+                                                               .result(games)
+                                                               .message("게임 시작을 성공했습니다.")
+                                                               .build();
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("게임 시작 메시지 전송 완료 videoRoomId: {}, 게임 수: {}", videoRoomId, games.size());
     }
 
@@ -87,8 +94,11 @@ public class WebSocketGameController {
      */
     private void handleChoiceStart(Long videoRoomId) {
         log.info("선택 시작 요청 처리 videoRoomId: {}", videoRoomId);
-        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId,
-                                         Map.of("isChoiceStart", true));
+        GameResponse<Map<String, Boolean>> response = GameResponse.<Map<String, Boolean>>builder()
+                                                                  .result(Map.of("isChoiceStart", true))
+                                                                  .message("선택지 선택을 시작했습니다.")
+                                                                  .build();
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("선택 시작 메시지 전송 완료 videoRoomId: {}", videoRoomId);
     }
 
@@ -103,7 +113,11 @@ public class WebSocketGameController {
                  videoRoomId, memberId, request.getBalanceGameId(), request.getAnswer());
         SaveChoice.Request saveChoiceRequest = new SaveChoice.Request(
                 request.getBalanceGameId(), videoRoomId, request.getAnswer());
-        SaveChoice.Response response = balanceGameService.saveChoice(memberId, saveChoiceRequest);
+        SaveChoice.Response choiceResponse = balanceGameService.saveChoice(memberId, saveChoiceRequest);
+        GameResponse<SaveChoice.Response> response = GameResponse.<SaveChoice.Response>builder()
+                                                                 .result(choiceResponse)
+                                                                 .message("선택을 완료했습니다.")
+                                                                 .build();
         messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("사용자 선택 저장 및 응답 전송 완료 videoRoomId: {}, memberId: {}", videoRoomId, memberId);
     }
@@ -115,7 +129,11 @@ public class WebSocketGameController {
     private void handleGetResult(Long videoRoomId) {
         log.info("게임 결과 조회 요청 처리 videoRoomId: {}", videoRoomId);
         List<BalanceGameResult> results = balanceGameService.getBalanceGameResultByVideoRoomId(videoRoomId);
-        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, results);
+        GameResponse<List<BalanceGameResult>> response = GameResponse.<List<BalanceGameResult>>builder()
+                                                                     .result(results)
+                                                                     .message("게임 결과를 조회했습니다.")
+                                                                     .build();
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("게임 결과 전송 완료 videoRoomId: {}, 결과 수: {}", videoRoomId, results.size());
     }
 }
