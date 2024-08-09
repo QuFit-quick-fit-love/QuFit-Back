@@ -15,6 +15,7 @@ import com.cupid.qufit.entity.MemberHobby;
 import com.cupid.qufit.entity.MemberPersonality;
 import com.cupid.qufit.entity.MemberStatus;
 import com.cupid.qufit.entity.Tag;
+import com.cupid.qufit.entity.TagCateg;
 import com.cupid.qufit.entity.TypeHobby;
 import com.cupid.qufit.entity.TypeMBTI;
 import com.cupid.qufit.entity.TypePersonality;
@@ -208,7 +209,9 @@ public class MemberServiceImpl implements MemberService {
         }
 
         Tag mbti = findByTagName(tagName);
-        member.updateMBTI(mbti);
+        if (mbti.getTagCategory() == TagCateg.MBTI) {
+            member.updateMBTI(mbti);
+        }
     }
 
     private void saveMemberHobbies(Member member, List<String> memberHobbyTagNames) {
@@ -218,10 +221,13 @@ public class MemberServiceImpl implements MemberService {
 
         if (!memberHobbyTagNames.isEmpty()) {
             memberHobbyTagNames.forEach(name -> {
-                MemberHobby memberHobby = MemberHobby.builder()
-                                                     .tag(findByTagName(name))
-                                                     .build();
-                member.addMemberHobbies(memberHobby);
+                Tag tag = findByTagName(name);
+                if (tag.getTagCategory() == TagCateg.HOBBY) {
+                    MemberHobby memberHobby = MemberHobby.builder()
+                                                         .tag(findByTagName(name))
+                                                         .build();
+                    member.addMemberHobbies(memberHobby);
+                }
             });
         }
     }
@@ -233,10 +239,13 @@ public class MemberServiceImpl implements MemberService {
 
         if (!memberPersonalityTagNames.isEmpty()) {
             memberPersonalityTagNames.forEach(name -> {
-                MemberPersonality memberPersonality = MemberPersonality.builder()
-                                                                       .tag(findByTagName(name))
-                                                                       .build();
-                member.addMemberPersonalities(memberPersonality);
+                Tag tag = findByTagName(name);
+                if (tag.getTagCategory() == TagCateg.PERSONALITY) {
+                    MemberPersonality memberPersonality = MemberPersonality.builder()
+                                                                           .tag(tag)
+                                                                           .build();
+                    member.addMemberPersonalities(memberPersonality);
+                }
             });
         }
     }
@@ -251,10 +260,13 @@ public class MemberServiceImpl implements MemberService {
             typeMBTINames = new ArrayList<>(Collections.singleton("none"));
         }
         typeMBTINames.forEach(name -> {
-            TypeMBTI typeMBTI = TypeMBTI.builder()
-                                        .tag(findByTagName(name))
-                                        .build();
-            typeProfiles.addtypeMBTIs(typeMBTI);
+            Tag tag = findByTagName(name);
+            if (tag.getTagCategory() == TagCateg.MBTI) {
+                TypeMBTI typeMBTI = TypeMBTI.builder()
+                                            .tag(tag)
+                                            .build();
+                typeProfiles.addtypeMBTIs(typeMBTI);
+            }
         });
     }
 
@@ -265,10 +277,13 @@ public class MemberServiceImpl implements MemberService {
 
         if (!typeHobbyNames.isEmpty()) {
             typeHobbyNames.forEach(name -> {
-                TypeHobby typeHobby = TypeHobby.builder()
-                                               .tag(findByTagName(name))
-                                               .build();
-                typeProfiles.addTypeHobbies(typeHobby);
+                Tag tag = findByTagName(name);
+                if (tag.getTagCategory() == TagCateg.HOBBY) {
+                    TypeHobby typeHobby = TypeHobby.builder()
+                                                   .tag(tag)
+                                                   .build();
+                    typeProfiles.addTypeHobbies(typeHobby);
+                }
             });
         }
     }
@@ -280,10 +295,13 @@ public class MemberServiceImpl implements MemberService {
 
         if (!typePersonalityNames.isEmpty()) {
             typePersonalityNames.forEach(name -> {
-                TypePersonality typePersonality = TypePersonality.builder()
-                                                                 .tag(findByTagName(name))
-                                                                 .build();
-                typeProfiles.addTypePersonalities(typePersonality);
+                Tag tag = findByTagName(name);
+                if (tag.getTagCategory() == TagCateg.PERSONALITY) {
+                    TypePersonality typePersonality = TypePersonality.builder()
+                                                                     .tag(tag)
+                                                                     .build();
+                    typeProfiles.addTypePersonalities(typePersonality);
+                }
             });
         }
     }
