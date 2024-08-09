@@ -55,10 +55,12 @@ public class Member {
     private MemberRole role;
 
     @NotNull(message = "email은 null일 수 없습니다.")
+    @Column(unique = true)
     private String email;
     @Nullable
     private String password;
     @NotNull(message = "닉네임은 null일 수 없습니다.")
+    @Column(unique = true)
     private String nickname;
 
     @Column(updatable = false)
