@@ -77,7 +77,7 @@ public class BalanceGameServiceImpl implements BalanceGameService {
         // 저장한 BalanceGameChoice를 Response 객체로 변환하여 반환
         return SaveChoice.Response.builder()
                                   .balanceGameChoiceId(saveChoice.getBalanceGameChoiceId())
-                                  .balanceGameId(saveChoice.getBalanceGameChoiceId())
+                                  .balanceGameId(saveChoice.getBalanceGame().getBalanceGameId())
                                   .memberId(saveChoice.getMember().getId())
                                   .videoRoomId(saveChoice.getVideoRoom().getVideoRoomId())
                                   .choiceNum(saveChoice.getChoiceNum())
