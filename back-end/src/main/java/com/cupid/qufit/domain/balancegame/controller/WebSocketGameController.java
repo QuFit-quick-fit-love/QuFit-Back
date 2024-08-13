@@ -52,10 +52,14 @@ public class WebSocketGameController {
             handleChoice(videoRoomId, request, memberId);
         } else if (request.getGetResult() != null && request.getGetResult()) {
             handleGetResult(videoRoomId);
+        } else if (request.getIsGameEnd() != null && request.getIsGameEnd()) {
+            handleGameEnd(videoRoomId);
         } else {
             log.warn("인식되지 않은 요청 : videoRoomId: {}, request: {}", videoRoomId, request);
         }
     }
+
+
 
     /**
      * * 방 시작 요청 처리
@@ -135,6 +139,22 @@ public class WebSocketGameController {
                                                                      .build();
         messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("게임 결과 전송 완료 videoRoomId: {}, 결과 수: {}", videoRoomId, results.size());
+    }
+
+    /**
+     * * 게임 종료 메시지
+     * @param videoRoomId
+     */
+    private void handleGameEnd(Long videoRoomId) {
+        log.info("게임 종료 요청 처리 videoRoomId: {}", videoRoomId);
+        GameResponse<CommonResultResponse> response = GameResponse.<CommonResultResponse>builder()
+                                                                  .result(CommonResultResponse.builder()
+                                                                                              .isSuccess(true)
+                                                                                              .build())
+                                                                  .message("게임이 종료됐습니다.")
+                                                                  .build();
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
+        log.info("게임 종료 메시지 전송 완료 videoRoomId: {}", videoRoomId);
     }
 }
 
