@@ -1,9 +1,12 @@
 package com.cupid.qufit.domain.balancegame.controller;
 
 import com.cupid.qufit.domain.balancegame.dto.BalanceGameDTO;
+import com.cupid.qufit.domain.balancegame.dto.BalanceGameDTO.Request;
 import com.cupid.qufit.domain.balancegame.dto.BalanceGameResult;
 import com.cupid.qufit.domain.balancegame.dto.SaveChoice;
 import com.cupid.qufit.domain.balancegame.service.BalanceGameService;
+import com.cupid.qufit.domain.friend.service.FriendService;
+import com.cupid.qufit.domain.friend.service.FriendServiceImpl;
 import com.cupid.qufit.entity.balancegame.BalanceGame;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
 import com.cupid.qufit.global.common.response.GameResponse;
@@ -27,10 +30,10 @@ public class WebSocketGameController {
 
     private final BalanceGameService balanceGameService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final FriendService friendService;
 
     /**
-     * * 모든 게임 관련 웹소켓 메시지를 받는 중앙 허브
-     * ! /pub/game/{videoRoomId} 엔드포인트로 들어오는 모든 메시지 처리
+     * * 모든 게임 관련 웹소켓 메시지를 받는 중앙 허브 ! /pub/game/{videoRoomId} 엔드포인트로 들어오는 모든 메시지 처리
      *
      * @param videoRoomId
      * @param request
@@ -54,15 +57,19 @@ public class WebSocketGameController {
             handleGetResult(videoRoomId);
         } else if (request.getIsGameEnd() != null && request.getIsGameEnd()) {
             handleGameEnd(videoRoomId);
+        } else if (request.getIsFriend() != null) {
+            handleFriendConfirmation(videoRoomId, request, memberId);
+        } else if (request.getMemberA() != null && request.getMemberB() != null) {
+            handleFriendAddition(videoRoomId, request);
         } else {
             log.warn("인식되지 않은 요청 : videoRoomId: {}, request: {}", videoRoomId, request);
         }
     }
 
 
-
     /**
      * * 방 시작 요청 처리
+     *
      * @param videoRoomId
      */
     private void handleRoomStart(Long videoRoomId) {
@@ -79,6 +86,7 @@ public class WebSocketGameController {
 
     /**
      * * 게임 시작 요청 처리
+     *
      * @param videoRoomId
      */
     private void handleGameStart(Long videoRoomId) {
@@ -94,6 +102,7 @@ public class WebSocketGameController {
 
     /**
      * * 선택 시작 요청 처리
+     *
      * @param videoRoomId
      */
     private void handleChoiceStart(Long videoRoomId) {
@@ -108,6 +117,7 @@ public class WebSocketGameController {
 
     /**
      * * 사용자의 선택 처리
+     *
      * @param videoRoomId
      * @param request
      * @param memberId
@@ -128,6 +138,7 @@ public class WebSocketGameController {
 
     /**
      * * 게임 결과 조회 요청 처리
+     *
      * @param videoRoomId
      */
     private void handleGetResult(Long videoRoomId) {
@@ -143,6 +154,7 @@ public class WebSocketGameController {
 
     /**
      * * 게임 종료 메시지
+     *
      * @param videoRoomId
      */
     private void handleGameEnd(Long videoRoomId) {
@@ -155,6 +167,50 @@ public class WebSocketGameController {
                                                                   .build();
         messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
         log.info("게임 종료 메시지 전송 완료 videoRoomId: {}", videoRoomId);
+    }
+
+    /**
+     * 친구 확인 요청 처리
+     *
+     * @param videoRoomId
+     * @param request
+     * @param memberId
+     */
+    private void handleFriendConfirmation(Long videoRoomId, BalanceGameDTO.Request request, Long memberId) {
+        log.info("친구 확인 요청 처리 videoRoomId: {}, memberId: {}", videoRoomId, memberId);
+
+        boolean isFriendAccepted = request.getIsFriend(); // true: 승락, false: 거절
+        String message = isFriendAccepted ? "상대방이 친구를 수락했습니다." : "상대방이 친구를 거절했습니다.";
+
+        GameResponse<Map<String, Boolean>> response = GameResponse.<Map<String, Boolean>>builder()
+                                                                  .result(Map.of("isSuccess", isFriendAccepted))
+                                                                  .message(message)
+                                                                  .build();
+
+        messagingTemplate.convertAndSendToUser(memberId.toString(), "/sub/game", response);
+        log.info("친구 확인 메시지 전송 완료 videoRoomId: {}, memberId: {}", videoRoomId, memberId);
+    }
+
+    /**
+     * 친구 추가 요청 처리
+     * @param videoRoomId
+     * @param request
+     */
+    private void handleFriendAddition(Long videoRoomId, BalanceGameDTO.Request request) {
+        log.info("친구 추가 요청 처리 videoRoomId: {}, memberA: {}, memberB: {}",
+                 videoRoomId, request.getMemberA(), request.getMemberB());
+
+        // ! 친구 추가
+        friendService.addFriend(request.getMemberA(), request.getMemberB());
+        friendService.addFriend(request.getMemberB(), request.getMemberA());
+
+        GameResponse<Map<String, Boolean>> response = GameResponse.<Map<String, Boolean>>builder()
+                                                                  .result(Map.of("isSuccess", true))
+                                                                  .message("친구가 추가되었습니다.")
+                                                                  .build();
+
+        messagingTemplate.convertAndSend("/sub/game/" + videoRoomId, response);
+        log.info("친구 추가 메시지 전송 완료 videoRoomId: {}, memberA: {}, memberB: {}", videoRoomId, request.getMemberA(), request.getMemberB());
     }
 }
 

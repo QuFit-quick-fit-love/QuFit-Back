@@ -25,5 +25,8 @@ public class BalanceGameDTO {
         private Long videoRoomId;
         private Integer answer;
         private Boolean isGameEnd;
+        private Boolean isFriend;
+        private Long memberA;
+        private Long memberB;
     }
 }
