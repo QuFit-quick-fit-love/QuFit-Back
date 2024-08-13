@@ -33,6 +33,8 @@ public class VideoRoomDTO {
         @Schema(description = "미팅방 최대 인원수")
         @Size(min = 1, max = 4, message = "인원수는 1:1~4:4 입니다")
         private int maxParticipants; // 최대 인원수
+        @Schema(description = "미팅방 메인 태그")
+        private String mainTag;
         @Schema(description = "미팅방 취미 태그")
         private List<Long> videoRoomHobbies; // 방 취미 태그
         @Schema(description = "미팅방 성격 태그")
@@ -45,6 +47,7 @@ public class VideoRoomDTO {
                             .videoRoomName(videoRoomRequest.getVideoRoomName())
                             .createdAt(LocalDateTime.now())
                             .maxParticipants(videoRoomRequest.getMaxParticipants())
+                            .mainTag(videoRoomRequest.getMainTag())
                             .build();
         }
     }
@@ -65,6 +68,8 @@ public class VideoRoomDTO {
         private int curMCount; // 현재 남자 수
         @Schema(description = "현재 여자 수")
         private int curWCount; // 현재 여자 수
+        @Schema(description = "미팅방 메인 태그")
+        private String mainTag;
         @Schema(description = "방장 id")
         private Long hostId;
         @Schema(description = "방 취미 태그")
@@ -80,6 +85,7 @@ public class VideoRoomDTO {
                                .maxParticipants(videoRoom.getMaxParticipants())
                                .curMCount(videoRoom.getCurMCount())
                                .curWCount(videoRoom.getCurWCount())
+                               .mainTag(videoRoom.getMainTag())
                                .hostId(videoRoom.getHost().getId())
                                .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                .videoRoomPersonality(
@@ -103,6 +109,8 @@ public class VideoRoomDTO {
                                 .maxParticipants(videoRoom.getMaxParticipants())
                                 .curMCount(videoRoom.getCurMCount())
                                 .curWCount(videoRoom.getCurWCount())
+                                .mainTag(videoRoom.getMainTag())
+
                                 .hostId(videoRoom.getHost().getId())
                                 .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                 .videoRoomPersonality(
@@ -167,6 +175,8 @@ public class VideoRoomDTO {
                                  .maxParticipants(videoRoom.getMaxParticipants())
                                  .curMCount(videoRoom.getCurMCount())
                                  .curWCount(videoRoom.getCurWCount())
+                                 .mainTag(videoRoom.getMainTag())
+
                                  .hostId(videoRoom.getHost().getId())
                                  .videoRoomHobby(toVideoRoomHobbiesList(videoRoom.getVideoRoomHobby()))
                                  .videoRoomPersonality(

@@ -53,6 +53,8 @@ public class VideoRoom {
     @Builder.Default
     private int curWCount = 0;
 
+    private String mainTag;
+
     @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<VideoRoomParticipant> participants = new ArrayList<>();
