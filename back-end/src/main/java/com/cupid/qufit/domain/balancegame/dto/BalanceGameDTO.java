@@ -24,5 +24,6 @@ public class BalanceGameDTO {
         private Long balanceGameId;
         private Long videoRoomId;
         private Integer answer;
+        private Boolean isGameEnd;
     }
 }
