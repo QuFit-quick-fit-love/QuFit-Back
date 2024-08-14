@@ -1,11 +1,13 @@
 package com.cupid.qufit.domain.friend.service;
 
+import com.cupid.qufit.domain.chat.repository.ChatRoomRepository;
 import com.cupid.qufit.domain.friend.dto.FriendDTO;
 import com.cupid.qufit.domain.friend.repository.FriendRepository;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.entity.FriendRelationship;
 import com.cupid.qufit.entity.FriendRelationshipStatus;
 import com.cupid.qufit.entity.Member;
+import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.FriendException;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +32,7 @@ public class FriendServiceImpl implements FriendService {
 
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     /**
      * 친구 추가
@@ -76,11 +80,16 @@ public class FriendServiceImpl implements FriendService {
             throw new FriendException(ErrorCode.INVALID_PAGE_REQUEST);
         }
 
+        Member member = memberRepository.findById(memberId)
+                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
         // ! 3. 친구 리스트 가공
         List<FriendDTO.Response> friendResponses = friendPage.stream()
                                                              .map(friendRelationship -> {
                                                                  Member friend = friendRelationship.getFriend();
+                                                                 Optional<ChatRoom> chatRoom = chatRoomRepository.findByMember1AndMember2OrMember1AndMember2(member, friend, friend, member);
                                                                  return FriendDTO.Response.of(friend.getId(),
+                                                                         chatRoom.map(ChatRoom::getId).orElse(null),
                                                                          friend.getNickname(),
                                                                          friend.getProfileImage());
                                                              })
