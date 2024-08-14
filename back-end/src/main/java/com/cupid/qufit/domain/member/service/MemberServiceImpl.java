@@ -5,6 +5,10 @@ import static com.cupid.qufit.domain.member.util.MemberBirthDateUtil.convertToLo
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.dto.MemberSigninDTO;
+import com.cupid.qufit.domain.member.repository.mappingTags.MemberHobbyRepository;
+import com.cupid.qufit.domain.member.repository.mappingTags.MemberPersonalityRepository;
+import com.cupid.qufit.domain.member.repository.mappingTags.TypeHobbyRepository;
+import com.cupid.qufit.domain.member.repository.mappingTags.TypeMBTIRepository;
 import com.cupid.qufit.domain.member.repository.profiles.MemberRepository;
 import com.cupid.qufit.domain.member.repository.profiles.TypeProfilesRepository;
 import com.cupid.qufit.domain.member.repository.tag.LocationRepository;
@@ -47,6 +51,11 @@ public class MemberServiceImpl implements MemberService {
     private final TypeProfilesRepository typeProfilesRepository;
     private final JWTUtil jwtUtil;
     private final RedisRefreshTokenService redisRefreshTokenService;
+    private final MemberHobbyRepository memberHobbyRepository;
+    private final MemberPersonalityRepository memberPersonalityRepository;
+    private final TypeMBTIRepository typeMBTIRepository;
+    private final TypeHobbyRepository typeHobbyRepository;
+    private final TypeHobbyRepository typePersonalityRepository;
 
     /*
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
@@ -217,6 +226,7 @@ public class MemberServiceImpl implements MemberService {
     private void saveMemberHobbies(Member member, List<String> memberHobbyTagNames) {
         if (!member.getMemberHobbies().isEmpty()) {
             member.getMemberHobbies().clear();
+            memberHobbyRepository.deleteAllByMemberId(member.getId());
         }
 
         if (!memberHobbyTagNames.isEmpty()) {
@@ -227,6 +237,7 @@ public class MemberServiceImpl implements MemberService {
                                                          .tag(findByTagName(name))
                                                          .build();
                     member.addMemberHobbies(memberHobby);
+                    log.info(memberHobby.getTag().getTagName());
                 }
             });
         }
@@ -235,6 +246,7 @@ public class MemberServiceImpl implements MemberService {
     private void saveMemberPersonalities(Member member, List<String> memberPersonalityTagNames) {
         if (!member.getMemberPersonalities().isEmpty()) {
             member.getMemberPersonalities().clear();
+            memberPersonalityRepository.deleteAllByMemberId(member.getId());
         }
 
         if (!memberPersonalityTagNames.isEmpty()) {
@@ -254,6 +266,7 @@ public class MemberServiceImpl implements MemberService {
     private void saveTypeMBTI(TypeProfiles typeProfiles, List<String> typeMBTINames) {
         if (!typeProfiles.getTypeMBTIs().isEmpty()) {
             typeProfiles.getTypeMBTIs().clear();
+            typeMBTIRepository.deleteAllByTypeProfilesId(typeProfiles.getId());
         }
 
         if (typeMBTINames == null || typeMBTINames.isEmpty()) {
@@ -273,6 +286,7 @@ public class MemberServiceImpl implements MemberService {
     private void saveTypeHobbies(TypeProfiles typeProfiles, List<String> typeHobbyNames) {
         if (!typeProfiles.getTypeHobbies().isEmpty()) {
             typeProfiles.getTypeHobbies().clear();
+            typeHobbyRepository.deleteAllByTypeProfilesId(typeProfiles.getId());
         }
 
         if (!typeHobbyNames.isEmpty()) {
@@ -291,6 +305,7 @@ public class MemberServiceImpl implements MemberService {
     private void saveTypePersonalities(TypeProfiles typeProfiles, List<String> typePersonalityNames) {
         if (!typeProfiles.getTypePersonalities().isEmpty()) {
             typeProfiles.getTypePersonalities().clear();
+            typePersonalityRepository.deleteAllByTypeProfilesId(typeProfiles.getId());
         }
 
         if (!typePersonalityNames.isEmpty()) {
