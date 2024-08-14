@@ -45,7 +45,7 @@ public class VideoRoomDTO {
         public static VideoRoom to(Request videoRoomRequest) {
             return VideoRoom.builder()
                             .videoRoomName(videoRoomRequest.getVideoRoomName())
-                            .createdAt(LocalDateTime.now())
+                            .createdAt(LocalDateTime.now().plusHours(9))
                             .maxParticipants(videoRoomRequest.getMaxParticipants())
                             .mainTag(videoRoomRequest.getMainTag())
                             .build();
