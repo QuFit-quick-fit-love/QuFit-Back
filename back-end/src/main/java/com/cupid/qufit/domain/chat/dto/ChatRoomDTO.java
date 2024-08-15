@@ -33,6 +33,8 @@ public class ChatRoomDTO {
     private int unreadCount;
     @Schema(description = "마지막으로 읽은 메시지ID")
     private String lastReadMessageId; // ! 가장 마지막으로 읽은 메세지 ID
+    @Schema(description = "회원 프로필 이미지")
+    private String profileImg;
 
     public static ChatRoomDTO from(ChatRoom chatRoom, ChatRoomMember currentMember, Member otherMember) {
         return ChatRoomDTO.builder()
@@ -44,6 +46,7 @@ public class ChatRoomDTO {
                           .lastMessageTime(chatRoom.getLastMessageTime())
                           .unreadCount(currentMember.getUnreadCount())
                           .lastReadMessageId(currentMember.getLastReadMessageId())
+                          .profileImg(otherMember.getProfileImage())
                           .build();
     }
 
