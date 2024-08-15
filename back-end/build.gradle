@@ -77,6 +77,10 @@ dependencies {
 
     // ! AWS S3 관련
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // ! openai json 처리 관련 : https://mvnrepository.com/artifact/org.json/json
+    implementation group: 'org.json', name: 'json', version: '20231013'
+
 }
 
 tasks.named('test') {
