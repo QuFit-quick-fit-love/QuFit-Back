@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
 //                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(true)
+                .exposedHeaders("Authorization");
     }
 
     // ! Swagger를 위한 설정
