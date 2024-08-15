@@ -37,7 +37,13 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +63,11 @@ public class MemberServiceImpl implements MemberService {
     private final TypeHobbyRepository typeHobbyRepository;
     private final TypeHobbyRepository typePersonalityRepository;
 
+    // openai 관련 추가
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${openai.api.key}")
+    private String OPENAI_API_KEY;
     /*
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
      * */
@@ -84,10 +95,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public TypeProfiles createTypeProfiles(Member member, MemberInfoDTO.Request requestDTO) {
         return TypeProfiles.builder()
-                           .member(member)
-                           .typeAgeMax(requestDTO.getTypeAgeMax())
-                           .typeAgeMin(requestDTO.getTypeAgeMin())
-                           .build();
+                .member(member)
+                .typeAgeMax(requestDTO.getTypeAgeMax())
+                .typeAgeMin(requestDTO.getTypeAgeMin())
+                .build();
     }
 
     /*
@@ -120,17 +131,17 @@ public class MemberServiceImpl implements MemberService {
         String accessToken = jwtUtil.generateToken(memberDetails.getClaims(), "access");
         String refreshToken = jwtUtil.generateToken(memberDetails.getClaims(), "refresh");
         redisRefreshTokenService.saveRedisData(memberDetails.getId(), refreshToken,
-                                               accessToken); // refreshToken redis에 저장
+                accessToken); // refreshToken redis에 저장
 
         Member member = memberRepository.findById(memberDetails.getId())
-                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         MemberSigninDTO.Response responseDTO = MemberSigninDTO.Response.builder()
-                                                                       .email(member.getEmail())
-                                                                       .nickname(member.getNickname())
-                                                                       .profileImage(member.getProfileImage())
-                                                                       .gender(member.getGender())
-                                                                       .build();
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .profileImage(member.getProfileImage())
+                .gender(member.getGender())
+                .build();
 
         Map<String, MemberSigninDTO.Response> result = new HashMap<>();
         result.put(accessToken, responseDTO);
@@ -143,11 +154,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberInfoDTO.Response getMemberInfo(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         TypeProfiles typeProfiles = typeProfilesRepository.findByMemberId(memberId)
-                                                          .orElseThrow(() -> new MemberException(
-                                                                  ErrorCode.TYPE_PROFILES_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(
+                        ErrorCode.TYPE_PROFILES_NOT_FOUND));
         return MemberInfoDTO.Response.of(member, typeProfiles);
     }
 
@@ -160,7 +171,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberInfoDTO.Response updateMemberInfo(MemberInfoDTO.Request request, Long memberId) {
         Member member = memberRepository.findById(memberId)
-                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 기존 회원 프로필 수정
         member.updateNickname(request.getNickname());
@@ -173,8 +184,8 @@ public class MemberServiceImpl implements MemberService {
 
         // 이상형 프로필 수정
         TypeProfiles typeProfiles = typeProfilesRepository.findByMemberId(memberId)
-                                                          .orElseThrow(() -> new MemberException(
-                                                                  ErrorCode.TYPE_PROFILES_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(
+                        ErrorCode.TYPE_PROFILES_NOT_FOUND));
 
         typeProfiles.updateTyeAgeMax(request.getTypeAgeMax());
         typeProfiles.updateTypeAgeMin(request.getTypeAgeMin());
@@ -194,7 +205,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member deleteService(Long currentMemberId) {
         Member member = memberRepository.findById(currentMemberId)
-                                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 회원 상태 확인
         if (member.getStatus() == MemberStatus.WITHDRAWN) {
@@ -205,10 +216,59 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.save(member);
     }
 
+    /**
+     * 프로필 이미지 생성 및 저장
+     */
+    @Override
+    public void generateImage(MemberDetails memberDetails) throws Exception {
+        Member member = memberRepository.findById(memberDetails.getId()).orElseThrow();
+        StringBuilder prompt = new StringBuilder();
+        int cnt = 0;
+        for (MemberPersonality memberPersonality : member.getMemberPersonalities()) {
+            prompt.append(memberPersonality.getTag().getTagName());
+            if (++cnt != member.getMemberPersonalities().size()) {
+                prompt.append(", ");
+            }
+        }
+        prompt.append(" 성격을 종합한 모습을 지닌 한마리의 귀여운 픽셀 동물 그림 그려줘");
+        String apiEndpoint = "https://api.openai.com/v1/images/generations";
+
+        // Prepare request body
+        String requestBody = "{"
+                + "\"model\": \"dall-e-3\","
+                + "\"prompt\": \"" + prompt + "\","
+                + "\"n\": 1,"
+                + "\"size\": \"1024x1024\""
+                + "}";
+
+        // Prepare headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        headers.set("Authorization", "Bearer " + OPENAI_API_KEY);
+
+        // Create request entity
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        // Send POST request
+        ResponseEntity<String> response = restTemplate.postForEntity(apiEndpoint, requestEntity, String.class);
+
+        // Handle response
+        if (response.getStatusCode().is2xxSuccessful()) {
+            JSONObject responseJson = new JSONObject(response.getBody());
+            String imageUrl = responseJson.getJSONArray("data").getJSONObject(0).getString("url");
+
+            // 회원 정보에 저장
+            member.setProfileImage(imageUrl);
+            memberRepository.save(member);
+        } else {
+            throw new Exception("Failed to generate image, response code: " + response.getStatusCode());
+        }
+    }
+
     // ! 아래는 회원 부가정보 (지역, mbti, 취미, 성격) 저장
     private void saveMemberLocation(Member member, Long locationId) {
         Location location = locationRepository.findById(locationId)
-                                              .orElseThrow(() -> new TagException(ErrorCode.LOCATION_NOT_FOUND));
+                .orElseThrow(() -> new TagException(ErrorCode.LOCATION_NOT_FOUND));
         member.updateLocation(location);
     }
 
@@ -234,8 +294,8 @@ public class MemberServiceImpl implements MemberService {
                 Tag tag = findByTagName(name);
                 if (tag.getTagCategory() == TagCateg.HOBBY) {
                     MemberHobby memberHobby = MemberHobby.builder()
-                                                         .tag(findByTagName(name))
-                                                         .build();
+                            .tag(findByTagName(name))
+                            .build();
                     member.addMemberHobbies(memberHobby);
                     log.info(memberHobby.getTag().getTagName());
                 }
@@ -254,8 +314,8 @@ public class MemberServiceImpl implements MemberService {
                 Tag tag = findByTagName(name);
                 if (tag.getTagCategory() == TagCateg.PERSONALITY) {
                     MemberPersonality memberPersonality = MemberPersonality.builder()
-                                                                           .tag(tag)
-                                                                           .build();
+                            .tag(tag)
+                            .build();
                     member.addMemberPersonalities(memberPersonality);
                 }
             });
@@ -276,8 +336,8 @@ public class MemberServiceImpl implements MemberService {
             Tag tag = findByTagName(name);
             if (tag.getTagCategory() == TagCateg.MBTI) {
                 TypeMBTI typeMBTI = TypeMBTI.builder()
-                                            .tag(tag)
-                                            .build();
+                        .tag(tag)
+                        .build();
                 typeProfiles.addtypeMBTIs(typeMBTI);
             }
         });
@@ -294,8 +354,8 @@ public class MemberServiceImpl implements MemberService {
                 Tag tag = findByTagName(name);
                 if (tag.getTagCategory() == TagCateg.HOBBY) {
                     TypeHobby typeHobby = TypeHobby.builder()
-                                                   .tag(tag)
-                                                   .build();
+                            .tag(tag)
+                            .build();
                     typeProfiles.addTypeHobbies(typeHobby);
                 }
             });
@@ -313,8 +373,8 @@ public class MemberServiceImpl implements MemberService {
                 Tag tag = findByTagName(name);
                 if (tag.getTagCategory() == TagCateg.PERSONALITY) {
                     TypePersonality typePersonality = TypePersonality.builder()
-                                                                     .tag(tag)
-                                                                     .build();
+                            .tag(tag)
+                            .build();
                     typeProfiles.addTypePersonalities(typePersonality);
                 }
             });
@@ -326,6 +386,6 @@ public class MemberServiceImpl implements MemberService {
      * */
     private Tag findByTagName(String tagName) {
         return tagRepository.findByTagName(tagName)
-                            .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND));
+                .orElseThrow(() -> new TagException(ErrorCode.TAG_NOT_FOUND));
     }
 }
