@@ -5,11 +5,8 @@ import com.cupid.qufit.domain.member.dto.MemberInfoDTO;
 import com.cupid.qufit.domain.member.service.MemberService;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.entity.MemberStatus;
-import com.cupid.qufit.entity.chat.ChatRoom;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,13 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -83,16 +74,39 @@ public class MemberController {
 
         if (member.getStatus() != MemberStatus.WITHDRAWN) {
             CommonResultResponse response = CommonResultResponse.builder()
-                                                                .isSuccess(false)
-                                                                .message("탈퇴 처리 되지 않았습니다.")
-                                                                .build();
+                    .isSuccess(false)
+                    .message("탈퇴 처리 되지 않았습니다.")
+                    .build();
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         CommonResultResponse response = CommonResultResponse.builder()
-                                                            .isSuccess(true)
-                                                            .message("탈퇴 처리 되었습니다.")
-                                                            .build();
+                .isSuccess(true)
+                .message("탈퇴 처리 되었습니다.")
+                .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+     * * 이미지 생성 및 멤버 프로필 저장
+     * */
+    @PostMapping("/generate-image")
+    @Operation(summary = "이미지 생성 및 멤버 프로필 저장", description = "주어진 프롬프트에 따라 이미지를 생성한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이미지 생성 성공"),
+            @ApiResponse(responseCode = "500", description = "이미지 생성 실패")
+    })
+    public ResponseEntity<?> generateImage(@AuthenticationPrincipal MemberDetails memberDetails) {
+        try {
+            memberService.generateImage(memberDetails);
+            CommonResultResponse response = CommonResultResponse.builder()
+                    .isSuccess(true)
+                    .message("이미지 생성에 성공하였습니다.")
+                    .build();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating image: " + e.getMessage());
+        }
     }
 }
