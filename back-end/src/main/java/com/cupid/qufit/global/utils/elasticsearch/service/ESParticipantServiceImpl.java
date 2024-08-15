@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ESParticipantServiceImpl {
+public class ESParticipantServiceImpl implements ESParticipantService{
 
     private final ESParticipantRepository esParticipantRepository;
     private final ElasticsearchClient elasticsearchClient;
@@ -40,7 +40,7 @@ public class ESParticipantServiceImpl {
     }
 
     public ESParticipant findById(Long id) {
-        return esParticipantRepository.findById(id)
+        return esParticipantRepository.findById(String.valueOf(id))
                                       .orElseThrow(() -> new ESParticipantException(ErrorCode.PARTICIPANT_NOT_FOUND));
     }
 
@@ -48,8 +48,9 @@ public class ESParticipantServiceImpl {
         return esParticipantRepository.findAll();
     }
 
+    @Override
     public void deleteById(Long id) {
-        esParticipantRepository.deleteById(id);
+        esParticipantRepository.deleteById(String.valueOf(id));
     }
 
     public void deleteAllByRoomId(String roomId) {
