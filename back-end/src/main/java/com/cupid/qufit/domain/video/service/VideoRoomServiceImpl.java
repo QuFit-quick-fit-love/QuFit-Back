@@ -222,7 +222,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
                                                             () -> new VideoException(ErrorCode.PARTICIPANT_NOT_FOUND));
 
         // ! 3. ES 에서 해당 참가자 삭제
-        esParticipantService.deleteById(participant.getId());
+        esParticipantService.deleteById(memberId);
 
         // ! 4. 방 인원 1명일 경우 방 삭제
         if (videoRoom.getCurMCount() + videoRoom.getCurWCount() == 1) {
@@ -383,6 +383,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
         List<Long> recommendRoomIds = esParticipantService.recommendRoom(page, Request.toRecommendRequest(member,
 
                 typeProfiles));
+        System.out.println("check!!!"+recommendRoomIds);
         // ! videoRoom상태 체크
         List<VideoRoom> videoRooms = checkVideoRoomStatus(recommendRoomIds, page);
 
