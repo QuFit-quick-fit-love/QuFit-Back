@@ -1,4 +1,5 @@
 # 빌드 스테이지
+# 최종 Dockerfile 작성 완료 
 FROM gradle:7.6.1-jdk17 AS build
 
 # 컨테이너 내부 /app 디렉토리를 기준 실행
