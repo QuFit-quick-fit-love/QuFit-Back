@@ -2,7 +2,7 @@ package com.cupid.qufit.global.utils.elasticsearch.controller;
 
 import com.cupid.qufit.global.utils.elasticsearch.dto.RecommendRoomDTO;
 import com.cupid.qufit.global.utils.elasticsearch.entity.ESParticipant;
-import com.cupid.qufit.global.utils.elasticsearch.service.ESParticipantServiceImpl;
+import com.cupid.qufit.global.utils.elasticsearch.service.ESParticipantService;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
@@ -25,21 +25,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Slf4j
 public class ESParticipantController {
 
-    private final ESParticipantServiceImpl esParticipantServiceImpl;
+    private final ESParticipantService esParticipantService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ESParticipant> getVideoRoomById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body(esParticipantServiceImpl.findById(id));
+        return ResponseEntity.ok().body(esParticipantService.findById(id));
     }
 
     @GetMapping
     public ResponseEntity<Iterable<ESParticipant>> getAllVideoRooms() {
-        return ResponseEntity.ok().body(esParticipantServiceImpl.findAll());
+        return ResponseEntity.ok().body(esParticipantService.findAll());
     }
 
     @PostMapping
     public ResponseEntity<ESParticipant> createVideoRoom(@RequestBody @Valid ESParticipant esParticipant) {
-        ESParticipant createdParticipant = esParticipantServiceImpl.save(esParticipant);
+        ESParticipant createdParticipant = esParticipantService.save(esParticipant);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                                              .path("/{id}")
                                              .buildAndExpand(createdParticipant.getId())
@@ -49,13 +49,13 @@ public class ESParticipantController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVideoRoomById(@PathVariable("id") Long id) {
-        esParticipantServiceImpl.deleteById(id);
+        esParticipantService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
     public void deleteAllVideoRooms() {
-        esParticipantServiceImpl.deleteAll();
+        esParticipantService.deleteAll();
     }
 
     @GetMapping("/search")
@@ -71,7 +71,7 @@ public class ESParticipantController {
                                                                         .hobbies(List.of("그림 그리기", "명상"))
                                                                         .gender("F")
                                                                         .build();
-        esParticipantServiceImpl.recommendRoom(0, dummyRequest);
+        esParticipantService.recommendRoom(0, dummyRequest);
     }
 
 }

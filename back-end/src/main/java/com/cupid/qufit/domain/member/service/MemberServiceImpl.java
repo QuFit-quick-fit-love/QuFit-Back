@@ -66,8 +66,8 @@ public class MemberServiceImpl implements MemberService {
     // openai 관련 추가
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${openai.api.key}")
-    private String OPENAI_API_KEY;
+//    @Value("${openai.api.key}")
+    private String OPENAI_API_KEY ="aaa";
     /*
      * * 회원 프로필 (지역, mbti, 취미, 성격) 저장
      * */

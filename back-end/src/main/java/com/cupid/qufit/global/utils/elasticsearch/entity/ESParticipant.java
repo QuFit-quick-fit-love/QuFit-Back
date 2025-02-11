@@ -12,15 +12,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Mapping;
-import org.springframework.data.elasticsearch.annotations.Setting;
+//import org.springframework.data.elasticsearch.annotations.Document;
+//import org.springframework.data.elasticsearch.annotations.Field;
+//import org.springframework.data.elasticsearch.annotations.FieldType;
+//import org.springframework.data.elasticsearch.annotations.Mapping;
+//import org.springframework.data.elasticsearch.annotations.Setting;
 
-@Document(indexName = "participants")
-@Setting(settingPath = "/index/participant/participant-settings.json")
-@Mapping(mappingPath = "/index/participant/participant-mappings.json")
+//@Document(indexName = "participants")
+//@Setting(settingPath = "/index/participant/participant-settings.json")
+//@Mapping(mappingPath = "/index/participant/participant-mappings.json")
 @Getter
 @Setter
 @Builder
@@ -30,34 +30,34 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 public class ESParticipant {
 
     @Id
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private String id;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private String participantId;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private String videoRoomId;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private String MBTI;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private List<String> personalities;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private List<String> hobbies;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private String location;
 
-    @Field(type = FieldType.Integer)
+//    @Field(type = FieldType.Integer)
     private Integer birthYear;
 
-    @Field(type = FieldType.Keyword)
+//    @Field(type = FieldType.Keyword)
     private String gender;
 
-    @Field(type = FieldType.Text)
+//    @Field(type = FieldType.Text)
     private String bio;
 
     public static ESParticipant createParticipant(String videoRoomId, Member member) {

@@ -31,8 +31,8 @@ public class S3Service {
 
     private final AmazonS3 amazonS3;
 
-    @Value("${cloud.aws.s3.bucketName}")
-    private String bucketName;
+//    @Value("${cloud.aws.s3.bucketName}")
+    private String bucketName = "random";
 
     /*
      * * s3에 파일 업로드함

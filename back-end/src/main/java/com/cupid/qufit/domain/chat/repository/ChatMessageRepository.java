@@ -35,6 +35,4 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
 
     @Query(value = "{'chatRoomId': ?0}", sort = "{'timestamp': -1}")
     Page<ChatMessage> findLatestMessages(Long chatRoomId, Pageable pageable);
-
-
 }

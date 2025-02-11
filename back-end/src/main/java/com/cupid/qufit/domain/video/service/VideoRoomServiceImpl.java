@@ -22,7 +22,7 @@ import com.cupid.qufit.global.exception.exceptionType.TagException;
 import com.cupid.qufit.global.exception.exceptionType.VideoException;
 import com.cupid.qufit.global.utils.elasticsearch.dto.RecommendRoomDTO.Request;
 import com.cupid.qufit.global.utils.elasticsearch.entity.ESParticipant;
-import com.cupid.qufit.global.utils.elasticsearch.service.ESParticipantServiceImpl;
+import com.cupid.qufit.global.utils.elasticsearch.service.ESParticipantService;
 import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
@@ -53,7 +53,7 @@ public class VideoRoomServiceImpl implements VideoRoomService {
     private final MemberRepository memberRepository;
     private final VideoRoomParticipantRepository videoRoomParticipantRepository;
     private final TagRepository tagRepository;
-    private final ESParticipantServiceImpl esParticipantService;
+    private final ESParticipantService esParticipantService;
     private final TypeProfilesRepository typeProfilesRepository;
     private final BalanceGameService balanceGameService;
 
