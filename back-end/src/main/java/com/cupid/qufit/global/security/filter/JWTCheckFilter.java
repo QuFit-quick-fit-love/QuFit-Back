@@ -27,7 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTCheckFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+//    private final RedisRefreshTokenService redisRefreshTokenService;
 
     /*
     * * 토큰 검증없이 접근 가능한 api를 설정함
@@ -62,20 +62,21 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             // 로그아웃 검사
 //            if(!checkAccessTokenLogout(accessToken))
             setAuthentication(accessToken);
-        } else {
-            log.info("[accessToken is invalid]");
-            // AccessToken 만료 -> RefreshToken 확인
-            String refreshToken = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
-
-            if (refreshToken != null && !jwtUtil.checkTokenExpired(refreshToken)) {
-                // RefreshToken 유효
-                handleExpiredAccessToken(response, refreshToken);
-            } else {
-                // RefreshToken 만료
-                log.error("[refresh token is expired]");
-                throw new CustomJWTException(ErrorCode.EXPIRED_TOKEN);
-            }
         }
+//        else {
+//            log.info("[accessToken is invalid]");
+//            // AccessToken 만료 -> RefreshToken 확인
+//            String refreshToken = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
+//
+//            if (refreshToken != null && !jwtUtil.checkTokenExpired(refreshToken)) {
+//                // RefreshToken 유효
+//                handleExpiredAccessToken(response, refreshToken);
+//            } else {
+//                // RefreshToken 만료
+//                log.error("[refresh token is expired]");
+//                throw new CustomJWTException(ErrorCode.EXPIRED_TOKEN);
+//            }
+//        }
         filterChain.doFilter(request, response);
     }
 
@@ -86,8 +87,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     * */
     private Boolean checkAccessTokenLogout(String accessToken) {
         log.info("[checkAccessTokenLogout]");
-        String checkTokenLogout = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
-        if(checkTokenLogout.equals("logout")) throw new CustomJWTException(ErrorCode.ALREADY_LOGOUT_TOKEN);
+//        String checkTokenLogout = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
+//        if(checkTokenLogout.equals("logout")) throw new CustomJWTException(ErrorCode.ALREADY_LOGOUT_TOKEN);
         return false; // 로그아웃처리 되지 않은 유효한 토큰임
     }
 
@@ -112,11 +113,12 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         if (jwtUtil.checkTokenExpiringInAnHour(refreshTokenExp)) {
             String newRefreshToken = jwtUtil.generateToken(claims, "refresh");
-            redisRefreshTokenService.saveRedisData(memberId, newRefreshToken, newAccessToken);
+//            redisRefreshTokenService.saveRedisData(memberId, newRefreshToken, newAccessToken);
             log.info("[new refresh token generate] ");
-        } else {
-            redisRefreshTokenService.saveRedisData(memberId, refreshToken, newAccessToken);
         }
+//        else {
+//            redisRefreshTokenService.saveRedisData(memberId, refreshToken, newAccessToken);
+//        }
     }
 
     /*

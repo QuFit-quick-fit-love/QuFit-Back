@@ -88,12 +88,9 @@ public class AuthController {
         log.info("---------------회원가입 시도-----------");
 
         MemberInfoDTO.Response responseDTO;
-        try {
-            responseDTO = authService.signup(accessToken, requestDTO);
-        } catch (Exception e) {
-            log.error("회원 가입 중 오류 발생", e);
-            throw new MemberException(ErrorCode.SIGNUP_FAILURE);
-        }
+
+        responseDTO = authService.signup(accessToken, requestDTO);
+
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 

@@ -1,6 +1,6 @@
 package com.cupid.qufit.global.config;
 
-import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
+//import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.filter.JWTCheckExceptionFilter;
 import com.cupid.qufit.global.security.filter.JWTCheckFilter;
 import com.cupid.qufit.global.security.handler.CustomAccessDeniedHandler;
@@ -27,7 +27,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+//    private final RedisRefreshTokenService redisRefreshTokenService;
 
     /*
      * * 각 URL 패턴에 대한 보안 필터 설정
@@ -41,9 +41,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // jwt 토큰 확인 필터
-        http.addFilterBefore(new JWTCheckFilter(jwtUtil, redisRefreshTokenService),
-                             UsernamePasswordAuthenticationFilter.class)
+//        http.addFilterBefore(new JWTCheckFilter(jwtUtil, redisRefreshTokenService),
+//                             UsernamePasswordAuthenticationFilter.class)
             // JWTCheckFilter를 실행하면서 발생하는 error를 handle함
+        http.addFilterBefore(new JWTCheckFilter(jwtUtil),
+                             UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JWTCheckExceptionFilter(), JWTCheckFilter.class)
             .exceptionHandling(config -> {
                 config.accessDeniedHandler(new CustomAccessDeniedHandler());
@@ -53,7 +55,8 @@ public class SecurityConfig {
         http.logout(
                 logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/qufit/member/logout"))
-                        .addLogoutHandler(new CustomLogoutService(jwtUtil, redisRefreshTokenService))
+//                        .addLogoutHandler(new CustomLogoutService(jwtUtil, redisRefreshTokenService))
+                        .addLogoutHandler(new CustomLogoutService(jwtUtil))
                         .logoutSuccessHandler(new CustomLogoutSuccessHandler()));
 
         // 관리자 로그인
@@ -61,7 +64,8 @@ public class SecurityConfig {
                 .usernameParameter("userId")
                 .passwordParameter("password")
                 .loginProcessingUrl("/qufit/admin/login")
-                .successHandler(new CustomLoginSuccessHandler(jwtUtil, redisRefreshTokenService))
+//                .successHandler(new CustomLoginSuccessHandler(jwtUtil, redisRefreshTokenService))
+                .successHandler(new CustomLoginSuccessHandler(jwtUtil))
                 .failureHandler(new CustomLoginFailureHandler())
         );
 

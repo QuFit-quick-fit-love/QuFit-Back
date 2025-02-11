@@ -2,7 +2,7 @@ package com.cupid.qufit.global.security.service;
 
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.CustomJWTException;
-import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
+//import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 public class CustomLogoutService implements LogoutHandler {
 
     private final JWTUtil jwtUtil;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+//    private final RedisRefreshTokenService redisRefreshTokenService;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
@@ -37,15 +37,16 @@ public class CustomLogoutService implements LogoutHandler {
 
         // accessToken 검사
         Map<String, Object> claims = jwtUtil.validateToken(accessToken);
-        String refreshToken = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
+//        String refreshToken = redisRefreshTokenService.getRedisDataByAccessToken(accessToken);
 
-        if (jwtUtil.checkTokenExpired(accessToken) || jwtUtil.checkTokenExpired(refreshToken)) {
+//        if (jwtUtil.checkTokenExpired(accessToken) || jwtUtil.checkTokenExpired(refreshToken)) {
+        if (jwtUtil.checkTokenExpired(accessToken) ) {
             throw new CustomJWTException(ErrorCode.EXPIRED_TOKEN);
         }
 
         // refreshToken redis에서 삭제
         log.info("[logout refreshToken delete]");
-        redisRefreshTokenService.deleteRedisDataByAccessToken(accessToken);
+//        redisRefreshTokenService.deleteRedisDataByAccessToken(accessToken);
 
         // accessToken redis에 blacklist 등록
         log.info("[logout accessToken blacklist]");
@@ -53,6 +54,6 @@ public class CustomLogoutService implements LogoutHandler {
         Date expDate = new Date(((Number) claims.get("exp")).longValue() * 1000);
         Long leftExpTime = (expDate.getTime() - System.currentTimeMillis()) / (1000 * 60);
 
-        redisRefreshTokenService.saveBlackList(memberId, accessToken, leftExpTime);
+//        redisRefreshTokenService.saveBlackList(memberId, accessToken, leftExpTime);
     }
 }
