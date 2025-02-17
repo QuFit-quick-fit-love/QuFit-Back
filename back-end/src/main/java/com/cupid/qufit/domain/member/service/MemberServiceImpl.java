@@ -27,7 +27,7 @@ import com.cupid.qufit.entity.TypeProfiles;
 import com.cupid.qufit.global.exception.ErrorCode;
 import com.cupid.qufit.global.exception.exceptionType.MemberException;
 import com.cupid.qufit.global.exception.exceptionType.TagException;
-import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
+//import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class MemberServiceImpl implements MemberService {
     private final TagRepository tagRepository;
     private final TypeProfilesRepository typeProfilesRepository;
     private final JWTUtil jwtUtil;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+//    private final RedisRefreshTokenService redisRefreshTokenService;
     private final MemberHobbyRepository memberHobbyRepository;
     private final MemberPersonalityRepository memberPersonalityRepository;
     private final TypeMBTIRepository typeMBTIRepository;
@@ -129,9 +129,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Map<String, MemberSigninDTO.Response> signIn(MemberDetails memberDetails) {
         String accessToken = jwtUtil.generateToken(memberDetails.getClaims(), "access");
-        String refreshToken = jwtUtil.generateToken(memberDetails.getClaims(), "refresh");
-        redisRefreshTokenService.saveRedisData(memberDetails.getId(), refreshToken,
-                accessToken); // refreshToken redis에 저장
+//        String refreshToken = jwtUtil.generateToken(memberDetails.getClaims(), "refresh");
+//        redisRefreshTokenService.saveRedisData(memberDetails.getId(), refreshToken,
+//                accessToken); // refreshToken redis에 저장
 
         Member member = memberRepository.findById(memberDetails.getId())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));

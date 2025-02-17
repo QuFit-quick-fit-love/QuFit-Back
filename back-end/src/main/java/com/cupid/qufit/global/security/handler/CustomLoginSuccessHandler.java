@@ -2,7 +2,7 @@ package com.cupid.qufit.global.security.handler;
 
 import com.cupid.qufit.domain.member.dto.MemberDetails;
 import com.cupid.qufit.global.common.response.CommonResultResponse;
-import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
+//import com.cupid.qufit.global.redis.service.RedisRefreshTokenService;
 import com.cupid.qufit.global.security.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+//    private final RedisRefreshTokenService redisRefreshTokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -33,7 +33,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         MemberDetails adminDetails = (MemberDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generateToken(adminDetails.getClaims(), "access");
         String refreshToken = jwtUtil.generateToken(adminDetails.getClaims(), "refresh");
-        redisRefreshTokenService.saveRedisData(adminDetails.getId(), refreshToken, accessToken); // refreshToken redis에 저장
+//        redisRefreshTokenService.saveRedisData(adminDetails.getId(), refreshToken, accessToken); // refreshToken redis에 저장
 
         log.info("adminDetails" + adminDetails.getClaims());
 

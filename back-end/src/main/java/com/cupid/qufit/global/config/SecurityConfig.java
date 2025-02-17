@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // jwt 토큰 확인 필터
-        http.addFilterBefore(new JWTCheckFilter(jwtUtil, redisRefreshTokenService),
+        http.addFilterBefore(new JWTCheckFilter(jwtUtil),
                              UsernamePasswordAuthenticationFilter.class)
             // JWTCheckFilter를 실행하면서 발생하는 error를 handle함
             .addFilterBefore(new JWTCheckExceptionFilter(), JWTCheckFilter.class)
@@ -53,7 +53,7 @@ public class SecurityConfig {
         http.logout(
                 logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/qufit/member/logout"))
-                        .addLogoutHandler(new CustomLogoutService(jwtUtil, redisRefreshTokenService))
+                        .addLogoutHandler(new CustomLogoutService(jwtUtil))
                         .logoutSuccessHandler(new CustomLogoutSuccessHandler()));
 
         // 관리자 로그인
@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .usernameParameter("userId")
                 .passwordParameter("password")
                 .loginProcessingUrl("/qufit/admin/login")
-                .successHandler(new CustomLoginSuccessHandler(jwtUtil, redisRefreshTokenService))
+                .successHandler(new CustomLoginSuccessHandler(jwtUtil))
                 .failureHandler(new CustomLoginFailureHandler())
         );
 
