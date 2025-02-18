@@ -29,25 +29,25 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        log.info("------------admin login success-----------");
-        MemberDetails adminDetails = (MemberDetails) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateToken(adminDetails.getClaims(), "access");
-        String refreshToken = jwtUtil.generateToken(adminDetails.getClaims(), "refresh");
-//        redisRefreshTokenService.saveRedisData(adminDetails.getId(), refreshToken, accessToken); // refreshToken redis에 저장
-
-        log.info("adminDetails" + adminDetails.getClaims());
-
-        CommonResultResponse adminLoginResult = CommonResultResponse.builder()
-                                                                .isSuccess(true)
-                                                                .message("관리자 로그인되었습니다.")
-                                                                .build();
-        // JSON으로 변환
-        String jsonResponse = new ObjectMapper().writeValueAsString(adminLoginResult);
-
-        // 응답에 Error Response 저장
-        response.setStatus(200);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(jsonResponse);
-        response.addHeader("Authorization", "Bearer " + accessToken);
+//        log.info("------------admin login success-----------");
+//        MemberDetails adminDetails = (MemberDetails) authentication.getPrincipal();
+//        String accessToken = jwtUtil.generateToken(adminDetails.getClaims(), "access");
+//        String refreshToken = jwtUtil.generateToken(adminDetails.getClaims(), "refresh");
+////        redisRefreshTokenService.saveRedisData(adminDetails.getId(), refreshToken, accessToken); // refreshToken redis에 저장
+//
+//        log.info("adminDetails" + adminDetails.getClaims());
+//
+//        CommonResultResponse adminLoginResult = CommonResultResponse.builder()
+//                                                                .isSuccess(true)
+//                                                                .message("관리자 로그인되었습니다.")
+//                                                                .build();
+//        // JSON으로 변환
+//        String jsonResponse = new ObjectMapper().writeValueAsString(adminLoginResult);
+//
+//        // 응답에 Error Response 저장
+//        response.setStatus(200);
+//        response.setContentType("application/json;charset=UTF-8");
+//        response.getWriter().write(jsonResponse);
+//        response.addHeader("Authorization", "Bearer " + accessToken);
     }
 }
