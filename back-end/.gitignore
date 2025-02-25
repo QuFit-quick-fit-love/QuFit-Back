@@ -7,6 +7,7 @@ build/
 
 ### Environment files ###
 .env
+application.properties
 application-local.properties
 
 ### STS ###
