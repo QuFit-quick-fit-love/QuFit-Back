@@ -9,9 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 //@EnableElasticsearchRepositories(basePackages = "com.cupid.qufit.global.utils.elasticsearch")
 @EnableJpaRepositories(basePackages = "com.cupid.qufit.domain")
 public class QufitApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(QufitApplication.class, args);
 	}
-
 }
