@@ -9,6 +9,8 @@ import com.cupid.qufit.domain.member.service.MemberService;
 import com.cupid.qufit.entity.Member;
 import com.cupid.qufit.global.common.response.FieldValidationExceptionResponse;
 import com.cupid.qufit.global.exception.ErrorResponse;
+import com.cupid.qufit.global.exception.exceptionType.MemberException;
+import com.cupid.qufit.global.security.util.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,8 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,10 +47,13 @@ public class AuthController {
 
     private final AuthService authService;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
+    private final JWTUtil jwtUtil;
 
 
     @PostMapping("/login")
     public ResponseEntity<?> loginById(@RequestBody LoginByIdRequest loginRequest, HttpServletRequest request) {
+        // 1. 요청으로 받은 id에 해당하는 사용자 정보 조회
         // 1. 요청으로 받은 id에 해당하는 사용자 정보 조회
         Member member = memberRepository.findById(loginRequest.getId())
                                         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -58,23 +66,13 @@ public class AuthController {
                                                    .role(member.getRole())
                                                    .build();
 
-        // 3. 인증 객체 생성 (비밀번호 검증 없이 id로만 인증 처리)
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(memberDetails, null, memberDetails.getAuthorities());
+        // 3. (추가) JWT 발급: jwtUtil.generateToken 메서드를 사용하여 토큰 생성
+        String accessToken = jwtUtil.generateToken(memberDetails.getClaims(), "access");
 
-        // 4. SecurityContextHolder에 인증 정보 저장
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-        // 5. 기존 세션이 있다면 무효화하고, 새로운 세션 생성
-        HttpSession oldSession = request.getSession(false);
-        if (oldSession != null) {
-            oldSession.invalidate();
-        }
-        HttpSession newSession = request.getSession(true);
-        newSession.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                                SecurityContextHolder.getContext());
-
-        return ResponseEntity.ok("New session created for user id: " + loginRequest.getId());
+        // 4. 클라이언트에 accessToken 반환 (예: ResponseBody에 담거나 헤더에 추가)
+        Map<String, String> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        return ResponseEntity.ok(result);
     }
     /*
      * * 카카오 소셜 로그인

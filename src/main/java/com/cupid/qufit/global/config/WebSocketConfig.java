@@ -24,10 +24,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // ! sub으로 시작하는 목적지로 메시지 전달(해당 주소를 구독하는 클라이언트에게 메시지 보냄)
+        // ! sub으로 시작하는 목적지로 메시지 전달(해당 주소를 구독하는 클라이언트에게 메시지 보냄), messagingTemplate.convertAndSend()를 하면 sub하는 클라이언트에게 보냄
         config.enableSimpleBroker("/sub", "/user");
         // ! 클라이언트가 서버로 메시지 보낼 때 사용할 접두사 지정 -> 클라이언트가 "/pub"으로 시작하는 목적지로 메시지를 보내면 @MessageMapping이 달린 메서드로 라우팅
         config.setApplicationDestinationPrefixes("/pub");
+        // 특정 유저에게만 메세지를 보내고 싶을때, messagingTemplate.convertAndSendToUser(username, "/queue/errors", errorMsg)를 호출하면 메세지 보냄;
         config.setUserDestinationPrefix("/user");
     }
 
@@ -54,6 +55,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(chatPreHandler);
+//        registration.interceptors(chatPreHandler);
     }
 }

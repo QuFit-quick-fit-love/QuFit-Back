@@ -41,18 +41,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
                 // 세션 사용 x
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//        httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        // jwt 토큰 확인 필터
-//        http.addFilterBefore(new JWTCheckFilter(jwtUtil),
-//                             UsernamePasswordAuthenticationFilter.class)
-//            // JWTCheckFilter를 실행하면서 발생하는 error를 handle함
-//            .addFilterBefore(new JWTCheckExceptionFilter(), JWTCheckFilter.class)
-//            .exceptionHandling(config -> {
-//                config.accessDeniedHandler(new CustomAccessDeniedHandler());
-//            });
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+//         jwt 토큰 확인 필터
+        http.addFilterBefore(new JWTCheckFilter(jwtUtil),
+                             UsernamePasswordAuthenticationFilter.class)
+            // JWTCheckFilter를 실행하면서 발생하는 error를 handle함
+            .addFilterBefore(new JWTCheckExceptionFilter(), JWTCheckFilter.class)
+            .exceptionHandling(config -> {
+                config.accessDeniedHandler(new CustomAccessDeniedHandler());
+            });
 
         // 로그아웃
         http.logout(
@@ -94,7 +94,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 프론트엔드 도메인
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:3001","http://localhost:3002","http://localhost:3003")); // 프론트엔드 도메인
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         // 필요 시 클라이언트에서 접근해야 하는 헤더 추가 (예: Set-Cookie)
