@@ -55,6 +55,8 @@ public class VideoRoom {
 
     private String mainTag;
 
+    private int participantCount;
+
     @OneToMany(mappedBy = "videoRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<VideoRoomParticipant> participants = new ArrayList<>();

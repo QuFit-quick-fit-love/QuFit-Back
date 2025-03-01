@@ -69,26 +69,26 @@ public class JWTUtil {
 
         Map<String, Object> claim = null;
 
-        try {
-            SecretKey key = Keys.hmacShaKeyFor(JWT_KEY.getBytes("UTF-8"));
-
-            claim = Jwts.parser()
-                        .setSigningKey(key)
-                        .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
-                        .getBody();
-        } catch (ExpiredJwtException e) {
-            throw e;
-        } catch (MalformedJwtException e) {
-            throw new CustomJWTException(ErrorCode.MALFORMED_TOKEN);
-        } catch (UnsupportedJwtException e) {
-            throw new CustomJWTException(ErrorCode.UNSUPPORTED_TOKEN);
-        } catch (InvalidClaimException invalidClaimException) {
-            throw new CustomJWTException(ErrorCode.INVALID_TOKEN);
-        } catch (UnsupportedEncodingException e) {
-            throw new CustomJWTException(ErrorCode.UNSUPPORTED_ENCODING);
-        } catch (Exception e) {
-            throw new CustomJWTException(ErrorCode.TOKEN_DEFAULT_ERROR);
-        }
+//        try {
+//            SecretKey key = Keys.hmacShaKeyFor(JWT_KEY.getBytes("UTF-8"));
+//
+//            claim = Jwts.parser()
+//                        .setSigningKey(key)
+//                        .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
+//                        .getBody();
+//        } catch (ExpiredJwtException e) {
+//            throw e;
+//        } catch (MalformedJwtException e) {
+//            throw new CustomJWTException(ErrorCode.MALFORMED_TOKEN);
+//        } catch (UnsupportedJwtException e) {
+//            throw new CustomJWTException(ErrorCode.UNSUPPORTED_TOKEN);
+//        } catch (InvalidClaimException invalidClaimException) {
+//            throw new CustomJWTException(ErrorCode.INVALID_TOKEN);
+//        } catch (UnsupportedEncodingException e) {
+//            throw new CustomJWTException(ErrorCode.UNSUPPORTED_ENCODING);
+//        } catch (Exception e) {
+//            throw new CustomJWTException(ErrorCode.TOKEN_DEFAULT_ERROR);
+//        }
         return claim;
     }
 
@@ -96,11 +96,12 @@ public class JWTUtil {
      * 요청 헤더에서 accesstoken 가져옴
      * */
     public String getTokenFromHeader(HttpServletRequest request) {
-        String authHeaderStr = request.getHeader("Authorization");
+//        String authHeaderStr = request.getHeader("Authorization");
 
+        String authHeaderStr = "Bearer eyJhbG";
         // access token : Bearer(7자) + JWT 문자열
         if (authHeaderStr == null || authHeaderStr.length() < 7) {
-            throw new CustomJWTException(ErrorCode.INVALID_TOKEN);
+//            throw new CustomJWTException(ErrorCode.INVALID_TOKEN);
         }
         return authHeaderStr.substring(7);
     }

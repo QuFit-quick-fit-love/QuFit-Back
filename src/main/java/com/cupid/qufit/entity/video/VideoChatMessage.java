@@ -1,5 +1,6 @@
 package com.cupid.qufit.entity.video;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +21,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class VideoChatMessage{
 
     @Id
-    private Long id;
+    private String id;
     private Long roomId;
     private Long senderId;
     private String content;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

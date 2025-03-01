@@ -42,6 +42,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        //이게 webSocket handShake를 위한 endpoint
         registry.addEndpoint("/stomp/chat")
                 .setAllowedOriginPatterns("*");
     }
@@ -53,8 +54,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     .setSendTimeLimit(10000);
     }
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-//        registration.interceptors(chatPreHandler);
-    }
+//    @Override
+//    public void configureClientInboundChannel(ChannelRegistration registration) {
+////        registration.interceptors(chatPreHandler);
+//    }
 }

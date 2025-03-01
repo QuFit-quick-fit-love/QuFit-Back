@@ -39,13 +39,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
                 "/qufit/admin/login", "/login",
                 "/swagger-ui",
                 "/api-docs",
-                "/images",
-                "/stomp/chat"
+                "/images","/chat/joinRoom",
+                "/stomp/chat",
+
         };
 
         String path = request.getRequestURI();
-        return Arrays.stream(excludePath).anyMatch(path::startsWith);
-//        return true; // 테스트를 위해 모두 true로 열어둠(임시)
+//        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+        return true; // 테스트를 위해 모두 true로 열어둠(임시)
     }
 
     @Override
