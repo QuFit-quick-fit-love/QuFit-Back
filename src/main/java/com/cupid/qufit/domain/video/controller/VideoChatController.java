@@ -38,6 +38,9 @@ public class VideoChatController {
 //    @MessageMapping("/chat.joinRoom")
     @PostMapping("/chat/joinRoom")
     public void joinRoom(@RequestBody VideoChatMessage message) {
+//        Thread thread = Thread.currentThread();
+//
+//        System.out.println(thread.getName());
         log.info("방 접속 들어옴");
         videoChatService.joinRoom(message);
     }
